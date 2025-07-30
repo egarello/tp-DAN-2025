@@ -12,6 +12,7 @@ public record PropietarioRecord(
     @NotBlank(message = "El nombre no puede estar vacío") 
     @Length(min = 5, message = "El nombre no puede tener menos de 5 caracteres")  
     String nombre,
+    String dni,
     @Email(message = "El email no es válido")
     String email,
     @NotBlank(message = "El teléfono no puede estar vacío")
@@ -26,6 +27,7 @@ public record PropietarioRecord(
         propietario.setTelefono(this.telefono);        
         CuentaBancaria cuentaBancaria = this.cuentaBancaria.toCuentaBancaria();
         propietario.setCuentaBancaria(cuentaBancaria);
+        propietario.setDni(this.dni);
         return propietario;
     }
 }

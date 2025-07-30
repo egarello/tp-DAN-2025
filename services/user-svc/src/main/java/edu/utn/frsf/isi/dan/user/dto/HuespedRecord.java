@@ -10,6 +10,7 @@ import edu.utn.frsf.isi.dan.user.model.TarjetaCredito;
 
 public record HuespedRecord(
     String nombre,
+    String dni,
     String email,
     String telefono,
     LocalDate fechaNacimiento,
@@ -24,6 +25,7 @@ public record HuespedRecord(
     public Huesped toHuesped() {
         Huesped huesped = new Huesped();
         huesped.setNombre(this.nombre);
+        huesped.setDni(this.dni);
         huesped.setEmail(this.email);
         huesped.setTelefono(this.telefono);
         huesped.setFechaNacimiento(this.fechaNacimiento);

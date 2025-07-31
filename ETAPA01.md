@@ -24,9 +24,9 @@ De cada propietario se registrará además de los datos de usuario
 - no se pueden borrar propietarios
 
 ## Gestionar tarjetas de credito
-- Se debe permitir agregar una tarjeta de crédito a un usuario huesped. Si se la agrega como principal entonces hay que desmarcar como principal la tarjeta de crédito anterior.
-- Eliminar una tarjeta de credito de la lista si no es la principal, caso contrario retornar error.
-- Cambiar la tarjeta de crédito principal.
+DONE - Se debe permitir agregar una tarjeta de crédito a un usuario huesped. Si se la agrega como principal entonces hay que desmarcar como principal la tarjeta de crédito anterior.
+DONE - Eliminar una tarjeta de credito de la lista si no es la principal, caso contrario retornar error.
+DONE - Cambiar la tarjeta de crédito principal.
  
 ## Gestionar bancos
 - Se deben poder realizar todas las operaciones de CRUD para los bancos.

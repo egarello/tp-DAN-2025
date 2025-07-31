@@ -2,6 +2,7 @@ package edu.utn.frsf.isi.dan.user.controller;
 
 import edu.utn.frsf.isi.dan.user.dto.HuespedRecord;
 import edu.utn.frsf.isi.dan.user.dto.PropietarioRecord;
+import edu.utn.frsf.isi.dan.user.dto.TarjetaCreditoRecord;
 import edu.utn.frsf.isi.dan.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import edu.utn.frsf.isi.dan.user.model.TarjetaCredito;
 import edu.utn.frsf.isi.dan.user.model.Usuario;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,6 +45,29 @@ public class UserController {
         userService.crearUsuarioPropietario(propietarioRecord);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    // ETAPA 01, TARJETA DE CRÉDITO
+    @Operation(summary = "Agregar tarjeta de crédito a un huesped", description = "Asocia una tarjeta de crédito a un usuario de tipo huesped")
+    @PostMapping("/huesped/{dni}/tarjeta")
+    public ResponseEntity<Void> agregarTarjetaHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord) {
+        userService.agregarTarjetaHuesped(dni, tarjetaCreditoRecord);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Eliminar tarjeta de crédito", description = "Elimina una tarjeta de crédito de un usuario huesped")
+    @DeleteMapping("/huesped/{dni}/eliminar-tarjeta")
+    public ResponseEntity<Void> eliminarTarjetaHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord) {
+        userService.eliminarTarjetaHuesped(dni, tarjetaCreditoRecord);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "Cambiar la tarjeta de crédito principal de un huesped", description = "Actualiza la tarjeta de crédito principal de un usuario de tipo huesped")
+    @PutMapping("/huesped/{dni}/cambiar-tarjeta-principal")
+    public ResponseEntity<Void> cambiarTarjetaPrincipalHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord) {
+        userService.cambiarTarjetaPrincipalHuesped(dni, tarjetaCreditoRecord);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    // FIN ETAPA 01, TARJETA DE CRÉDITO
 
     @GetMapping
     public Page<Usuario> buscarUsuariosPorNombre(@RequestParam(required = false) String nombre, Pageable pageable) {

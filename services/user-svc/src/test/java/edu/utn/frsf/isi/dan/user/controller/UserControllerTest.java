@@ -40,11 +40,12 @@ public class UserControllerTest {
     public void testCrearUsuarioHuesped() throws Exception {
         // Arrange
         HuespedRecord huespedRecord = new HuespedRecord(
-            "Jane", 
-            "jane.smith@example.com", 
-            "9876543210", 
-            LocalDate.of(1990, 5, 15), 
-            "1234567890123456", 
+            "Jane",
+            "5555555555",
+            "jane.smith@example.com",
+            "9876543210",
+            LocalDate.of(1990, 5, 15),
+            "1234567890123456",
             "martin",
             "12/25", 
             "123", 
@@ -64,7 +65,7 @@ public class UserControllerTest {
         // Arrange
         // Assuming CuentaBancariaRecord is a required field for PropietarioRecord
         CuentaBancariaRecord cuentaBancariaRecord = new CuentaBancariaRecord("123456789", "BankName", "BranchName",1);
-        PropietarioRecord propietarioRecord = new PropietarioRecord("John", "Doe", "john.doe@example.com", 1234567890L, cuentaBancariaRecord);
+        PropietarioRecord propietarioRecord = new PropietarioRecord("John Doe","66666666", "john.doe@example.com", "666666666", 1234567890L, cuentaBancariaRecord);
 
         // Act & Assert
         mockMvc.perform(post("/users/propietario")

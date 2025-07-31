@@ -1,18 +1,19 @@
 package edu.utn.frsf.isi.dan.user.controller;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.utn.frsf.isi.dan.user.dto.BancoRecord;
 import edu.utn.frsf.isi.dan.user.model.Banco;
 import edu.utn.frsf.isi.dan.user.service.BancoService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -32,7 +33,8 @@ public class BancoController {
         return ResponseEntity.ok(bancos);
     }
     @PostMapping
-    public ResponseEntity<Banco> crearBanco(@RequestBody @Valid BancoRecord banco){
-        return ResponseEntity.ok(bancoService.crearBanco(banco));
-    }
+    public ResponseEntity<Void> crearBanco(@RequestBody @Valid BancoRecord banco){
+        bancoService.crearBanco(banco);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }  
 }

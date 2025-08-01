@@ -44,6 +44,12 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/huesped/eliminar/{dni}")
+    public ResponseEntity<Void> eliminarUsuarioHuesped(@RequestParam String dni) {
+        userService.eliminarPorDni(dni);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping
     public Page<Usuario> buscarUsuariosPorNombre(@RequestParam(required = false) String nombre, Pageable pageable) {
         if (nombre == null || nombre.isEmpty()) {

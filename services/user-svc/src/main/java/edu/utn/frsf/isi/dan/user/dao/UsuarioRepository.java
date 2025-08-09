@@ -12,4 +12,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Page<Usuario> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
     Page<Usuario> findByDniContaining(String dni, Pageable pageable);
     Usuario findByDni(String dni);
+
+    void deleteByDni(String dni);
 }

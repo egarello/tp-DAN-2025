@@ -210,4 +210,13 @@ public class UserService {
     public Usuario buscarPorDniExacto(String dni) {
         return usuarioRepository.findByDni(dni);
     }
+
+    public boolean eliminarPorDni(String dni) {
+        Usuario usuario = usuarioRepository.findByDni(dni);
+        if (usuario != null) {
+            usuarioRepository.delete(usuario);
+            return true;
+        }
+        return false;
+    }
 }

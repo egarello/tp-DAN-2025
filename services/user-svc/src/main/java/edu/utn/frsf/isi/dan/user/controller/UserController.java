@@ -69,6 +69,12 @@ public class UserController {
     }
     // FIN ETAPA 01, TARJETA DE CRÉDITO
 
+    @DeleteMapping("/huesped/eliminar/{dni}")
+    public ResponseEntity<Void> eliminarUsuarioHuesped(@RequestParam String dni) {
+        userService.eliminarPorDni(dni);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping
     public Page<Usuario> buscarUsuariosPorNombre(@RequestParam(required = false) String nombre, Pageable pageable) {
         if (nombre == null || nombre.isEmpty()) {

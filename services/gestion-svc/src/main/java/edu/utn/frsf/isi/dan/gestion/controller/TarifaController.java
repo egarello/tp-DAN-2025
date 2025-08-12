@@ -2,10 +2,16 @@ package edu.utn.frsf.isi.dan.gestion.controller;
 
 import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
 import edu.utn.frsf.isi.dan.gestion.service.TarifaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -44,4 +50,24 @@ public class TarifaController {
         tarifaService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Crear tarifa promocional", 
+               description = "Crea una tarifa promocional con fechas específicas y controla automáticamente la continuidad de tarifas",
+               responses = {
+                   @ApiResponse(responseCode = "200", description = "Tarifa promocional creada exitosamente"),
+                   @ApiResponse(responseCode = "400", description = "Error en los datos de la solicitud"),
+                   @ApiResponse(responseCode = "404", description = "Habitación no encontrada")
+               })
+    @PostMapping("/promocional")
+    //se devuelven las multiples tarifas afectadas por el proceso, la actual modificada, la promocional y la que sigue a la promocional
+    public ResponseEntity<List<Tarifa>> crearTarifaPromocional(
+        @RequestBody @Valid Tarifa tarifaPromocional,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+    
+        List<Tarifa> tarifasCreadas = tarifaService.crearTarifaPromocional(tarifaPromocional, fechaInicio, fechaFin);
+        return ResponseEntity.ok(tarifasCreadas);
+    }
+
+
 }

@@ -7,6 +7,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.Collectors;
+import edu.utn.frsf.isi.dan.gestion.model.Amenity;
+import edu.utn.frsf.isi.dan.gestion.model.AmenityHotel;
 
 @Service
 public class HotelService {
@@ -27,5 +32,30 @@ public class HotelService {
 
     public List<Hotel> findAll() {
         return hotelRepository.findAll();
+    }
+
+    public Optional<Hotel> addAmenities(Integer hotelId, List<Amenity> amenities) {
+        Optional<Hotel> optionalHotel = hotelRepository.findById(hotelId);
+        if (!optionalHotel.isPresent()) {
+            return Optional.empty();
+        }
+        Hotel hotel = optionalHotel.get();
+        if (hotel.getAmenities() == null) {
+            hotel.setAmenities(new ArrayList<>());
+        }
+        Set<Amenity> existingAmenities = hotel.getAmenities().stream()
+                .map(AmenityHotel::getAmenity)
+                .collect(Collectors.toSet());
+        for (Amenity amenity : amenities) {
+            if (!existingAmenities.contains(amenity)) {
+                AmenityHotel amenityHotel = AmenityHotel.builder()
+                        .hotel(hotel)
+                        .amenity(amenity)
+                        .build();
+                hotel.getAmenities().add(amenityHotel);
+            }
+        }
+        Hotel saved = hotelRepository.save(hotel);
+        return Optional.of(saved);
     }
 }

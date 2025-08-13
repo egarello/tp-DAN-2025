@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import edu.utn.frsf.isi.dan.gestion.model.Amenity;
 
 @RestController
 @RequestMapping("/hoteles")
@@ -43,5 +44,12 @@ public class HotelController {
         if (!hotelService.findById(id).isPresent()) return ResponseEntity.notFound().build();
         hotelService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/amenities")
+    public ResponseEntity<Hotel> addAmenities(@PathVariable Integer id, @RequestBody List<Amenity> amenities) {
+        return hotelService.addAmenities(id, amenities)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

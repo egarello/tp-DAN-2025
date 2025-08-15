@@ -46,9 +46,17 @@ public class HotelController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/amenities")
+    @PostMapping("/{id}/amenities/add")
     public ResponseEntity<Hotel> addAmenities(@PathVariable Integer id, @RequestBody List<Amenity> amenities) {
         return hotelService.addAmenities(id, amenities)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}/amenities/remove")
+    public ResponseEntity<Hotel> removeAmenity(@PathVariable Integer id, @RequestParam Amenity amenity) {
+        if (!hotelService.findById(id).isPresent()) return ResponseEntity.notFound().build();
+        return hotelService.removeAmenity(id, amenity)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

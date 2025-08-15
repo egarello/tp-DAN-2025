@@ -58,4 +58,14 @@ public class HotelService {
         Hotel saved = hotelRepository.save(hotel);
         return Optional.of(saved);
     }
+
+    public Optional<Hotel> removeAmenity(Integer hotelId, Amenity amenity) {
+        Optional<Hotel> optionalHotel = hotelRepository.findById(hotelId);
+        if (!optionalHotel.isPresent()) {
+            return Optional.empty();
+        }
+        Hotel hotel = optionalHotel.get();
+        hotel.getAmenities().removeIf(amenityHotel -> amenityHotel.getAmenity().equals(amenity));
+        return Optional.of(hotelRepository.save(hotel));
+    }
 }

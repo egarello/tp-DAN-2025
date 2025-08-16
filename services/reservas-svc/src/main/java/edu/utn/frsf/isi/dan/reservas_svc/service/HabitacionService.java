@@ -6,6 +6,7 @@ import edu.utn.frsf.isi.dan.reservas_svc.repository.HabitacionRepository;
 import edu.utn.frsf.isi.dan.shared.HabitacionDTO;
 import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
 import edu.utn.frsf.isi.dan.shared.HotelDTO;
+import edu.utn.frsf.isi.dan.shared.TarifaDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,6 +59,7 @@ public class HabitacionService {
                 // en este caso el atributo TarifaDTO tiene 
                 // el ID de los tipos de habitaciones que van a tener un nuevo precio y el nuevo precio
                 // event.getTarifa()
+                actualizarPrecioPorTarifa(event.getTarifa());
                 break;
             case ELIMINAR:
                 deleteByHabitacionId(event.getHabitacion().getHabitacionId());
@@ -117,4 +120,18 @@ public class HabitacionService {
         Query query = new Query(Criteria.where("habitacionId").is(habitacionId));
         mongoTemplate.remove(query, Habitacion.class);
     }
+
+    public void actualizarPrecioPorTarifa(TarifaDTO tarifaDTO) {
+ 
+        // Buscar todas las habitaciones del tipo especificado
+        Query query = new Query(Criteria.where("tipoHabitacion.id").is(tarifaDTO.getTipoHabitacionId()));
+        List<Habitacion> habitaciones = mongoTemplate.find(query, Habitacion.class);
+                
+        // Actualizar precio en cada habitación
+        for (Habitacion habitacion : habitaciones) {
+            habitacion.setPrecioNoche(tarifaDTO.getNuevoPrecio());
+            mongoTemplate.save(habitacion);
+        }
+    }
+
 }

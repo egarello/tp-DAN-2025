@@ -2,20 +2,54 @@ package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.TarifaRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
+import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
+import edu.utn.frsf.isi.dan.shared.TarifaDTO;
+import edu.utn.frsf.isi.dan.shared.TipoEvento;
+import lombok.extern.log4j.Log4j2;
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Duration; 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Page;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import edu.utn.frsf.isi.dan.shared.TarifaDTO;
+import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
+import edu.utn.frsf.isi.dan.shared.TipoEvento;
+import lombok.extern.log4j.Log4j2;
+
 
 @Service
+@Log4j2
 public class TarifaService {
     @Autowired
     private TarifaRepository tarifaRepository;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Value("${rabbitmq.exchange:dan.exchange}")
+    private String exchange;
+    
+    @Value("${rabbitmq.exchange.delayed:dan.exchange.delayed}")
+    private String exchangeDelayed;
+
+    @Value("${rabbitmq.routingkey:habitacion.key}")
+    private String routingKey;
+
+    @Value("${rabbitmq.routingkey.delayed:dan.tarifa.actualizar.precio}")
+    private String routingKeyDelayed;
+
 
     public Tarifa save(Tarifa tarifa) {
         return tarifaRepository.save(tarifa);
@@ -66,9 +100,61 @@ public class TarifaService {
         tarifasCreadas.add(tarifaRepository.save(tarifaSiguiente));
 
         // Actualizar servicio reservas
+        programarActualizacionTarifa(tarifaPromocional);
 
         return tarifasCreadas;
     }
 
+    private void programarActualizacionTarifa(Tarifa tarifa) {
+        LocalDate fechaInicio = tarifa.getFechaInicio();
+        LocalDateTime fechaEjecucion = fechaInicio.atStartOfDay();
+        
+        // Crear TarifaDTO
+        TarifaDTO tarifaDTO = TarifaDTO.builder()
+                .tipoHabitacionId(tarifa.getTipoHabitacion().getId())
+                .nuevoPrecio(tarifa.getPrecioNoche())
+                .build();
+
+        // Crear HabitacionEvent con TarifaDTO
+        HabitacionEvent msgEvent = HabitacionEvent.builder()
+                .tipoEvento(TipoEvento.ACTUALIZAR_PRECIO)
+                .tarifa(tarifaDTO)
+                .build();
+
+        try {
+            String msgToSend = objectMapper.writeValueAsString(msgEvent);
+            
+            // Solo programar si la fecha es futura
+            if (fechaEjecucion.isAfter(LocalDateTime.now())) {
+                long delayMs = Duration.between(LocalDateTime.now(), fechaEjecucion).toMillis();
+                
+                log.debug("[RabbitMQ] Programando tarifa para: {} (delay: {}ms)", fechaEjecucion, delayMs);
+                
+                // ENVIAR A EXCHANGE DELAYED
+                rabbitTemplate.convertAndSend(
+                    exchangeDelayed,                    // dan.exchange.delayed
+                    routingKeyDelayed,                  // routing key
+                    msgToSend,                          // mensaje JSON
+                    message -> {
+                        message.getMessageProperties().setHeader("x-delay", delayMs);
+                        return message;
+                    }
+                );
+            } else {
+                // Si la fecha es hoy o pasada, enviar inmediatamente
+                log.debug("[RabbitMQ] Enviando actualización inmediata para tarifa tipo: {}", tarifa.getTipoHabitacion());
+                
+                rabbitTemplate.convertAndSend(
+                    exchange,                           // dan.exchange
+                    routingKey,                         // routing key
+                    msgToSend                           // mensaje JSON
+                );
+            }
+            
+        } catch (Exception e) {
+            log.error("Error enviando mensaje de tarifa: {}", e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
 }

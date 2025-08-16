@@ -84,6 +84,11 @@ services:
     volumes:
       # Monta el archivo de definiciones en la ruta que lee RabbitMQ al arrancar
       - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    command: >
+      bash -c "
+      rabbitmq-plugins enable rabbitmq_delayed_message_exchange &&
+      docker-entrypoint.sh rabbitmq-server
+      "
   mongodb:
     image: mongo:7
     container_name: mongodb

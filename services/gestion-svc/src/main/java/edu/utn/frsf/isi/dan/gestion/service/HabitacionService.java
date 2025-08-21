@@ -1,7 +1,9 @@
 package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.HabitacionRepository;
+import edu.utn.frsf.isi.dan.gestion.dao.TarifaRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Habitacion;
+import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
 import edu.utn.frsf.isi.dan.shared.HabitacionDTO;
 import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
 import edu.utn.frsf.isi.dan.shared.TipoEvento;
@@ -12,11 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+//import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
+//import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,6 +29,9 @@ public class HabitacionService {
 
     @Autowired
     private HabitacionRepository habitacionRepository;
+    
+    @Autowired
+    private TarifaRepository tarifaRepository;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -98,5 +104,18 @@ public class HabitacionService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public Tarifa getTarifaByHabitacion(Habitacion habitacion) {
+        List<Tarifa> listaTarifas = tarifaRepository.findByTipoHabitacion_Id(habitacion.getTipoHabitacion().getId());
+        LocalDate fechaActual = LocalDate.now();
+        for (Tarifa tarifa : listaTarifas) {
+            boolean inicioOk = !tarifa.getFechaInicio().isAfter(fechaActual);
+            boolean finOk = tarifa.getFechaFin() == null || !tarifa.getFechaFin().isBefore(fechaActual);
+            if (inicioOk && finOk) {
+                return tarifa;
+            }
+        }
+        return null;
     }
 }

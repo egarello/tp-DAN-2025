@@ -17,6 +17,7 @@
 package edu.utn.frsf.isi.dan.gestion.controller;
 
 import edu.utn.frsf.isi.dan.gestion.model.Habitacion;
+import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
 import edu.utn.frsf.isi.dan.gestion.service.HabitacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -61,4 +62,11 @@ public class HabitacionController {
         habitacionService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/tarifa")
+    public ResponseEntity<Tarifa> getTarifaByHabitacion( @RequestBody Habitacion habitacion){
+        if (!habitacionService.findById(habitacion.getId()).isPresent()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(habitacionService.getTarifaByHabitacion(habitacion));
+    }
+
 }

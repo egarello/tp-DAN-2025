@@ -1,12 +1,15 @@
 package edu.utn.frsf.isi.dan.gestion.controller;
 
+import edu.utn.frsf.isi.dan.gestion.model.Habitacion;
 import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
+import edu.utn.frsf.isi.dan.gestion.service.HabitacionService;
 import edu.utn.frsf.isi.dan.gestion.service.TarifaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/tarifas")
@@ -14,6 +17,8 @@ public class TarifaController {
     @Autowired
     private TarifaService tarifaService;
 
+    @Autowired
+    private HabitacionService habitacionService;
     @PostMapping
     public ResponseEntity<Tarifa> create(@RequestBody Tarifa tarifa) {
         return ResponseEntity.ok(tarifaService.save(tarifa));
@@ -43,5 +48,11 @@ public class TarifaController {
         if (!tarifaService.findById(id).isPresent()) return ResponseEntity.notFound().build();
         tarifaService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{idHabitacion}")
+    public ResponseEntity<Tarifa> getTarifaByHabitacion(@PathVariable Integer idHabitacion){
+        Optional<Habitacion> habitacion = habitacionService.findByIdWithTipoAndHotel(idHabitacion);
+        if (!habitacion.isPresent()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(tarifaService.getTarifaByHabitacion(habitacion.get()));
     }
 }

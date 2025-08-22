@@ -31,33 +31,12 @@ public class TarifaService {
         return tarifaRepository.findAll();
     }
 
-    public Tarifa getTarifaByHabitacion(Habitacion habitacion) {
-        List<Tarifa> listaTarifas = tarifaRepository.findByTipoHabitacion_Id(habitacion.getTipoHabitacion().getId());
+    public Optional<Tarifa> getTarifaByHabitacion(Habitacion habitacion) {
         LocalDate fechaActual = LocalDate.now();
-        
-        // Buscar tarifa vigente (fecha actual dentro del rango)
-        for (Tarifa tarifa : listaTarifas) {
-            boolean inicioOk = !tarifa.getFechaInicio().isAfter(fechaActual);
-            boolean finOk = tarifa.getFechaFin() == null || !tarifa.getFechaFin().isBefore(fechaActual);
-            if (inicioOk && finOk) {
-                System.out.println("La tarifa es: "+ tarifa);
-                return tarifa;
-            }
-        }
-        
-        // Si no hay tarifa vigente, se busca la más próxima futura
-        Tarifa tarifaProxima = null;
-        LocalDate fechaProxima = null;
-        
-        for (Tarifa tarifa : listaTarifas) {
-            if (tarifa.getFechaInicio().isAfter(fechaActual)) {
-                if (tarifaProxima == null || tarifa.getFechaInicio().isBefore(fechaProxima)) {
-                    tarifaProxima = tarifa;
-                    fechaProxima = tarifa.getFechaInicio();
-                }
-            }
-        }
-        
-        return tarifaProxima; // Retorna null si no hay tarifas futuras
+        return tarifaRepository.findByTipoHabitacion_Id(habitacion.getTipoHabitacion().getId())
+            .stream()
+            .filter(t -> !t.getFechaInicio().isAfter(fechaActual) &&
+                     (t.getFechaFin() == null || !t.getFechaFin().isBefore(fechaActual)))
+            .findFirst();
     }
 }

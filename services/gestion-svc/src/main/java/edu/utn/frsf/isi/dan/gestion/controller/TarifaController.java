@@ -49,10 +49,12 @@ public class TarifaController {
         tarifaService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/{idHabitacion}")
+    @GetMapping("/habitacion/{idHabitacion}")
     public ResponseEntity<Tarifa> getTarifaByHabitacion(@PathVariable Integer idHabitacion){
         Optional<Habitacion> habitacion = habitacionService.findByIdWithTipoAndHotel(idHabitacion);
         if (!habitacion.isPresent()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(tarifaService.getTarifaByHabitacion(habitacion.get()));
+        Tarifa tarifa = tarifaService.getTarifaByHabitacion(habitacion.get()).orElse(null);
+        if (tarifa == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(tarifa);
     }
 }

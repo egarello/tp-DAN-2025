@@ -28,8 +28,6 @@ public class HabitacionService {
     @Autowired
     private HabitacionRepository habitacionRepository;
     
-    
-
     @Autowired
     private RabbitTemplate rabbitTemplate;
 

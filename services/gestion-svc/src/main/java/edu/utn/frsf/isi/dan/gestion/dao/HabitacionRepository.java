@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,4 +14,16 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Integer>
     //este método permite traer los tipos de habitación siempre que busquemos una habitación. Se usa para el endpoint de tarifa.
     @Query("SELECT h FROM Habitacion h JOIN FETCH h.tipoHabitacion JOIN FETCH h.hotel WHERE h.id = :id")
     Optional<Habitacion> findByIdWithTipoAndHotel(@Param("id") Integer id);
+
+    @Query("""
+        SELECT h FROM Habitacion h
+        JOIN h.tipoHabitacion th
+        JOIN Tarifa t ON th.id = t.tipoHabitacion.id
+        WHERE (:capacidad IS NULL OR th.capacidad = :capacidad)
+        AND (:tipoId IS NULL OR th.id = :tipoId)
+        AND (:precioMin IS NULL OR t.precioNoche >= :precioMin)
+        AND (:precioMax IS NULL OR t.precioNoche <= :precioMax)
+    """)
+    List<Habitacion> findByFiltros(@Param("capacidad") Integer capacidad,@Param("tipoId") Integer tipoId,
+        @Param("precioMin") Double precioMin,@Param("precioMax") Double precioMax);
 }

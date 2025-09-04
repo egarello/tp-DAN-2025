@@ -17,7 +17,6 @@
 package edu.utn.frsf.isi.dan.gestion.controller;
 
 import edu.utn.frsf.isi.dan.gestion.model.Habitacion;
-import edu.utn.frsf.isi.dan.gestion.model.TipoHabitacion;
 import edu.utn.frsf.isi.dan.gestion.service.HabitacionService;
 import jakarta.validation.Valid;
 
@@ -65,13 +64,16 @@ public class HabitacionController {
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/search")
-    public List<Habitacion> searchHabitaciones(
-            @RequestParam(required = false) Integer cantHuespedes,
-            @RequestParam(required = false) TipoHabitacion tipoHabitacion,
-            @RequestParam(required = false) Float precioMin,
-            @RequestParam(required = false) Float precioMax
-        ) {
-        return habitacionService.searchHabitaciones(cantHuespedes, tipoHabitacion, precioMin, precioMax);
+    public ResponseEntity<?> searchHabitaciones(
+        @RequestParam(required = false) Integer cantHuespedes,
+        @RequestParam(required = false) Integer tipoHabitacionId,
+        @RequestParam(required = false) Double precioMin,
+        @RequestParam(required = false) Double precioMax
+    ){
+        try{
+            return ResponseEntity.ok(habitacionService.searchHabitaciones(cantHuespedes, tipoHabitacionId, precioMin, precioMax));
+        }catch(Exception e){
+            return ResponseEntity.noContent().build();
+        }
     }
-
 }

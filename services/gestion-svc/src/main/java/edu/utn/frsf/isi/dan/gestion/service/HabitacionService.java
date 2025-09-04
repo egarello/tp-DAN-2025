@@ -1,9 +1,7 @@
 package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.HabitacionRepository;
-import edu.utn.frsf.isi.dan.gestion.dao.TipoHabitacionRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Habitacion;
-import edu.utn.frsf.isi.dan.gestion.model.TipoHabitacion;
 import edu.utn.frsf.isi.dan.shared.HabitacionDTO;
 import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
 import edu.utn.frsf.isi.dan.shared.TipoEvento;
@@ -30,8 +28,6 @@ public class HabitacionService {
     @Autowired
     private HabitacionRepository habitacionRepository;
     
-    @Autowired
-    private TipoHabitacionRepository tipoHabitacionRepository;
     
 
     @Autowired
@@ -68,10 +64,6 @@ public class HabitacionService {
 
     public List<Habitacion> findAll() {
         return habitacionRepository.findAll();
-    }
-
-    public List<Habitacion> searchHabitaciones(Integer cantHuespedes, TipoHabitacion tipoHabitacion, Float precioMin, Float precioMax) {
-        return tipoHabitacionRepository.searchHabitaciones(cantHuespedes, tipoHabitacion, precioMin, precioMax);
     }
 
     public void enviarHabitacionJms(Habitacion habitacion,boolean isNew) {
@@ -113,6 +105,14 @@ public class HabitacionService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Habitacion> searchHabitaciones(Integer cantHuespedes, Integer tipoHabitacionId, Double precioMin, Double precioMax) throws Exception{
+        List<Habitacion> habitacionesEncontradas = habitacionRepository.findByFiltros(cantHuespedes,tipoHabitacionId, precioMin,precioMax);
+        if(habitacionesEncontradas.isEmpty()){
+            throw new Exception("No se ha encontrado ninguna habitación con estas características.");
+        }
+        return habitacionesEncontradas; 
     }
 
 }

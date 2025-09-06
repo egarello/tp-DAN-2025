@@ -60,4 +60,19 @@ public class HotelController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/buscar")
+    public List<Hotel> search(
+        @RequestParam(required = false) String nombre, 
+        @RequestParam(required = false) String domicilio,
+        @RequestParam(required = false) Double latitud,
+        @RequestParam(required = false) Double longitud,
+        @RequestParam(required = false) String telefono,
+        @RequestParam(required = false) String correoContacto,
+        @RequestParam(required = false) Integer categoria,
+        @RequestParam(required = false) Amenity amenity,
+        @RequestParam(defaultValue = "nombre") String sortBy
+        ) {
+        return null;
+    }
 }

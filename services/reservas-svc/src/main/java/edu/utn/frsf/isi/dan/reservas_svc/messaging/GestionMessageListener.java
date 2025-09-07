@@ -58,4 +58,32 @@ public class GestionMessageListener {
             } 
         }
     }
+
+    @RabbitListener(
+        bindings = @QueueBinding(
+            value = @Queue(value = "tarifa.actualizar.topic", durable = "true"),
+            exchange = @Exchange(value = "dan.exchange.delayed", type = "x-delayed-message"),
+            key = "dan.tarifa.actualizar.#"
+        ),
+        ackMode = "MANUAL"
+    )
+    public void receiveTarifaDelayedMessage(String payload, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
+        try {
+            log.debug("[RabbitMQ-TARIFA-DELAYED] Mensaje recibido: {}", payload);
+            HabitacionEvent tarifaEvent = objectMapper.readValue(payload, HabitacionEvent.class);
+            log.info("Evento tarifa delayed recibido: {}", tarifaEvent);
+            
+            habitacionService.handleEvent(tarifaEvent);
+            channel.basicAck(deliveryTag, false);
+        } catch (Exception e) {
+            log.error("Error procesando mensaje tarifa delayed: {}", e.getMessage());
+            try {
+                channel.basicReject(deliveryTag, false);
+            } catch (IOException e1) {
+                log.error("Error rechazando mensaje tarifa delayed: {}", e.getMessage());
+            }
+        }
+    }
+
+
 }

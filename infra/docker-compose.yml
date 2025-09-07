@@ -72,7 +72,9 @@ services:
       - pgadmin_data:/var/lib/pgadmin
 
   rabbitmq:
-    image: rabbitmq:3-management
+    build:
+      context: ./rabbitmq
+      dockerfile: Dockerfile
     container_name: rabbitmq
     restart: unless-stopped
     ports:
@@ -84,6 +86,7 @@ services:
     volumes:
       # Monta el archivo de definiciones en la ruta que lee RabbitMQ al arrancar
       - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+
   mongodb:
     image: mongo:7
     container_name: mongodb

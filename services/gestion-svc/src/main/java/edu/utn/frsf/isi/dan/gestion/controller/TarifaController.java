@@ -1,13 +1,20 @@
 package edu.utn.frsf.isi.dan.gestion.controller;
 
+import edu.utn.frsf.isi.dan.gestion.dto.TarifaRecord;
 import edu.utn.frsf.isi.dan.gestion.model.Habitacion;
 import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
 import edu.utn.frsf.isi.dan.gestion.service.HabitacionService;
 import edu.utn.frsf.isi.dan.gestion.service.TarifaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,12 +23,20 @@ import java.util.Optional;
 public class TarifaController {
     @Autowired
     private TarifaService tarifaService;
-
+    
     @Autowired
     private HabitacionService habitacionService;
+
+    @Operation(summary = "Crear tarifa", 
+            description = "Crea una tarifa",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Tarifa creada exitosamente"),
+                @ApiResponse(responseCode = "400", description = "Error en los datos de la solicitud"),
+                @ApiResponse(responseCode = "404", description = "Habitación no encontrada")
+            })
     @PostMapping
-    public ResponseEntity<Tarifa> create(@RequestBody Tarifa tarifa) {
-        return ResponseEntity.ok(tarifaService.save(tarifa));
+    public ResponseEntity<Tarifa> create(@RequestBody TarifaRecord tarifaRecord) {
+        return ResponseEntity.ok(tarifaService.save(tarifaRecord));
     }
 
     @GetMapping("/{id}")
@@ -37,10 +52,9 @@ public class TarifaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tarifa> update(@PathVariable Integer id, @RequestBody Tarifa tarifa) {
+    public ResponseEntity<Tarifa> update(@PathVariable Integer id, @RequestBody TarifaRecord tarifaRecord) {
         if (!tarifaService.findById(id).isPresent()) return ResponseEntity.notFound().build();
-        tarifa.setId(id);
-        return ResponseEntity.ok(tarifaService.save(tarifa));
+        return ResponseEntity.ok(tarifaService.save(tarifaRecord));
     }
 
     @DeleteMapping("/{id}")
@@ -49,6 +63,26 @@ public class TarifaController {
         tarifaService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Crear tarifa promocional", 
+               description = "Crea una tarifa promocional con fechas específicas y controla automáticamente la continuidad de tarifas",
+               responses = {
+                   @ApiResponse(responseCode = "200", description = "Tarifa promocional creada exitosamente"),
+                   @ApiResponse(responseCode = "400", description = "Error en los datos de la solicitud"),
+                   @ApiResponse(responseCode = "404", description = "Habitación no encontrada")
+               })
+    @PostMapping("/promocional")
+    //se devuelven las multiples tarifas afectadas por el proceso, la actual modificada, la promocional y la que sigue a la promocional
+    public ResponseEntity<List<Tarifa>> crearTarifaPromocional(
+        @RequestBody @Valid TarifaRecord tarifaPromocional,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+    
+        List<Tarifa> tarifasCreadas = tarifaService.crearTarifaPromocional(tarifaPromocional, fechaInicio, fechaFin);
+        return ResponseEntity.ok(tarifasCreadas);
+    }
+
+
     @GetMapping("/habitacion/{idHabitacion}")
     public ResponseEntity<Tarifa> getTarifaByHabitacion(@PathVariable Integer idHabitacion){
         Optional<Habitacion> habitacion = habitacionService.findByIdWithTipoAndHotel(idHabitacion);

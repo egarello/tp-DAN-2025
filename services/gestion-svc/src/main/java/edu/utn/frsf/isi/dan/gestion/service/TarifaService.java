@@ -2,6 +2,8 @@ package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.TarifaRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
+import edu.utn.frsf.isi.dan.gestion.model.TipoHabitacion;
+import edu.utn.frsf.isi.dan.gestion.dto.TarifaRecord;
 import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
 import edu.utn.frsf.isi.dan.shared.TarifaDTO;
 import edu.utn.frsf.isi.dan.shared.TipoEvento;
@@ -51,11 +53,70 @@ public class TarifaService {
     private String routingKeyDelayed;
 
 
-    public Tarifa save(Tarifa tarifa) {
+    public Tarifa save(TarifaRecord tarifaRecord) {
+
+        TipoHabitacion tipo = new TipoHabitacion();
+        tipo.setId(tarifaRecord.idTipoHabitacion());
+        List<Tarifa> existentes = tarifaRepository.findByTipoHabitacion(tipo);
+
+        Tarifa tarifa = new Tarifa();
+        tarifa.setTipoHabitacion(tipo);
+        tarifa.setPrecioNoche(tarifaRecord.precioNoche());
+
+        if(existentes.isEmpty()) {
+            // Si no hay tarifas existentes, la nueva es la única y vigente
+            tarifa.setFechaInicio(LocalDate.now());
+            tarifa.setFechaFin(null);
+            return tarifaRepository.save(tarifa);
+        }
+
+        if(tarifaRecord.fechaInicio() == "" && tarifaRecord.fechaFin() == "") {
+            Tarifa anterior = existentes.stream()
+                    .filter(t -> t.getFechaFin() == null || t.getFechaFin().isAfter(LocalDate.now()))
+                    .max((t1, t2) -> {
+                        LocalDate fecha1 = t1.getFechaFin();
+                        LocalDate fecha2 = t2.getFechaFin();
+
+                        // Si ambas son null, son iguales
+                        if (fecha1 == null && fecha2 == null) return 0;
+
+                        // null es mayor que cualquier fecha
+                        if (fecha1 == null) return 1;
+                        if (fecha2 == null) return -1;
+
+                        // Comparación normal si ambas tienen fecha
+                        return fecha1.compareTo(fecha2);
+                    })
+                    .orElse(null);
+            anterior.setFechaFin(LocalDate.now().minusDays(1));
+            tarifa.setFechaInicio(LocalDate.now());
+        }
+
         return tarifaRepository.save(tarifa);
     }
 
     public void deleteById(Integer id) {
+
+        Optional<Tarifa> tarifaOpt = tarifaRepository.findById(id);
+        if (tarifaOpt.isPresent()) {
+            Tarifa tarifa = tarifaOpt.get();
+            LocalDate hoy = LocalDate.now();
+            boolean esVigente = (tarifa.getFechaInicio().isBefore(hoy) || tarifa.getFechaInicio().isEqual(hoy)) &&
+                                (tarifa.getFechaFin() == null || tarifa.getFechaFin().isAfter(hoy) || tarifa.getFechaFin().isEqual(hoy));
+            if (esVigente) {
+                // Buscar la tarifa anterior (la de fecha fin inmediatamente anterior a la actual)
+                List<Tarifa> anteriores = tarifaRepository.findByTipoHabitacion(tarifa.getTipoHabitacion());
+                Tarifa anterior = anteriores.stream()
+                    .filter(t -> t.getFechaFin() != null && t.getFechaFin().isBefore(tarifa.getFechaInicio()))
+                    .max((t1, t2) -> t1.getFechaFin().compareTo(t2.getFechaFin()))
+                    .orElse(null);
+                if (anterior != null) {
+                    anterior.setFechaFin(null);
+                    // No se actualiza la fecha inicio
+                    tarifaRepository.save(anterior);
+                }
+            }
+        }
         tarifaRepository.deleteById(id);
     }
 
@@ -67,11 +128,18 @@ public class TarifaService {
         return tarifaRepository.findAll();
     }
 
-    public List<Tarifa> crearTarifaPromocional(Tarifa tarifaPromocional, LocalDate fechaInicio, LocalDate fechaFin) {
+    public List<Tarifa> crearTarifaPromocional(TarifaRecord tarifaPromocional, LocalDate fechaInicio, LocalDate fechaFin) {
         List<Tarifa> tarifasCreadas = new ArrayList<>();
 
+        TipoHabitacion tipo = new TipoHabitacion();
+        tipo.setId(tarifaPromocional.idTipoHabitacion());
+
+        Tarifa tarifa = new Tarifa();
+        tarifa.setTipoHabitacion(tipo);
+        tarifa.setPrecioNoche(tarifaPromocional.precioNoche());
+
         // Buscar la tarifa activa actual para el tipo de habitación
-        List<Tarifa> tarifas = tarifaRepository.findByTipoHabitacion(tarifaPromocional.getTipoHabitacion());
+        List<Tarifa> tarifas = tarifaRepository.findByTipoHabitacion(tipo);
         LocalDate hoy = LocalDate.now();
         Tarifa tarifaActiva = tarifas.stream()
             .filter(t -> (t.getFechaInicio().isEqual(hoy) || t.getFechaInicio().isBefore(hoy)) &&
@@ -86,9 +154,9 @@ public class TarifaService {
         }
 
         // Crear tarifa promocional
-        tarifaPromocional.setFechaInicio(fechaInicio);
-        tarifaPromocional.setFechaFin(fechaFin);
-        tarifasCreadas.add(tarifaRepository.save(tarifaPromocional));
+        tarifa.setFechaInicio(fechaInicio);
+        tarifa.setFechaFin(fechaFin);
+        tarifasCreadas.add(tarifaRepository.save(tarifa));
 
         // Crear tarifa siguiente
         Tarifa tarifaSiguiente = new Tarifa();
@@ -100,7 +168,7 @@ public class TarifaService {
         tarifasCreadas.add(tarifaRepository.save(tarifaSiguiente));
 
         // Actualizar servicio reservas
-        programarActualizacionTarifa(tarifaPromocional);
+        programarActualizacionTarifa(tarifa);
 
         return tarifasCreadas;
     }

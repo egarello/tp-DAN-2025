@@ -1,5 +1,6 @@
 package edu.utn.frsf.isi.dan.gestion.controller;
 
+import edu.utn.frsf.isi.dan.gestion.dto.TarifaRecord;
 import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
 import edu.utn.frsf.isi.dan.gestion.service.TarifaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,9 +21,16 @@ public class TarifaController {
     @Autowired
     private TarifaService tarifaService;
 
+    @Operation(summary = "Crear tarifa", 
+            description = "Crea una tarifa",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Tarifa creada exitosamente"),
+                @ApiResponse(responseCode = "400", description = "Error en los datos de la solicitud"),
+                @ApiResponse(responseCode = "404", description = "Habitación no encontrada")
+            })
     @PostMapping
-    public ResponseEntity<Tarifa> create(@RequestBody Tarifa tarifa) {
-        return ResponseEntity.ok(tarifaService.save(tarifa));
+    public ResponseEntity<Tarifa> create(@RequestBody TarifaRecord tarifaRecord) {
+        return ResponseEntity.ok(tarifaService.save(tarifaRecord));
     }
 
     @GetMapping("/{id}")
@@ -38,10 +46,9 @@ public class TarifaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tarifa> update(@PathVariable Integer id, @RequestBody Tarifa tarifa) {
+    public ResponseEntity<Tarifa> update(@PathVariable Integer id, @RequestBody TarifaRecord tarifaRecord) {
         if (!tarifaService.findById(id).isPresent()) return ResponseEntity.notFound().build();
-        tarifa.setId(id);
-        return ResponseEntity.ok(tarifaService.save(tarifa));
+        return ResponseEntity.ok(tarifaService.save(tarifaRecord));
     }
 
     @DeleteMapping("/{id}")
@@ -61,7 +68,7 @@ public class TarifaController {
     @PostMapping("/promocional")
     //se devuelven las multiples tarifas afectadas por el proceso, la actual modificada, la promocional y la que sigue a la promocional
     public ResponseEntity<List<Tarifa>> crearTarifaPromocional(
-        @RequestBody @Valid Tarifa tarifaPromocional,
+        @RequestBody @Valid TarifaRecord tarifaPromocional,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
     

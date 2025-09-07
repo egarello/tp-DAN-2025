@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import edu.utn.frsf.isi.dan.gestion.model.Amenity;
 
 @RestController
 @RequestMapping("/hoteles")
@@ -43,5 +44,35 @@ public class HotelController {
         if (!hotelService.findById(id).isPresent()) return ResponseEntity.notFound().build();
         hotelService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/amenities/add")
+    public ResponseEntity<Hotel> addAmenities(@PathVariable Integer id, @RequestBody List<Amenity> amenities) {
+        return hotelService.addAmenities(id, amenities)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}/amenities/remove")
+    public ResponseEntity<Hotel> removeAmenity(@PathVariable Integer id, @RequestParam Amenity amenity) {
+        if (!hotelService.findById(id).isPresent()) return ResponseEntity.notFound().build();
+        return hotelService.removeAmenity(id, amenity)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/buscar")
+    public List<Hotel> search(
+        @RequestParam(required = false) String nombre, 
+        @RequestParam(required = false) String domicilio,
+        @RequestParam(required = false) Double latitud,
+        @RequestParam(required = false) Double longitud,
+        @RequestParam(required = false) String telefono,
+        @RequestParam(required = false) String correoContacto,
+        @RequestParam(required = false) Integer categoria,
+        @RequestParam(required = false) Amenity amenity,
+        @RequestParam(defaultValue = "nombre") String sortBy
+        ) {
+        return null;
     }
 }

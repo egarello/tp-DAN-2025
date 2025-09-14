@@ -21,17 +21,25 @@ import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+
 import edu.utn.frsf.isi.dan.shared.TarifaDTO;
 import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
 import edu.utn.frsf.isi.dan.shared.TipoEvento;
 import lombok.extern.log4j.Log4j2;
 
+import jakarta.annotation.PostConstruct;
 
 @Service
 @Log4j2
+@EnableScheduling
 public class TarifaService {
     @Autowired
     private TarifaRepository tarifaRepository;
@@ -42,18 +50,11 @@ public class TarifaService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${rabbitmq.exchange:dan.exchange}")
+    @Value("${rabbitmq.exchange:habitacion.exchange}")
     private String exchange;
-    
-    @Value("${rabbitmq.exchange.delayed:dan.exchange.delayed}")
-    private String exchangeDelayed;
 
     @Value("${rabbitmq.routingkey:habitacion.key}")
     private String routingKey;
-
-    @Value("${rabbitmq.routingkey.delayed:dan.tarifa.actualizar.precio}")
-    private String routingKeyDelayed;
-
 
     public Tarifa save(TarifaRecord tarifaRecord) {
 
@@ -72,7 +73,7 @@ public class TarifaService {
             return tarifaRepository.save(tarifa);
         }
 
-        if(tarifaRecord.fechaInicio() == "" && tarifaRecord.fechaFin() == "") {
+        if((tarifaRecord.fechaInicio() == "" && tarifaRecord.fechaFin() == "") || (tarifaRecord.fechaInicio() == null && tarifaRecord.fechaFin() == null)) {
             Tarifa anterior = existentes.stream()
                     .filter(t -> t.getFechaFin() == null || t.getFechaFin().isAfter(LocalDate.now()))
                     .max((t1, t2) -> {
@@ -92,8 +93,14 @@ public class TarifaService {
                     .orElse(null);
             anterior.setFechaFin(LocalDate.now().minusDays(1));
             tarifa.setFechaInicio(LocalDate.now());
+            tarifa.setFechaFin(null);
+        }
+        else{
+            // TODO
+            return tarifa;
         }
 
+        enviarTarifaJms(tarifa);
         return tarifaRepository.save(tarifa);
     }
 
@@ -170,11 +177,43 @@ public class TarifaService {
         tarifasCreadas.add(tarifaRepository.save(tarifaSiguiente));
 
         // Actualizar servicio reservas
-        programarActualizacionTarifa(tarifa);
+        checkTarifaActiva(tarifa.getTipoHabitacion());
 
         return tarifasCreadas;
     }
+    
+    public Optional<Tarifa> getTarifaByHabitacion(Habitacion habitacion) {
+        LocalDate fechaActual = LocalDate.now();
+        return tarifaRepository.findByTipoHabitacion_Id(habitacion.getTipoHabitacion().getId())
+            .stream()
+            .filter(t -> !t.getFechaInicio().isAfter(fechaActual) &&
+                     (t.getFechaFin() == null || !t.getFechaFin().isBefore(fechaActual)))
+            .findFirst();
+    }
 
+    public void enviarTarifaJms(Tarifa tarifa){
+        // Crear TarifaDTO
+        TarifaDTO tarifaDTO = TarifaDTO.builder()
+                .tipoHabitacionId(tarifa.getTipoHabitacion().getId())
+                .nuevoPrecio(tarifa.getPrecioNoche())
+                .build();
+
+        // Crear HabitacionEvent con TarifaDTO
+        HabitacionEvent msgEvent = HabitacionEvent.builder()
+                .tipoEvento(TipoEvento.ACTUALIZAR_PRECIO)
+                .tarifa(tarifaDTO)
+                .build();
+
+        try {
+            String msgToSend = objectMapper.writeValueAsString(msgEvent);
+            log.debug("[RabbitMQ] Enviando mensaje: {}", msgToSend);    
+            rabbitTemplate.convertAndSend(exchange, routingKey, msgToSend);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*
     private void programarActualizacionTarifa(Tarifa tarifa) {
         LocalDate fechaInicio = tarifa.getFechaInicio();
         LocalDateTime fechaEjecucion = fechaInicio.atStartOfDay();
@@ -226,14 +265,74 @@ public class TarifaService {
             e.printStackTrace();
         }
     }
+    */
 
+    @Scheduled(cron ="0 0 12 * * ?") // Todos los dias a las 12:00:00
+    private void checkTarifaActiva(){
 
-    public Optional<Tarifa> getTarifaByHabitacion(Habitacion habitacion) {
-        LocalDate fechaActual = LocalDate.now();
-        return tarifaRepository.findByTipoHabitacion_Id(habitacion.getTipoHabitacion().getId())
-            .stream()
-            .filter(t -> !t.getFechaInicio().isAfter(fechaActual) &&
-                     (t.getFechaFin() == null || !t.getFechaFin().isBefore(fechaActual)))
-            .findFirst();
+        //buscar tarifa vigente en fecha actual y tarifa dia previo a la fecha actual
+        List<Tarifa> tarifas = tarifaRepository.findAll();
+        
+        LocalDate hoy = LocalDate.now();
+        LocalDate ayer = hoy.minusDays(1);
+        
+        //obtener tarifa vigente y tarifa dia previo por cada tipo habitacion
+        Map<TipoHabitacion, Tarifa> tarifasVigentes = new HashMap<>();
+        Map<TipoHabitacion, Tarifa> tarifasDiaPrevio = new HashMap<>();
+
+        for(Tarifa t : tarifas){
+            if((t.getFechaInicio().isEqual(hoy) || t.getFechaInicio().isBefore(hoy)) &&
+               (t.getFechaFin() == null || t.getFechaFin().isAfter(hoy) || t.getFechaFin().isEqual(hoy))){
+                tarifasVigentes.put(t.getTipoHabitacion(), t);
+            }
+            if((t.getFechaInicio().isEqual(ayer) || t.getFechaInicio().isBefore(ayer)) &&
+               (t.getFechaFin() == null || t.getFechaFin().isAfter(ayer) || t.getFechaFin().isEqual(ayer))){
+                tarifasDiaPrevio.put(t.getTipoHabitacion(), t);
+            }
+        }
+
+        for(TipoHabitacion tipo : tarifasVigentes.keySet()){
+            Tarifa tarifaVigente = tarifasVigentes.get(tipo);
+            Tarifa tarifaDiaPrevio = tarifasDiaPrevio.get(tipo);
+            if(tarifaDiaPrevio != null && tarifaVigente.getPrecioNoche() != tarifaDiaPrevio.getPrecioNoche()){
+                enviarTarifaJms(tarifaVigente);
+            }
+        }
+        
+        return;
     }
+
+    private void checkTarifaActiva(TipoHabitacion tipoHabitacion){
+
+        //buscar tarifa vigente en fecha actual y tarifa dia previo a la fecha actual del TipoHabitacion indicado
+        List<Tarifa> tarifas = tarifaRepository.findByTipoHabitacion(tipoHabitacion);
+        LocalDate hoy = LocalDate.now();
+        LocalDate ayer = hoy.minusDays(1);
+        Tarifa tarifaVigente = tarifas.stream()
+            .filter(t -> (t.getFechaInicio().isEqual(hoy) || t.getFechaInicio().isBefore(hoy)) &&
+                        (t.getFechaFin() == null || t.getFechaFin().isAfter(hoy) || t.getFechaFin().isEqual(hoy)))
+            .findFirst()
+            .orElse(null);
+        Tarifa tarifaDiaPrevio = tarifas.stream()
+            .filter(t -> (t.getFechaInicio().isEqual(ayer) || t.getFechaInicio().isBefore(ayer)) &&
+                        (t.getFechaFin() == null || t.getFechaFin().isAfter(ayer) || t.getFechaFin().isEqual(ayer)))
+            .findFirst()
+            .orElse(null);
+            
+        if(tarifaVigente == null){
+            //TODO
+        }
+        if(tarifaVigente.getPrecioNoche() != tarifaDiaPrevio.getPrecioNoche()){
+            enviarTarifaJms(tarifaVigente);
+        }
+        
+        return;
+    }
+
+    //cada vez que se inicia el servicio, chequea si hay nuevas tarifas vigentes y las envia a reservas
+    @PostConstruct
+    public void onStartup() {
+        checkTarifaActiva();
+    }
+
 }

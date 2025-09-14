@@ -55,10 +55,6 @@ public class HabitacionService {
                 updateByHabitacionId(event.getHabitacion().getHabitacionId(),mapFromHabitacion(event.getHabitacion()));
                 break;
             case ACTUALIZAR_PRECIO:
-                // TODO implementar por el alumno
-                // en este caso el atributo TarifaDTO tiene 
-                // el ID de los tipos de habitaciones que van a tener un nuevo precio y el nuevo precio
-                // event.getTarifa()
                 actualizarPrecioPorTarifa(event.getTarifa());
                 break;
             case ELIMINAR:

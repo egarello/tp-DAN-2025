@@ -2,6 +2,8 @@ package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.HotelRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Hotel;
+import edu.utn.frsf.isi.dan.shared.HotelDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,5 +69,17 @@ public class HotelService {
         Hotel hotel = optionalHotel.get();
         hotel.getAmenities().removeIf(amenityHotel -> amenityHotel.getAmenity().equals(amenity));
         return Optional.of(hotelRepository.save(hotel));
+    }
+
+    public List<Hotel> findBy(HotelDTO hotelFiltro) {
+        return hotelRepository.findByFiltro(
+            hotelFiltro.getNombre(),
+            hotelFiltro.getDomicilio(),
+            hotelFiltro.getLatitud(),
+            hotelFiltro.getLongitud(),
+            hotelFiltro.getTelefono(),
+            hotelFiltro.getCorreoContacto(),
+            hotelFiltro.getCategoria()
+        );
     }
 }

@@ -2,6 +2,8 @@ package edu.utn.frsf.isi.dan.gestion.controller;
 
 import edu.utn.frsf.isi.dan.gestion.model.Hotel;
 import edu.utn.frsf.isi.dan.gestion.service.HotelService;
+import edu.utn.frsf.isi.dan.shared.HotelDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -73,6 +75,15 @@ public class HotelController {
         @RequestParam(required = false) Amenity amenity,
         @RequestParam(defaultValue = "nombre") String sortBy
         ) {
-        return null;
+        HotelDTO hotelFiltro = HotelDTO.builder()
+            .nombre(nombre)
+            .domicilio(domicilio)
+            .latitud(latitud)
+            .longitud(longitud)
+            .telefono(telefono)
+            .correoContacto(correoContacto)
+            .categoria(categoria)
+            .build();
+        return hotelService.findBy(hotelFiltro);
     }
 }

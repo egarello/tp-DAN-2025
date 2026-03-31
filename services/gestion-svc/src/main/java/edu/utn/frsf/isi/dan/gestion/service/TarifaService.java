@@ -1,6 +1,7 @@
 package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.TarifaRepository;
+import edu.utn.frsf.isi.dan.gestion.dao.TipoHabitacionRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Habitacion;
 import edu.utn.frsf.isi.dan.gestion.model.Tarifa;
 import edu.utn.frsf.isi.dan.gestion.model.TipoHabitacion;
@@ -37,6 +38,9 @@ public class TarifaService {
     private TarifaRepository tarifaRepository;
 
     @Autowired
+    private TipoHabitacionRepository tipoHabitacionRepository;
+
+    @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @Autowired
@@ -57,13 +61,18 @@ public class TarifaService {
 
     public Tarifa save(TarifaRecord tarifaRecord) {
 
-        TipoHabitacion tipo = new TipoHabitacion();
-        tipo.setId(tarifaRecord.idTipoHabitacion());
+        // Recuperar TipoHabitacion de la BD en lugar de crear una instancia transient
+        TipoHabitacion tipo = tipoHabitacionRepository.findById(tarifaRecord.idTipoHabitacion())
+                .orElseThrow(() -> new IllegalArgumentException("TipoHabitacion no encontrado con id: " + tarifaRecord.idTipoHabitacion()));
+        
         List<Tarifa> existentes = tarifaRepository.findByTipoHabitacion(tipo);
+        //log.info("Tarifas existentes para tipo ID {}: {} elementos (isEmpty: {})", 
+        //        tipo.getId(), existentes.size(), existentes.isEmpty());
 
         Tarifa tarifa = new Tarifa();
         tarifa.setTipoHabitacion(tipo);
         tarifa.setPrecioNoche(tarifaRecord.precioNoche());
+
 
         if(existentes.isEmpty()) {
             // Si no hay tarifas existentes, la nueva es la única y vigente
@@ -72,7 +81,7 @@ public class TarifaService {
             return tarifaRepository.save(tarifa);
         }
 
-        if(tarifaRecord.fechaInicio() == "" && tarifaRecord.fechaFin() == "") {
+        if(tarifaRecord.fechaInicio().isEmpty() && tarifaRecord.fechaFin().isEmpty()) {
             Tarifa anterior = existentes.stream()
                     .filter(t -> t.getFechaFin() == null || t.getFechaFin().isAfter(LocalDate.now()))
                     .max((t1, t2) -> {
@@ -92,6 +101,10 @@ public class TarifaService {
                     .orElse(null);
             anterior.setFechaFin(LocalDate.now().minusDays(1));
             tarifa.setFechaInicio(LocalDate.now());
+        } else if(!tarifaRecord.fechaInicio().isEmpty() && !tarifaRecord.fechaFin().isEmpty()) {
+            // Si se proporcionan fechas específicas, setearlas en la tarifa
+            tarifa.setFechaInicio(LocalDate.parse(tarifaRecord.fechaInicio()));
+            tarifa.setFechaFin(LocalDate.parse(tarifaRecord.fechaFin()));
         }
 
         return tarifaRepository.save(tarifa);
@@ -133,8 +146,9 @@ public class TarifaService {
     public List<Tarifa> crearTarifaPromocional(TarifaRecord tarifaPromocional, LocalDate fechaInicio, LocalDate fechaFin) {
         List<Tarifa> tarifasCreadas = new ArrayList<>();
 
-        TipoHabitacion tipo = new TipoHabitacion();
-        tipo.setId(tarifaPromocional.idTipoHabitacion());
+        // Recuperar TipoHabitacion de la BD en lugar de crear una instancia transient
+        TipoHabitacion tipo = tipoHabitacionRepository.findById(tarifaPromocional.idTipoHabitacion())
+                .orElseThrow(() -> new IllegalArgumentException("TipoHabitacion no encontrado con id: " + tarifaPromocional.idTipoHabitacion()));
 
         Tarifa tarifa = new Tarifa();
         tarifa.setTipoHabitacion(tipo);

@@ -62,7 +62,14 @@ public class GestionMessageListener {
     @RabbitListener(
         bindings = @QueueBinding(
             value = @Queue(value = "tarifa.actualizar.topic", durable = "true"),
-            exchange = @Exchange(value = "dan.exchange.delayed", type = "x-delayed-message"),
+            exchange = @Exchange(
+                value = "dan.exchange.delayed", 
+                type = "x-delayed-message", 
+                arguments = @org.springframework.amqp.rabbit.annotation.Argument(
+                    name = "x-delayed-type",
+                    value = "topic"
+                    )
+                ),
             key = "dan.tarifa.actualizar.#"
         ),
         ackMode = "MANUAL"

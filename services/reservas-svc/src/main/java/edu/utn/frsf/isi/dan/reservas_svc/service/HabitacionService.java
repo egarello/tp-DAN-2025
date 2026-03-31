@@ -88,7 +88,8 @@ public class HabitacionService {
                 .nombre(dto.getNombre())
                 .domicilio(dto.getDomicilio())
                 .categoria(dto.getCategoria())
-                .ubicacion(new GeoJsonPoint(dto.getLatitud(), dto.getLongitud()))
+                .ubicacion(dto.getLatitud() != null && dto.getLongitud() != null ? 
+                    new GeoJsonPoint(dto.getLatitud(), dto.getLongitud()) : null)
                 .build();
     }
 

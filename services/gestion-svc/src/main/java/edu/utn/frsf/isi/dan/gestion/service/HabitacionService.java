@@ -1,9 +1,13 @@
 package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.HabitacionRepository;
+import edu.utn.frsf.isi.dan.gestion.dao.HotelRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Habitacion;
+import edu.utn.frsf.isi.dan.gestion.model.Hotel;
+import edu.utn.frsf.isi.dan.gestion.service.TarifaService;
 import edu.utn.frsf.isi.dan.shared.HabitacionDTO;
 import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
+import edu.utn.frsf.isi.dan.shared.HotelDTO;
 import edu.utn.frsf.isi.dan.shared.TipoEvento;
 import lombok.extern.log4j.Log4j2;
 
@@ -17,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 //import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +32,12 @@ public class HabitacionService {
 
     @Autowired
     private HabitacionRepository habitacionRepository;
+
+    @Autowired
+    private HotelRepository hotelRepository;
+
+    @Autowired
+    private TarifaService tarifaService;
     
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -65,21 +76,29 @@ public class HabitacionService {
     }
 
     public void enviarHabitacionJms(Habitacion habitacion,boolean isNew) {
+
+        // Traer el hotel completo de la BD para obtener todos sus datos (latitud, longitud, etc.)
+        Hotel hotelCompleto = habitacion.getHotel() != null ? 
+            hotelRepository.findById(habitacion.getHotel().getId()).orElse(habitacion.getHotel()) : null;
+
         HabitacionDTO dto = HabitacionDTO.builder()
                 .habitacionId(habitacion.getId().longValue())
                 .numero(habitacion.getNumero())
                 .tipoHabitacionId(habitacion.getTipoHabitacion().getId())
                 .tipoHabitacion(habitacion.getTipoHabitacion().getDescripcion())
                 .capacidad(habitacion.getTipoHabitacion().getCapacidad())
-                .precioNoche(Double.valueOf(0.0))
-                .hotel(null)
+                .precioNoche(tarifaService.getTarifaByHabitacion(habitacion)
+                    .orElseThrow(() -> new RuntimeException("No existe tarifa vigente para la habitación con id: " + habitacion.getId()))
+                    .getPrecioNoche())
+                .hotel(mapToHotelDTO(hotelCompleto))
                 .build();
-        // agregar la tarifa que le corresponde por el tipo de habitacion
-        // agregar el hotel        
+        // Construir evento de habitación con tipo de operación (crear o actualizar)
         HabitacionEvent msgEvent = HabitacionEvent.builder()
                 .tipoEvento(isNew? TipoEvento.CREAR : TipoEvento.ACTUALIZAR_DATOS)
                 .habitacion(dto)
                 .build();
+                
+        // Serializar evento a JSON y enviarlo a RabbitMQ
         try {
             String msgToSend = objectMapper.writeValueAsString(msgEvent);
             log.debug("[RabbitMQ] Enviando mensaje: {}", msgToSend);    
@@ -113,4 +132,24 @@ public class HabitacionService {
         return habitacionesEncontradas; 
     }
 
+    private HotelDTO mapToHotelDTO(Hotel hotel) {
+        if (hotel == null) {
+            return null;
+        }
+        // Extraer amenities del hotel (convertir enum a String)
+        List<String> amenitiesList = hotel.getAmenities() != null ? 
+            hotel.getAmenities().stream()
+                .map(amenityHotel -> amenityHotel.getAmenity().name())
+                .collect(Collectors.toList()) : null;
+        
+        return HotelDTO.builder()
+                .id(hotel.getId())
+                .nombre(hotel.getNombre())
+                .domicilio(hotel.getDomicilio())
+                .latitud(hotel.getLatitud())
+                .longitud(hotel.getLongitud())
+                .categoria(hotel.getCategoria())
+                .amenities(amenitiesList)
+                .build();
+    }
 }

@@ -16,6 +16,7 @@ public class Habitacion {
     @Id
     private String id;
     private Long habitacionId;
+    private Integer numero;
     private Integer capacidad;
     private Double precioNoche;
     private List<String> amenities;

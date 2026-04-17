@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface GestionServiceClient {
     
     @GetMapping("/hoteles/{id}")
-    HotelDto getHotel(@PathVariable("id") Long id);
+    HotelDto getHotel(@PathVariable("id") Integer id);
     
     @GetMapping("/habitaciones/{id}")
-    HabitacionDto getHabitacion(@PathVariable("id") Long id);
+    HabitacionDto getHabitacion(@PathVariable("id") Integer id);
     
-    @GetMapping("/habitaciones/{id}/disponible")
-    Boolean isHabitacionDisponible(@PathVariable("id") Long id);
+    //@GetMapping("/habitaciones/{id}/disponible")
+    //Boolean isHabitacionDisponible(@PathVariable("id") Long id);
 }

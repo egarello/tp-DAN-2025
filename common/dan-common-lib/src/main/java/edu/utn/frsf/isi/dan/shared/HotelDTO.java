@@ -1,6 +1,5 @@
 package edu.utn.frsf.isi.dan.shared;
 import lombok.*;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,5 +15,4 @@ public class HotelDTO {
         private String telefono;
         private String correoContacto;
         private Integer categoria;
-        private List<String> amenities;
 }

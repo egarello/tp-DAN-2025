@@ -35,7 +35,7 @@ class ReservaServiceTest {
     @BeforeEach
     void setUp() {
         // Setup valid test data
-        validUser = new UserDto(1L, "Juan", "Pérez", "juan@email.com", "12345678");
+        validUser = new UserDto(1, "Juan", "Pérez", "juan@email.com", "12345678");
         
         Huesped huesped = Huesped.builder()
                 .idUsuario("1")
@@ -45,7 +45,7 @@ class ReservaServiceTest {
         
         validReserva = Reserva.builder()
                 .idHabitacion("1")
-                .hotelId(1L)
+                .hotelId(1)
                 .huesped(huesped)
                 .build();
     }
@@ -53,7 +53,7 @@ class ReservaServiceTest {
     @Test
     void testSave_ValidReservation_Success() {
         // Arrange
-        when(userServiceClient.getHuesped(1L)).thenReturn(validUser);
+        when(userServiceClient.getHuesped(1)).thenReturn(validUser);
         when(reservaRepository.save(any(Reserva.class))).thenReturn(validReserva);
         
         // Act
@@ -61,21 +61,21 @@ class ReservaServiceTest {
         
         // Assert
         assertNotNull(result);
-        verify(userServiceClient).getHuesped(1L);
+        verify(userServiceClient).getHuesped(1);
         verify(reservaRepository).save(validReserva);
     }
     
     @Test
     void testSave_UserNotFound_ThrowsException() {
         // Arrange
-        when(userServiceClient.getHuesped(1L)).thenReturn(null);
+        when(userServiceClient.getHuesped(1)).thenReturn(null);
         
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, 
                 () -> reservaService.save(validReserva));
         
         assertTrue(exception.getMessage().contains("Huésped no encontrado"));
-        verify(userServiceClient).getHuesped(1L);
+        verify(userServiceClient).getHuesped(1);
         verify(reservaRepository, never()).save(any());
     }
     
@@ -89,7 +89,7 @@ class ReservaServiceTest {
         
         Reserva invalidReserva = Reserva.builder()
                 .idHabitacion("1")
-                .hotelId(1L)
+                .hotelId(1)
                 .huesped(invalidHuesped)
                 .build();
         
@@ -105,7 +105,7 @@ class ReservaServiceTest {
     @Test
     void testSave_UserServiceException_ThrowsException() {
         // Arrange
-        when(userServiceClient.getHuesped(1L))
+        when(userServiceClient.getHuesped(1))
                 .thenThrow(new RuntimeException("Service unavailable"));
         
         // Act & Assert

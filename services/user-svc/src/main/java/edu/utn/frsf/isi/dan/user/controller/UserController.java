@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import edu.utn.frsf.isi.dan.user.model.TarjetaCredito;
 import edu.utn.frsf.isi.dan.user.model.Usuario;
+import edu.utn.frsf.isi.dan.user.model.Huesped;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -93,5 +94,19 @@ public class UserController {
     @GetMapping("/buscar-dni")
     public Page<Usuario> buscarUsuariosPorDni(@RequestParam String dni, Pageable pageable) {
         return userService.buscarPorDni(dni, pageable);
+    }
+
+    @GetMapping("/huesped/{id}")
+    public ResponseEntity<Huesped> buscarHuespedPorId(@PathVariable Integer id) {
+        Huesped huesped = userService.buscarHuespedPorId(id);
+        if (huesped == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(huesped);
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Integer id) {
+        Usuario usuario = userService.buscarPorId(id);
+        if (usuario == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(usuario);
     }
 }

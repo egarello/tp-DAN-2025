@@ -47,7 +47,7 @@ public class ReservaService {
         // Validate user exists using idUsuario from Huesped
         if (reserva.getHuesped() != null && reserva.getHuesped().getIdUsuario() != null) {
             try {
-                Long userId = Long.parseLong(reserva.getHuesped().getIdUsuario());
+                Integer userId = Integer.parseInt(reserva.getHuesped().getIdUsuario());
                 UserDto user = userServiceClient.getHuesped(userId);
                 if (user == null) {
                     throw new RuntimeException("Huésped no encontrado con ID: " + reserva.getHuesped().getIdUsuario());
@@ -77,7 +77,7 @@ public class ReservaService {
             throw new RuntimeException("ID de habitación no puede ser nulo");
         }
         try {
-            HabitacionDto habitacion = gestionServiceClient.getHabitacion(Long.parseLong(reserva.getIdHabitacion()));
+            HabitacionDto habitacion = gestionServiceClient.getHabitacion(Integer.parseInt(reserva.getIdHabitacion()));
             if (habitacion == null) {
                 throw new RuntimeException("Habitación no encontrada con ID: " + reserva.getIdHabitacion());
             }

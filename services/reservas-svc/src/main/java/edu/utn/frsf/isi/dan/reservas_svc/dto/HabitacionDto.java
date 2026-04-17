@@ -2,12 +2,18 @@ package edu.utn.frsf.isi.dan.reservas_svc.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class HabitacionDto {
+
+    @JsonProperty("id")
     private Long habitacionId;
     private Integer numero;
     private Integer piso;
     private Integer tipoHabitacionId;
     private Integer capacidad;
+    @JsonIgnore
     private String tipoHabitacion;
     private String tipoHabitacionDescripcion;
     private Double precioNoche;

@@ -17,7 +17,7 @@ public class Reserva {
     @Id
     private String _id;
     private String idHabitacion;
-    private Long hotelId;
+    private Integer hotelId;
     private Instant createdAt;
     private Instant checkIn;
     private Instant checkOut;

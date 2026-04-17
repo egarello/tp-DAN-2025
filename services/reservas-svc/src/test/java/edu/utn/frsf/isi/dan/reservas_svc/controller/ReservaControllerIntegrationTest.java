@@ -37,9 +37,9 @@ class ReservaControllerIntegrationTest {
     @Test
     void testCreateReserva_ValidData_Success() throws Exception {
         // Arrange
-        UserDto mockUser = new UserDto(1L, "Juan", "Pérez", "juan@email.com", "12345678");
+        UserDto mockUser = new UserDto((int) 1L, "Juan", "Pérez", "juan@email.com", "12345678");
         
-        when(userServiceClient.getHuesped(1L)).thenReturn(mockUser);
+        when(userServiceClient.getHuesped((int) 1L)).thenReturn(mockUser);
         
         Huesped huesped = Huesped.builder()
                 .idUsuario("1")
@@ -49,7 +49,7 @@ class ReservaControllerIntegrationTest {
         
         Reserva reserva = Reserva.builder()
                 .idHabitacion("1")
-                .hotelId(1L)
+                .hotelId((int) 1L)
                 .createdAt(Instant.now())
                 .checkIn(Instant.now().plusSeconds(86400)) // Tomorrow
                 .checkOut(Instant.now().plusSeconds(172800)) // Day after tomorrow
@@ -72,7 +72,7 @@ class ReservaControllerIntegrationTest {
     @Test
     void testCreateReserva_InvalidUser_ReturnsBadRequest() throws Exception {
         // Arrange
-        when(userServiceClient.getHuesped(anyLong())).thenReturn(null);
+        when(userServiceClient.getHuesped((int) anyLong())).thenReturn(null);
         
         Huesped huesped = Huesped.builder()
                 .idUsuario("999")
@@ -81,7 +81,7 @@ class ReservaControllerIntegrationTest {
         
         Reserva reserva = Reserva.builder()
                 .idHabitacion("1")
-                .hotelId(1L)
+                .hotelId((int) 1L)
                 .huesped(huesped)
                 .build();
         

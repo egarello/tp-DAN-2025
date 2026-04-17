@@ -81,6 +81,12 @@ public class HabitacionService {
         Hotel hotelCompleto = habitacion.getHotel() != null ? 
             hotelRepository.findById(habitacion.getHotel().getId()).orElse(habitacion.getHotel()) : null;
 
+        // Extraer amenities del hotel (convertir enum a String)
+        List<String> amenitiesList = hotelCompleto != null && hotelCompleto.getAmenities() != null ? 
+            hotelCompleto.getAmenities().stream()
+                .map(amenityHotel -> amenityHotel.getAmenity().name())
+                .collect(Collectors.toList()) : null;
+
         HabitacionDTO dto = HabitacionDTO.builder()
                 .habitacionId(habitacion.getId().longValue())
                 .numero(habitacion.getNumero())
@@ -90,6 +96,7 @@ public class HabitacionService {
                 .precioNoche(tarifaService.getTarifaByHabitacion(habitacion)
                     .orElseThrow(() -> new RuntimeException("No existe tarifa vigente para la habitación con id: " + habitacion.getId()))
                     .getPrecioNoche())
+                .amenities(amenitiesList)
                 .hotel(mapToHotelDTO(hotelCompleto))
                 .build();
         // Construir evento de habitación con tipo de operación (crear o actualizar)
@@ -136,12 +143,6 @@ public class HabitacionService {
         if (hotel == null) {
             return null;
         }
-        // Extraer amenities del hotel (convertir enum a String)
-        List<String> amenitiesList = hotel.getAmenities() != null ? 
-            hotel.getAmenities().stream()
-                .map(amenityHotel -> amenityHotel.getAmenity().name())
-                .collect(Collectors.toList()) : null;
-        
         return HotelDTO.builder()
                 .id(hotel.getId())
                 .nombre(hotel.getNombre())
@@ -149,7 +150,6 @@ public class HabitacionService {
                 .latitud(hotel.getLatitud())
                 .longitud(hotel.getLongitud())
                 .categoria(hotel.getCategoria())
-                .amenities(amenitiesList)
                 .build();
     }
 }

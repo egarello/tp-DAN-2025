@@ -219,4 +219,26 @@ public class UserService {
         }
         return false;
     }
+
+    public Usuario buscarPorId(Integer id) {
+        return usuarioRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id));
+        /* Optional<Usuario> usuario = usuarioRepository.findById(id);
+        if (usuario.isEmpty()) {
+            throw new IllegalArgumentException("Usuario no encontrado con ID: " + id);
+        }
+        return usuario.get(); */
+    }
+
+    public Huesped buscarHuespedPorId(Integer id) {
+        return usuarioRepository.findById(id)
+            .filter(usuario -> usuario instanceof Huesped)
+            .map(usuario -> (Huesped) usuario)
+            .orElseThrow(() -> new IllegalArgumentException("Huesped no encontrado con ID: " + id));
+        /* Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+        if (usuarioOptional.isEmpty() || !(usuarioOptional.get() instanceof Huesped)) {
+            throw new IllegalArgumentException("Usuario no encontrado con ID: " + id);
+        }
+        return (Huesped) usuarioOptional.get(); */
+    }
 }

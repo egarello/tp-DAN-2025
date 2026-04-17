@@ -1,0 +1,23 @@
+{
+  "habitacionId": 27,
+  "hotelId": 1,
+  "createdAt": "2026-04-07T12:05:00Z",
+  "checkIn": "2026-04-07",
+  "checkOut": "2025-04-14",
+  "appliedRate": { "amount": 48000, "currency": "ARS" },
+  "status": "CONFIRMED",
+  "guest": {
+    "id_usuario": "1234556",
+    "fullName": "Carla Gómez",
+    "email": "carla@example.com",
+    "phone": "+54 9 342-555-1234"
+  },
+  "payment": {
+    "method": "CREDIT_CARD",
+    "transactionId": "txn_123456789",
+    "amount": { "amount": 50000, "currency": "ARS" },
+    "status": "COMPLETED"
+  },
+  "clientReview": null,
+  "hostReview": null
+}

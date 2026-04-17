@@ -72,9 +72,12 @@ public class HabitacionService {
     public Habitacion mapFromHabitacion(HabitacionDTO dto) {
         return Habitacion.builder()
                 .habitacionId(dto.getHabitacionId())
+                .numero(dto.getNumero())
                 .precioNoche(dto.getPrecioNoche())
                 .capacidad(dto.getCapacidad())
                 .amenities(dto.getAmenities())
+                .idTipoHabitacion(dto.getTipoHabitacionId())
+                .tipoHabitacion(dto.getTipoHabitacion())
                 .hotel(mapFromDto(dto.getHotel()))
                 .build();
     }

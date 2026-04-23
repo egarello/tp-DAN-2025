@@ -7,7 +7,7 @@ import edu.utn.frsf.isi.dan.reservas_svc.model.Huesped;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Reserva;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureTestRestTemplate;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;

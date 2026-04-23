@@ -15,8 +15,8 @@
     {
       "user": "admin",
       "vhost": "/",
-      "configure": ".*",
-      "write": ".*",
+      "configure": ".",
+      "write": ".",
       "read": ".*"
     }
   ],

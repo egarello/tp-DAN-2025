@@ -62,23 +62,27 @@ services:
       - observability
 
   rabbitmq:
-    image: rabbitmq:3-management
+    build:
+      context: ./rabbitmq
+      dockerfile: Dockerfile
     container_name: rabbitmq
     restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"   # puerto para aplicaciones
+      - "15672:15672" # puerto para la consola web de administración
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_LOAD_DEFINITIONS: /etc/rabbitmq/definitions.json
     volumes:
+      # Monta el archivo de definiciones en la ruta que lee RabbitMQ al arrancar
       - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
     networks:
       - observability
 
   # Observability Stack
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:0.130.1
     container_name: otel-collector
     restart: unless-stopped
     command: ["--config=/etc/otel-collector-config.yaml"]
@@ -96,12 +100,12 @@ services:
       - observability
 
   tempo:
-    image: grafana/tempo:latest
+    image: grafana/tempo:main-8b5ef72
     container_name: tempo
     restart: unless-stopped
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    command: [ "-config.file=/etc/tempo-config.yaml" ]
     volumes:
-      - ./tempo/tempo-config.yaml:/etc/tempo.yaml
+      - ./tempo/tempo-config.yaml:/etc/tempo-config.yaml
       - tempo_data:/var/tempo
     ports:
       - "3200:3200"   # Tempo API
@@ -182,7 +186,7 @@ services:
     ports:
       - "8761:8761"
     environment:
-      SPRING_PROFILES_ACTIVE: default
+      SPRING_PROFILES_ACTIVE: eureka
     networks:
       - observability
 

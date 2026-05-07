@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TarjetaCreditoRecord",
+  "type": "object",
+  "properties": {
+    "numeroCC": { "type": "string" },
+    "nombreTitular": { "type": "string" },
+    "fechaVencimientoCC": { "type": "string", "description": "Formato sugerido MM/YY" },
+    "cvcCC": { "type": "string", "pattern": "^\\d{3,4}$" },
+    "esPrincipalCC": { "type": "boolean" },
+    "idBanco": { "type": "integer" }
+  },
+  "additionalProperties": false
+}

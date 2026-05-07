@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PropietarioRecord",
+  "type": "object",
+  "properties": {
+    "nombre": { "type": "string", "minLength": 5 },
+    "dni": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "telefono": { "type": "string" },
+    "idHotel": { "type": "integer" },
+    "cuentaBancaria": { "$ref": "./CuentaBancariaRecord.schema.json" }
+  },
+  "required": ["nombre", "telefono", "cuentaBancaria"],
+  "additionalProperties": false
+}

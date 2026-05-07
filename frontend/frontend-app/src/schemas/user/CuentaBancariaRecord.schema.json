@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CuentaBancariaRecord",
+  "type": "object",
+  "properties": {
+    "numeroCuenta": { "type": "string" },
+    "cbu": { "type": "string" },
+    "alias": { "type": "string" },
+    "idBanco": { "type": "integer" }
+  },
+  "required": ["numeroCuenta", "cbu", "alias", "idBanco"],
+  "additionalProperties": false
+}

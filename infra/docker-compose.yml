@@ -189,13 +189,30 @@ services:
       SERVER_PORT: 8080
       #SPRING_PROFILES_ACTIVE: default
 
+  frontend:
+    build:
+      context: ../frontend/frontend-app
+      dockerfile: Dockerfile
+    container_name: frontend-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
 volumes:
   mysql_data:
   postgres_data:
   pgadmin_data:
   mongo_data:
 
-networks:
-  default:
-    external: true
-    name: observability
+#networks:
+#  default:
+#    external: true
+#    name: observability

@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HuespedRecord",
+  "type": "object",
+  "properties": {
+    "nombre": { "type": "string" },
+    "dni": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "telefono": { "type": "string" },
+    "fechaNacimiento": { "type": "string", "format": "date" },
+    "numeroCC": { "type": "string" },
+    "nombreTitular": { "type": "string" },
+    "fechaVencimientoCC": { "type": "string", "description": "Formato sugerido MM/YY" },
+    "cvcCC": { "type": "string", "pattern": "^\\d{3,4}$", "description": "3 o 4 dígitos" },
+    "esPrincipalCC": { "type": "boolean" },
+    "idBanco": { "type": "integer" }
+  },
+  "additionalProperties": false
+}

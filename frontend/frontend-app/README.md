@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend Hotel Management System
 
-## Getting Started
+Frontend de la aplicación de gestión hotelera construida con Next.js 16.2.4 y React 19.2.4.
 
-First, run the development server:
+## Stack Tecnológico
+
+- **Next.js 16.2.4** - React framework con App Router
+- **React 19.2.4** - UI library
+- **TypeScript 5** - Type safety
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **Node.js 22 Alpine** - Runtime de producción en Docker
+
+## Desarrollo Local
+
+### Requisitos
+- Node.js 22+
+- npm o yarn
+
+### Instalación
 
 ```bash
+# Instalar dependencias
+npm install
+
+# Ejecutar servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+El servidor se recargará automáticamente cuando edites archivos.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Comandos Disponibles
 
-## Learn More
+```bash
+# Desarrollo
+npm run dev
 
-To learn more about Next.js, take a look at the following resources:
+# Build para producción
+npm run build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Ejecutar versión de producción
+npm start
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Linter
+npm run lint
+```
 
-## Deploy on Vercel
+## Docker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Construcción de imagen
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Desde la raíz del proyecto
+docker build -f frontend/frontend-app/Dockerfile -t frontend-app:latest .
+
+# O desde la carpeta del frontend
+cd frontend/frontend-app
+docker build -t frontend-app:latest .
+```
+
+### Ejecutar contenedor
+
+```bash
+# Ejecutar en modo interactivo
+docker run -it -p 3000:3000 frontend-app:latest
+
+# Ejecutar en background
+docker run -d -p 3000:3000 --name frontend frontend-app:latest
+
+# Ver logs
+docker logs -f frontend
+
+# Detener
+docker stop frontend
+```
+
+### Con Docker Compose
+
+```bash
+# Desde la raíz del proyecto
+docker compose -f infra/docker-compose.yml up frontend
+
+# O todos los servicios
+docker compose -f infra/docker-compose.yml up
+
+# Detener
+docker compose -f infra/docker-compose.yml down
+```
+
+## Estructura del Proyecto
+
+```
+src/
+├── app/
+│   ├── layout.tsx       - Root layout
+│   ├── page.tsx         - Home page
+│   └── globals.css      - Global styles
+├── components/          - (A crear) Componentes reutilizables
+├── pages/              - (A crear) Páginas
+├── lib/                - (A crear) Utilidades
+└── types/              - (A crear) TypeScript types
+```
+
+## Configuración
+
+### Alias de importes
+
+Usa `@/` para importar desde `src/`:
+
+```typescript
+// En lugar de: import Component from '../../../components/Component'
+import Component from '@/components/Component'
+```
+
+## Puerto
+
+- **Desarrollo**: `http://localhost:3000`
+- **Producción (Docker)**: `http://localhost:3000`
+
+## Healthcheck
+
+El contenedor Docker incluye un healthcheck que verifica que la aplicación esté respondiendo en puerto 3000.
+
+## Más Información
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS Docs](https://tailwindcss.com/docs)
+- [React Docs](https://react.dev)

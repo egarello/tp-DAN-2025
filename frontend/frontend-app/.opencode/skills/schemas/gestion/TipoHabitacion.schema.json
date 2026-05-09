@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TipoHabitacion",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "ID del tipo"
+    },
+    "nombre": {
+      "type": "string",
+      "description": "Nombre del tipo (ej: Single, Double, Suite)"
+    },
+    "descripcion": {
+      "type": "string",
+      "description": "Descripción del tipo"
+    },
+    "capacidad": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Capacidad de personas"
+    }
+  },
+  "required": ["id", "nombre", "capacidad"],
+  "additionalProperties": false
+}

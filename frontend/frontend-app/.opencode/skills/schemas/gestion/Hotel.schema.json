@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hotel",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "ID (autogenerado, omitir en POST)"
+    },
+    "nombre": {
+      "type": "string",
+      "description": "Nombre del hotel"
+    },
+    "cuit": {
+      "type": "string",
+      "description": "CUIT del hotel"
+    },
+    "domicilio": {
+      "type": "string",
+      "description": "Domicilio"
+    },
+    "latitud": {
+      "type": "number",
+      "description": "Latitud (coordenada)"
+    },
+    "longitud": {
+      "type": "number",
+      "description": "Longitud (coordenada)"
+    },
+    "telefono": {
+      "type": "string",
+      "description": "Teléfono de contacto"
+    },
+    "correoContacto": {
+      "type": "string",
+      "format": "email",
+      "description": "Correo de contacto"
+    },
+    "categoria": {
+      "type": "integer",
+      "description": "Categoría (estrellas u otro sistema)"
+    }
+  },
+  "required": ["nombre"],
+  "additionalProperties": false
+}

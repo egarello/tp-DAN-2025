@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TarifaRecord",
+  "type": "object",
+  "properties": {
+    "fechaInicio": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de inicio de la tarifa (ISO 8601)"
+    },
+    "fechaFin": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de fin de la tarifa (ISO 8601)"
+    },
+    "idTipoHabitacion": {
+      "type": "integer",
+      "description": "ID del tipo de habitación asociado"
+    },
+    "precioNoche": {
+      "type": "number",
+      "description": "Precio por noche"
+    }
+  },
+  "required": ["fechaInicio", "fechaFin", "idTipoHabitacion", "precioNoche"],
+  "additionalProperties": false
+}

@@ -7,7 +7,9 @@ Skill para el frontend que documenta los endpoints del servicio `user-svc` (cons
 Base URL
 
 - API Gateway: `http://localhost:8080`
-- Base path del servicio de usuarios: `/users`
+- Base path del `UserController` vía Gateway: `/users/users`
+- Base path del `BancoController` vía Gateway: `/users/bancos`
+- Nota de ruteo: en endpoints del `UserController`, el primer `/users` selecciona el microservicio `user-svc` en el API Gateway y el segundo `/users` corresponde al mapping del controller. En bancos no se usa `/users/users/bancos`; bancos tiene controller propio y se consume con `/users/bancos`.
 
 Notas generales
 
@@ -27,7 +29,7 @@ Endpoints
 1) Crear usuario huesped
 
 - Método: POST
-- Ruta: `/users/huesped`
+- Ruta: `/users/users/huesped`
 - Descripción: Crea un nuevo usuario de tipo `Huesped`. El body acepta datos del usuario y (opcionalmente) una tarjeta de crédito para asociar al crear.
 - Request body (schema): `HuespedRecord` — `../schemas/user/HuespedRecord.schema.json`
 
@@ -69,7 +71,7 @@ Respuesta (ejemplo minimal de recurso creado) — la API retorna el recurso `Hue
 2) Crear usuario propietario
 
 - Método: POST
-- Ruta: `/users/propietario`
+- Ruta: `/users/users/propietario`
 - Descripción: Crea usuario de tipo `Propietario` (incluye `CuentaBancaria` como objeto anidado).
 - Request body (schema): `PropietarioRecord` — `../schemas/user/PropietarioRecord.schema.json`
 
@@ -99,7 +101,7 @@ Respuestas:
 3) Agregar tarjeta de crédito a un huesped
 
 - Método: POST
-- Ruta: `/users/huesped/{dni}/tarjeta`
+- Ruta: `/users/users/huesped/{dni}/tarjeta`
 - Parámetros: `dni` en path (string)
 - Request body (schema): `TarjetaCreditoRecord` — `../schemas/user/TarjetaCreditoRecord.schema.json`
 
@@ -124,7 +126,7 @@ Respuestas:
 4) Eliminar tarjeta de crédito de un huesped
 
 - Método: DELETE
-- Ruta: `/users/huesped/{dni}/eliminar-tarjeta`
+- Ruta: `/users/users/huesped/{dni}/eliminar-tarjeta`
 - Parámetros: `dni` en path (string)
 - Request body (schema): `TarjetaCreditoRecord` (se usa para identificar la tarjeta a eliminar)
 
@@ -145,7 +147,7 @@ Respuestas:
 5) Cambiar la tarjeta principal de un huesped
 
 - Método: PUT
-- Ruta: `/users/huesped/{dni}/cambiar-tarjeta-principal`
+- Ruta: `/users/users/huesped/{dni}/cambiar-tarjeta-principal`
 - Parámetros: `dni` en path (string)
 - Request body (schema): `TarjetaCreditoRecord` (tarjeta que se desea marcar como principal)
 
@@ -166,7 +168,7 @@ Respuestas:
 6) Eliminar usuario huesped por DNI
 
 - Método: DELETE
-- Ruta: `/users/huesped/eliminar/{dni}`
+- Ruta: `/users/users/huesped/eliminar/{dni}`
 - Parámetros: `dni` en path (string)
 - Nota: en el backend la firma del método usa `@RequestParam` pero el mapeo aplica `{dni}` en la ruta; documentar con `{dni}` en path y validar con el backend en caso de discrepancia.
 
@@ -178,7 +180,7 @@ Respuestas:
 7) Listar usuarios (búsqueda por nombre)
 
 - Método: GET
-- Ruta: `/users`
+- Ruta: `/users/users`
 - Query params: `nombre` (opcional), `page`, `size`
 - Respuesta: `Page<Usuario>` (paginado)
 
@@ -207,7 +209,7 @@ Ejemplo response JSON:
 8) Obtener usuario por DNI exacto
 
 - Método: GET
-- Ruta: `/users/dni/{dni}`
+- Ruta: `/users/users/dni/{dni}`
 - Parámetros: `dni` en path (string)
 - Respuesta: `Usuario` (ver modelo)
 
@@ -228,7 +230,7 @@ Ejemplo response JSON:
 9) Buscar usuarios por DNI (contiene)
 
 - Método: GET
-- Ruta: `/users/buscar-dni`
+- Ruta: `/users/users/buscar-dni`
 - Query params: `dni` (string), `page`, `size`
 - Respuesta: `Page<Usuario>` (paginado). Usa el mismo formato que la respuesta de listado.
 
@@ -237,7 +239,7 @@ Ejemplo response JSON:
 10) Obtener huésped por ID
 
 - Método: GET
-- Ruta: `/users/huesped/{id}`
+- Ruta: `/users/users/huesped/{id}`
 - Parámetros: `id` en path (integer)
 - Respuesta: `Huesped` con `tarjetaCredito` (array)
 
@@ -273,11 +275,29 @@ Ejemplo response JSON:
 11) Obtener usuario por ID
 
 - Método: GET
-- Ruta: `/users/{id}`
+- Ruta: `/users/users/{id}`
 - Parámetros: `id` en path (integer)
 - Respuesta: `Usuario`
 
 Ejemplo response JSON: ver ejemplo en "Obtener usuario por DNI exacto" (estructura `Usuario`).
+
+---
+
+12) Listar bancos
+
+- Método: GET
+- Ruta: `/users/bancos`
+- Query params: `page`, `size`
+- Respuesta: `Page<Banco>`
+
+---
+
+13) Obtener banco por ID
+
+- Método: GET
+- Ruta: `/users/bancos/{bancoId}`
+- Parámetros: `bancoId` en path (integer)
+- Respuesta: `Banco`
 
 ---
 
@@ -289,7 +309,7 @@ Referencias
 
 Checklist para frontend
 
-- Usar `http://localhost:8080/users` como base para peticiones.
+- Usar `http://localhost:8080/users/users` como base para peticiones del `UserController`.
 - Para formularios, consumir los JSON Schema en `frontend/frontend-app/src/schemas/user/`.
 - Validar en cliente según los schemas y mostrar mensajes de error coherentes con las reglas del backend (por ejemplo, `PropietarioRecord.nombre` mínimo 5 caracteres).
 
@@ -307,7 +327,9 @@ Skill para el frontend que documenta los endpoints del servicio `user-svc` (cons
 Base URL
 
 - API Gateway: `http://localhost:8080`
-- Base path del servicio de usuarios: `/users`
+- Base path del `UserController` vía Gateway: `/users/users`
+- Base path del `BancoController` vía Gateway: `/users/bancos`
+- Nota de ruteo: en endpoints del `UserController`, el primer `/users` selecciona el microservicio `user-svc` en el API Gateway y el segundo `/users` corresponde al mapping del controller. En bancos no se usa `/users/users/bancos`; bancos tiene controller propio y se consume con `/users/bancos`.
 
 Notas generales
 
@@ -327,7 +349,7 @@ Endpoints
 1) Crear usuario huesped
 
 - Método: POST
-- Ruta: `/users/huesped`
+- Ruta: `/users/users/huesped`
 - Descripción: Crea un nuevo usuario de tipo `Huesped`. El body acepta datos del usuario y (opcionalmente) una tarjeta de crédito para asociar al crear.
 - Request body (schema): `HuespedRecord` — `../schemas/user/HuespedRecord.schema.json`
 
@@ -369,7 +391,7 @@ Respuesta (ejemplo minimal de recurso creado) — la API retorna el recurso `Hue
 2) Crear usuario propietario
 
 - Método: POST
-- Ruta: `/users/propietario`
+- Ruta: `/users/users/propietario`
 - Descripción: Crea usuario de tipo `Propietario` (incluye `CuentaBancaria` como objeto anidado).
 - Request body (schema): `PropietarioRecord` — `../schemas/user/PropietarioRecord.schema.json`
 
@@ -399,7 +421,7 @@ Respuestas:
 3) Agregar tarjeta de crédito a un huesped
 
 - Método: POST
-- Ruta: `/users/huesped/{dni}/tarjeta`
+- Ruta: `/users/users/huesped/{dni}/tarjeta`
 - Parámetros: `dni` en path (string)
 - Request body (schema): `TarjetaCreditoRecord` — `../schemas/user/TarjetaCreditoRecord.schema.json`
 
@@ -424,7 +446,7 @@ Respuestas:
 4) Eliminar tarjeta de crédito de un huesped
 
 - Método: DELETE
-- Ruta: `/users/huesped/{dni}/eliminar-tarjeta`
+- Ruta: `/users/users/huesped/{dni}/eliminar-tarjeta`
 - Parámetros: `dni` en path (string)
 - Request body (schema): `TarjetaCreditoRecord` (se usa para identificar la tarjeta a eliminar)
 
@@ -445,7 +467,7 @@ Respuestas:
 5) Cambiar la tarjeta principal de un huesped
 
 - Método: PUT
-- Ruta: `/users/huesped/{dni}/cambiar-tarjeta-principal`
+- Ruta: `/users/users/huesped/{dni}/cambiar-tarjeta-principal`
 - Parámetros: `dni` en path (string)
 - Request body (schema): `TarjetaCreditoRecord` (tarjeta que se desea marcar como principal)
 
@@ -466,7 +488,7 @@ Respuestas:
 6) Eliminar usuario huesped por DNI
 
 - Método: DELETE
-- Ruta: `/users/huesped/eliminar/{dni}`
+- Ruta: `/users/users/huesped/eliminar/{dni}`
 - Parámetros: `dni` en path (string)
 - Nota: en el backend la firma del método usa `@RequestParam` pero el mapeo aplica `{dni}` en la ruta; documentar con `{dni}` en path y validar con el backend en caso de discrepancia.
 
@@ -478,7 +500,7 @@ Respuestas:
 7) Listar usuarios (búsqueda por nombre)
 
 - Método: GET
-- Ruta: `/users`
+- Ruta: `/users/users`
 - Query params: `nombre` (opcional), `page`, `size`
 - Respuesta: `Page<Usuario>` (paginado)
 
@@ -507,7 +529,7 @@ Ejemplo response JSON:
 8) Obtener usuario por DNI exacto
 
 - Método: GET
-- Ruta: `/users/dni/{dni}`
+- Ruta: `/users/users/dni/{dni}`
 - Parámetros: `dni` en path (string)
 - Respuesta: `Usuario` (ver modelo)
 
@@ -528,7 +550,7 @@ Ejemplo response JSON:
 9) Buscar usuarios por DNI (contiene)
 
 - Método: GET
-- Ruta: `/users/buscar-dni`
+- Ruta: `/users/users/buscar-dni`
 - Query params: `dni` (string), `page`, `size`
 - Respuesta: `Page<Usuario>` (paginado). Usa el mismo formato que la respuesta de listado.
 
@@ -537,7 +559,7 @@ Ejemplo response JSON:
 10) Obtener huésped por ID
 
 - Método: GET
-- Ruta: `/users/huesped/{id}`
+- Ruta: `/users/users/huesped/{id}`
 - Parámetros: `id` en path (integer)
 - Respuesta: `Huesped` con `tarjetaCredito` (array)
 
@@ -573,11 +595,29 @@ Ejemplo response JSON:
 11) Obtener usuario por ID
 
 - Método: GET
-- Ruta: `/users/{id}`
+- Ruta: `/users/users/{id}`
 - Parámetros: `id` en path (integer)
 - Respuesta: `Usuario`
 
 Ejemplo response JSON: ver ejemplo en "Obtener usuario por DNI exacto" (estructura `Usuario`).
+
+---
+
+12) Listar bancos
+
+- Método: GET
+- Ruta: `/users/bancos`
+- Query params: `page`, `size`
+- Respuesta: `Page<Banco>`
+
+---
+
+13) Obtener banco por ID
+
+- Método: GET
+- Ruta: `/users/bancos/{bancoId}`
+- Parámetros: `bancoId` en path (integer)
+- Respuesta: `Banco`
 
 ---
 
@@ -589,7 +629,7 @@ Referencias
 
 Checklist para frontend
 
-- Usar `http://localhost:8080/users` como base para peticiones.
+- Usar `http://localhost:8080/users/users` como base para peticiones del `UserController`.
 - Para formularios, consumir los JSON Schema en `frontend/frontend-app/src/schemas/user/`.
 - Validar en cliente según los schemas y mostrar mensajes de error coherentes con las reglas del backend (por ejemplo, `PropietarioRecord.nombre` mínimo 5 caracteres).
 

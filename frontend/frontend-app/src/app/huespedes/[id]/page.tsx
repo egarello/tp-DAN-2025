@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getHuespedPorId, Huesped } from '@/lib/api';
+import { eliminarHuespedPorDni, eliminarTarjetaCredito, getHuespedPorId, Huesped } from '@/lib/api';
 
 export default function HuespedDetailPage() {
   const params = useParams();
@@ -10,6 +10,8 @@ export default function HuespedDetailPage() {
   const [huesped, setHuesped] = useState<Huesped | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [deletingAction, setDeletingAction] = useState<string | null>(null);
 
   useEffect(() => {
     const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -32,6 +34,61 @@ export default function HuespedDetailPage() {
     }
   }, [params.id]);
 
+  const handleEliminarTarjeta = async (tarjetaId: number) => {
+    if (!huesped?.tarjetaCredito) return;
+
+    const tarjeta = huesped.tarjetaCredito.find((item) => item.id === tarjetaId);
+    if (!tarjeta) return;
+
+    const confirmed = window.confirm(`¿Eliminar la tarjeta terminada en ${tarjeta.numero.slice(-4)}?`);
+    if (!confirmed) return;
+
+    try {
+      setError(null);
+      setSuccess(null);
+      setDeletingAction(`tarjeta-${tarjetaId}`);
+
+      await eliminarTarjetaCredito(huesped.dni, {
+        numeroCC: tarjeta.numero,
+        idBanco: tarjeta.banco.id,
+      });
+
+      setHuesped({
+        ...huesped,
+        tarjetaCredito: huesped.tarjetaCredito.filter((item) => item.id !== tarjetaId),
+      });
+      setSuccess('Tarjeta eliminada correctamente.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar la tarjeta');
+    } finally {
+      setDeletingAction(null);
+    }
+  };
+
+  const handleEliminarHuesped = async () => {
+    if (!huesped) return;
+
+    const confirmed = window.confirm(`¿Eliminar definitivamente al huésped ${huesped.nombre} con DNI ${huesped.dni}?`);
+    if (!confirmed) return;
+
+    try {
+      setError(null);
+      setSuccess(null);
+      setDeletingAction('huesped');
+
+      await eliminarHuespedPorDni(huesped.dni);
+      setSuccess('Huésped eliminado correctamente. Redirigiendo...');
+
+      setTimeout(() => {
+        router.push('/huespedes');
+      }, 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar el huésped');
+    } finally {
+      setDeletingAction(null);
+    }
+  };
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <button
@@ -49,6 +106,12 @@ export default function HuespedDetailPage() {
         </div>
       )}
 
+      {success && (
+        <div style={{ color: 'green', padding: '10px', margin: '10px 0', border: '1px solid green', backgroundColor: '#e6ffe6' }}>
+          {success}
+        </div>
+      )}
+
       {loading ? (
         <p>Cargando...</p>
       ) : huesped ? (
@@ -59,6 +122,9 @@ export default function HuespedDetailPage() {
           <p>
             <strong>Nombre:</strong> {huesped.nombre}
           </p>
+          {/* <p>
+            <strong>Apellido:</strong> {huesped.apellido}
+          </p> */}
           <p>
             <strong>DNI:</strong> {huesped.dni}
           </p>
@@ -83,10 +149,91 @@ export default function HuespedDetailPage() {
                   <p><strong>Vencimiento:</strong> {tarjeta.fechaVencimiento}</p>
                   <p><strong>Principal:</strong> {tarjeta.esPrincipal ? 'Sí' : 'No'}</p>
                   <p><strong>Banco:</strong> {tarjeta.banco.nombre}</p>
+                  <button
+                    onClick={() => handleEliminarTarjeta(tarjeta.id)}
+                    disabled={Boolean(deletingAction)}
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: deletingAction === `tarjeta-${tarjeta.id}` ? '#ccc' : '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: deletingAction ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {deletingAction === `tarjeta-${tarjeta.id}` ? 'Eliminando...' : 'Eliminar Tarjeta'}
+                  </button>
                 </div>
               ))}
             </>
           )}
+          <div style={{ marginTop: '25px', textAlign: 'center' }}>
+            {huesped.tarjetaCredito && huesped.tarjetaCredito.length > 0 && (
+              <>
+                <button
+                  onClick={() => router.push(`/huespedes/${params.id}/cambiar-tarjeta-principal`)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#ffc107',
+                    color: 'black',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.9em',
+                  }}
+                >
+                  Cambiar Tarjeta Principal
+                </button>
+                <button
+                  onClick={() => router.back()}
+                  style={{
+                    marginLeft: '10px',
+                    padding: '10px 20px',
+                    backgroundColor: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.9em',
+                  }}
+                >
+                  ← Volver
+                </button>
+              </>
+            )}
+            {(!huesped.tarjetaCredito || huesped.tarjetaCredito.length === 0) && (
+              <button
+                onClick={() => router.back()}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.9em',
+                }}
+              >
+                ← Volver
+              </button>
+            )}
+            <button
+              onClick={handleEliminarHuesped}
+              disabled={Boolean(deletingAction)}
+              style={{
+                marginLeft: '10px',
+                padding: '10px 20px',
+                backgroundColor: deletingAction === 'huesped' ? '#ccc' : '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: deletingAction ? 'not-allowed' : 'pointer',
+                fontSize: '0.9em',
+              }}
+            >
+              {deletingAction === 'huesped' ? 'Eliminando...' : 'Eliminar Huésped'}
+            </button>
+          </div>
         </div>
       ) : (
         <p>Huésped no encontrado</p>

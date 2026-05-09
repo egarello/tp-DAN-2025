@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { crearPropietario, PropietarioRecord, getBancos, Banco } from '@/lib/api';
 
@@ -76,9 +77,9 @@ export default function NuevoPropietarioPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '900px', margin: '0 auto' }}>
-      <a href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
+      <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
-      </a>
+      </Link>
 
       <h1>Nuevo Propietario</h1>
 

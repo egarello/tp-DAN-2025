@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { crearHuesped, HuespedRecord, getBancos, Banco } from '@/lib/api';
 
@@ -66,9 +67,9 @@ export default function NuevoHuespedPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
-      <a href="/huespedes" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
+      <Link href="/huespedes" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Volver a Huéspedes
-      </a>
+      </Link>
 
       <h1>Nuevo Huésped</h1>
 

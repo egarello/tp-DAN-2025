@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
@@ -7,22 +9,22 @@ export default function Home() {
       <h2>Navegación</h2>
       <ul>
         <li>
-          <a href="/usuarios">Usuarios</a>
+          <Link href="/usuarios">Usuarios</Link>
         </li>
         <li>
-          <a href="/usuarios/buscar-dni-exacto">Buscar Usuario por DNI Exacto</a>
+          <Link href="/usuarios/buscar-dni-exacto">Buscar Usuario por DNI Exacto</Link>
         </li>
         <li>
-          <a href="/bancos">Bancos</a>
+          <Link href="/bancos">Bancos</Link>
         </li>
         <li>
-          <a href="/huespedes">Gestión de Huéspedes</a>
+          <Link href="/huespedes">Gestión de Huéspedes</Link>
         </li>
         <li>
-          <a href="/huespedes/nuevo">Nuevo Huésped</a>
+          <Link href="/huespedes/nuevo">Nuevo Huésped</Link>
         </li>
         <li>
-          <a href="/propietarios/nuevo">Nuevo Propietario</a>
+          <Link href="/propietarios/nuevo">Nuevo Propietario</Link>
         </li>
       </ul>
 
@@ -47,8 +49,8 @@ export default function Home() {
         <li><strong>GET /users/dni/{'{'}dni{'}'}</strong> - Obtener usuario por DNI exacto</li>
         <li><strong>GET /users/buscar-dni</strong> - Buscar usuarios por DNI (contiene)</li>
         <li><strong>GET /users/huesped/{'{'}id{'}'}</strong> - Obtener huésped por ID</li>
-        <li><strong>GET /bancos</strong> - Listar bancos</li>
-        <li><strong>GET /bancos/{'{'}bancoId{'}'}</strong> - Obtener banco por ID</li>
+        <li><strong>GET /users/banco</strong> - Listar bancos</li>
+        <li><strong>GET /users/banco/{'{'}bancoId{'}'}</strong> - Obtener banco por ID</li>
       </ul>
 
       <h4>POST (Creación)</h4>
@@ -56,6 +58,17 @@ export default function Home() {
         <li><strong>POST /users/huesped</strong> - Crear nuevo huésped</li>
         <li><strong>POST /users/propietario</strong> - Crear nuevo propietario</li>
         <li><strong>POST /users/huesped/{'{'}dni{'}'}/tarjeta</strong> - Agregar tarjeta de crédito a huésped</li>
+      </ul>
+
+      <h4>PUT (Actualización)</h4>
+      <ul>
+        <li><strong>PUT /users/huesped/{'{'}dni{'}'}/cambiar-tarjeta-principal</strong> - Cambiar tarjeta principal de un huésped</li>
+      </ul>
+
+      <h4>DELETE (Eliminación)</h4>
+      <ul>
+        <li><strong>DELETE /users/huesped/{'{'}dni{'}'}/eliminar-tarjeta</strong> - Eliminar tarjeta de crédito de un huésped</li>
+        <li><strong>DELETE /users/huesped/eliminar/{'{'}dni{'}'}</strong> - Eliminar huésped por DNI</li>
       </ul>
     </div>
   );

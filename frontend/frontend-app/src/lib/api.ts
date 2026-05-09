@@ -1,4 +1,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const USERS_BASE_PATH = `${API_BASE_URL}/users/users`;
+const BANCOS_BASE_PATH = `${API_BASE_URL}/users/bancos`;
 
 export interface Usuario {
   id: number;
@@ -25,7 +27,7 @@ export async function getUsuarios(nombre?: string, page: number = 0, size: numbe
     params.append('size', size.toString());
 
     const response = await fetch(
-      `${API_BASE_URL}/users/users?${params.toString()}`,
+      `${USERS_BASE_PATH}?${params.toString()}`,
       {
         method: 'GET',
         headers: {
@@ -48,7 +50,7 @@ export async function getUsuarios(nombre?: string, page: number = 0, size: numbe
 export async function getUsuarioById(id: number): Promise<Usuario> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/users/users/${id}`,
+      `${USERS_BASE_PATH}/${id}`,
       {
         method: 'GET',
         headers: {
@@ -76,7 +78,7 @@ export async function buscarUsuariosPorDni(dni: string, page: number = 0, size: 
     params.append('size', size.toString());
 
     const response = await fetch(
-      `${API_BASE_URL}/users/users/buscar-dni?${params.toString()}`,
+      `${USERS_BASE_PATH}/buscar-dni?${params.toString()}`,
       {
         method: 'GET',
         headers: {
@@ -104,7 +106,7 @@ export async function searchUsuariosByNombre(nombre: string, page: number = 0, s
     params.append('size', size.toString());
 
     const response = await fetch(
-      `${API_BASE_URL}/users/users?${params.toString()}`,
+      `${USERS_BASE_PATH}?${params.toString()}`,
       {
         method: 'GET',
         headers: {
@@ -127,7 +129,7 @@ export async function searchUsuariosByNombre(nombre: string, page: number = 0, s
 export async function getUsuarioPorDniExacto(dni: string): Promise<Usuario> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/users/users/dni/${dni}`,
+      `${USERS_BASE_PATH}/dni/${dni}`,
       {
         method: 'GET',
         headers: {
@@ -204,10 +206,10 @@ export interface TarjetaCreditoRecord {
   idBanco: number;
 }
 
-export async function crearHuesped(huesped: HuespedRecord): Promise<Huesped> {
+export async function crearHuesped(huesped: HuespedRecord): Promise<Huesped | null> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/users/huesped`,
+      `${USERS_BASE_PATH}/huesped`,
       {
         method: 'POST',
         headers: {
@@ -222,17 +224,18 @@ export async function crearHuesped(huesped: HuespedRecord): Promise<Huesped> {
       throw new Error(`Error: ${response.status} - ${errorText}`);
     }
 
-    return await response.json();
+    const responseText = await response.text();
+    return responseText ? JSON.parse(responseText) as Huesped : null;
   } catch (error) {
     console.error('Error creando huesped:', error);
     throw error;
   }
 }
 
-export async function crearPropietario(propietario: PropietarioRecord): Promise<Usuario> {
+export async function crearPropietario(propietario: PropietarioRecord): Promise<void> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/users/propietario`,
+      `${USERS_BASE_PATH}/propietario`,
       {
         method: 'POST',
         headers: {
@@ -247,7 +250,6 @@ export async function crearPropietario(propietario: PropietarioRecord): Promise<
       throw new Error(`Error: ${response.status} - ${errorText}`);
     }
 
-    return await response.json();
   } catch (error) {
     console.error('Error creando propietario:', error);
     throw error;
@@ -257,7 +259,7 @@ export async function crearPropietario(propietario: PropietarioRecord): Promise<
 export async function agregarTarjetaCredito(dni: string, tarjeta: TarjetaCreditoRecord): Promise<void> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/users/huesped/${dni}/tarjeta`,
+      `${USERS_BASE_PATH}/huesped/${dni}/tarjeta`,
       {
         method: 'POST',
         headers: {
@@ -277,10 +279,78 @@ export async function agregarTarjetaCredito(dni: string, tarjeta: TarjetaCredito
   }
 }
 
+export async function cambiarTarjetaPrincipal(dni: string, tarjeta: Partial<TarjetaCreditoRecord>): Promise<void> {
+  try {
+    const response = await fetch(
+      `${USERS_BASE_PATH}/huesped/${dni}/cambiar-tarjeta-principal`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tarjeta),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error: ${response.status} - ${errorText}`);
+    }
+  } catch (error) {
+    console.error('Error cambiando tarjeta principal:', error);
+    throw error;
+  }
+}
+
+export async function eliminarTarjetaCredito(dni: string, tarjeta: Partial<TarjetaCreditoRecord>): Promise<void> {
+  try {
+    const response = await fetch(
+      `${USERS_BASE_PATH}/huesped/${dni}/eliminar-tarjeta`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tarjeta),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error: ${response.status} - ${errorText}`);
+    }
+  } catch (error) {
+    console.error('Error eliminando tarjeta:', error);
+    throw error;
+  }
+}
+
+export async function eliminarHuespedPorDni(dni: string): Promise<void> {
+  try {
+    const response = await fetch(
+      `${USERS_BASE_PATH}/huesped/eliminar/${dni}?dni=${encodeURIComponent(dni)}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error: ${response.status} - ${errorText}`);
+    }
+  } catch (error) {
+    console.error(`Error eliminando huesped con dni ${dni}:`, error);
+    throw error;
+  }
+}
+
 export async function getHuespedPorId(id: number): Promise<Huesped> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/users/users/huesped/${id}`,
+      `${USERS_BASE_PATH}/huesped/${id}`,
       {
         method: 'GET',
         headers: {
@@ -313,7 +383,7 @@ export async function getBancos(page: number = 0, size: number = 10): Promise<Pa
     params.append('size', size.toString());
 
     const response = await fetch(
-      `${API_BASE_URL}/users/bancos?${params.toString()}`,
+      `${BANCOS_BASE_PATH}?${params.toString()}`,
       {
         method: 'GET',
         headers: {
@@ -336,7 +406,7 @@ export async function getBancos(page: number = 0, size: number = 10): Promise<Pa
 export async function getBancoPorId(bancoId: number): Promise<Banco> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/users/bancos/${bancoId}`,
+      `${BANCOS_BASE_PATH}/${bancoId}`,
       {
         method: 'GET',
         headers: {

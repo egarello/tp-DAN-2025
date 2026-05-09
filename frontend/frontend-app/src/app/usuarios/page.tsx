@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getUsuarios, searchUsuariosByNombre, buscarUsuariosPorDni, Usuario, PageResponse } from '@/lib/api';
 
@@ -50,9 +51,9 @@ export default function UsuariosPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <a href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
+      <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
-      </a>
+      </Link>
 
       <h1>Usuarios</h1>
 

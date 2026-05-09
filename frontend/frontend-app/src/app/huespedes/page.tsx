@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function HuespedesPage() {
@@ -7,9 +8,9 @@ export default function HuespedesPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <a href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
+      <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
-      </a>
+      </Link>
 
       <h1>Gestión de Huéspedes</h1>
 
@@ -49,14 +50,14 @@ export default function HuespedesPage() {
         <h2>Acciones Rápidas</h2>
         <ul style={{ lineHeight: '2' }}>
           <li>
-            <a href="/huespedes/nuevo" style={{ color: '#28a745', fontWeight: 'bold' }}>
+            <Link href="/huespedes/nuevo" style={{ color: '#28a745', fontWeight: 'bold' }}>
               Registrar nuevo huésped
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/usuarios" style={{ color: '#007bff' }}>
+            <Link href="/usuarios" style={{ color: '#007bff' }}>
               Buscar/listar usuarios existentes
-            </a>
+            </Link>
           </li>
         </ul>
       </div>

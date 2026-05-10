@@ -186,7 +186,6 @@ export default function UsuariosPage() {
             <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Nombre</th>
                   <th>Apellido</th>
                   <th>DNI</th>
@@ -198,7 +197,6 @@ export default function UsuariosPage() {
               <tbody>
                 {usuarios.map((usuario) => (
                   <tr key={usuario.id}>
-                    <td>{usuario.id}</td>
                     <td>{usuario.nombre}</td>
                     <td>{usuario.apellido}</td>
                     <td>{usuario.dni}</td>

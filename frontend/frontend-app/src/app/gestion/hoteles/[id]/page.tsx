@@ -42,7 +42,6 @@ export default function HotelDetailPage() {
       {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
       {loading ? <p>Cargando...</p> : hotel ? (
         <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '700px' }}>
-          <p><strong>ID:</strong> {hotel.id}</p>
           <p><strong>Nombre:</strong> {hotel.nombre}</p>
           <p><strong>CUIT:</strong> {hotel.cuit || '-'}</p>
           <p><strong>Domicilio:</strong> {hotel.domicilio || '-'}</p>
@@ -52,6 +51,9 @@ export default function HotelDetailPage() {
           <p><strong>Correo:</strong> {hotel.correoContacto || '-'}</p>
           <p><strong>Categoría:</strong> {hotel.categoria ?? '-'}</p>
           <p><strong>Amenities:</strong> {hotel.amenities?.length ? hotel.amenities.map(formatAmenity).join(', ') : '-'}</p>
+          <Link href={`/gestion/hoteles/${hotel.id}/amenities`} style={{ display: 'inline-block', marginTop: '12px', padding: '10px 16px', backgroundColor: '#28a745', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+            Agregar Amenities
+          </Link>
         </div>
       ) : <p>Hotel no encontrado</p>}
     </div>

@@ -75,11 +75,22 @@ export default function Home() {
       </ul>
 
       <h3>Endpoints GESTION-SVC disponibles</h3>
+      <h4>GET (Lectura)</h4>
       <ul>
         <li><strong>GET /gestion/hoteles</strong> - Listar hoteles</li>
         <li><strong>GET /gestion/habitaciones</strong> - Listar habitaciones</li>
         <li><strong>GET /gestion/tipos-habitacion</strong> - Listar tipos de habitación</li>
         <li><strong>GET /gestion/tarifas</strong> - Listar tarifas</li>
+      </ul>
+
+      <h4>POST (Creación)</h4>
+      <ul>
+        <li><strong>POST /gestion/hoteles</strong> - Crear hotel</li>
+        <li><strong>POST /gestion/hoteles/{'{'}hotel{'}'}/amenities/add</strong> - Agregar amenities a hotel</li>
+        <li><strong>POST /gestion/habitaciones</strong> - Crear habitación</li>
+        <li><strong>POST /gestion/tipos-habitacion</strong> - Crear tipo de habitación</li>
+        <li><strong>POST /gestion/tarifas</strong> - Crear tarifa</li>
+        <li><strong>POST /gestion/tarifas/promocional</strong> - Crear tarifa promocional</li>
       </ul>
     </div>
   );

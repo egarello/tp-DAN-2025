@@ -32,12 +32,19 @@ export default function TarifasPage() {
       </Link>
 
       <h1>Tarifas</h1>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <Link href="/gestion/tarifas/nuevo" style={{ padding: '10px 16px', backgroundColor: '#28a745', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+          + Nueva Tarifa
+        </Link>
+        <Link href="/gestion/tarifas/promocional/nuevo" style={{ padding: '10px 16px', backgroundColor: '#17a2b8', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+          + Nueva Promoción
+        </Link>
+      </div>
       {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
       {loading ? <p>Cargando...</p> : tarifas.length === 0 ? <p>No hay tarifas disponibles</p> : (
         <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
           <thead>
             <tr>
-              <th>ID</th>
               <th>Desde</th>
               <th>Hasta</th>
               <th>Tipo Habitación</th>
@@ -48,10 +55,9 @@ export default function TarifasPage() {
           <tbody>
             {tarifas.map((tarifa) => (
               <tr key={tarifa.id}>
-                <td>{tarifa.id}</td>
                 <td>{tarifa.fechaInicio}</td>
                 <td>{tarifa.fechaFin}</td>
-                <td>{tarifa.tipoHabitacion?.nombre || tarifa.tipoHabitacion?.id || '-'}</td>
+                <td>{tarifa.tipoHabitacion?.nombre || '-'}</td>
                 <td>{tarifa.precioNoche}</td>
                 <td><Link href={`/gestion/tarifas/${tarifa.id}`}>Ver</Link></td>
               </tr>

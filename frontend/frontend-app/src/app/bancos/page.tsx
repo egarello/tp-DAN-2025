@@ -58,7 +58,6 @@ export default function BancosPage() {
             <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Nombre</th>
                   <th>Código</th>
                   <th>Acciones</th>
@@ -67,7 +66,6 @@ export default function BancosPage() {
               <tbody>
                 {bancos.map((banco) => (
                   <tr key={banco.id}>
-                    <td>{banco.id}</td>
                     <td>{banco.nombre}</td>
                     <td>{banco.codigo}</td>
                     <td>

@@ -54,9 +54,6 @@ export default function UsuarioDetailPage() {
       ) : usuario ? (
         <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
           <p>
-            <strong>ID:</strong> {usuario.id}
-          </p>
-          <p>
             <strong>Nombre:</strong> {usuario.nombre}
           </p>
           <p>

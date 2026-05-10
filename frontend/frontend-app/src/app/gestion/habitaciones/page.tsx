@@ -32,12 +32,14 @@ export default function HabitacionesPage() {
       </Link>
 
       <h1>Habitaciones</h1>
+      <Link href="/gestion/habitaciones/nuevo" style={{ display: 'inline-block', marginBottom: '20px', padding: '10px 16px', backgroundColor: '#28a745', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+        + Nueva Habitación
+      </Link>
       {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
       {loading ? <p>Cargando...</p> : habitaciones.length === 0 ? <p>No hay habitaciones disponibles</p> : (
         <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
           <thead>
             <tr>
-              <th>ID</th>
               <th>Número</th>
               <th>Piso</th>
               <th>Tipo</th>
@@ -48,11 +50,10 @@ export default function HabitacionesPage() {
           <tbody>
             {habitaciones.map((habitacion) => (
               <tr key={habitacion.id}>
-                <td>{habitacion.id}</td>
                 <td>{habitacion.numero}</td>
                 <td>{habitacion.piso}</td>
-                <td>{habitacion.tipoHabitacion?.nombre || habitacion.tipoHabitacion?.id || '-'}</td>
-                <td>{habitacion.hotel?.nombre || habitacion.hotel?.id || '-'}</td>
+                <td>{habitacion.tipoHabitacion?.nombre || '-'}</td>
+                <td>{habitacion.hotel?.nombre || '-'}</td>
                 <td><Link href={`/gestion/habitaciones/${habitacion.id}`}>Ver</Link></td>
               </tr>
             ))}

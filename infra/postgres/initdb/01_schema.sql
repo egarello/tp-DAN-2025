@@ -82,3 +82,7 @@ CREATE TABLE IF NOT EXISTS tp_dan.amenity_hotel (
     id_hotel integer NOT NULL REFERENCES tp_dan.hotel(id),
     amenity varchar(250) NOT NULL
 );
+
+-- Agregar una secuencia:
+ALTER TABLE tp_dan.tipo_habitacion
+    ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY;

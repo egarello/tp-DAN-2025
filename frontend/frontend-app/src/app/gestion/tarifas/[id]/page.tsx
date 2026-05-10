@@ -38,12 +38,10 @@ export default function TarifaDetailPage() {
       {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
       {loading ? <p>Cargando...</p> : tarifa ? (
         <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
-          <p><strong>ID:</strong> {tarifa.id}</p>
           <p><strong>Fecha Inicio:</strong> {tarifa.fechaInicio}</p>
           <p><strong>Fecha Fin:</strong> {tarifa.fechaFin}</p>
           <p><strong>Precio por Noche:</strong> {tarifa.precioNoche}</p>
           <p><strong>Tipo Habitación:</strong> {tarifa.tipoHabitacion?.nombre || '-'}</p>
-          <p><strong>ID Tipo Habitación:</strong> {tarifa.tipoHabitacion?.id ?? '-'}</p>
         </div>
       ) : <p>Tarifa no encontrada</p>}
     </div>

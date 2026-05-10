@@ -117,9 +117,6 @@ export default function HuespedDetailPage() {
       ) : huesped ? (
         <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
           <p>
-            <strong>ID:</strong> {huesped.id}
-          </p>
-          <p>
             <strong>Nombre:</strong> {huesped.nombre}
           </p>
           {/* <p>

@@ -32,6 +32,9 @@ export default function HotelesPage() {
       </Link>
 
       <h1>Hoteles</h1>
+      <Link href="/gestion/hoteles/nuevo" style={{ display: 'inline-block', marginBottom: '20px', padding: '10px 16px', backgroundColor: '#28a745', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+        + Nuevo Hotel
+      </Link>
 
       {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
 
@@ -39,7 +42,6 @@ export default function HotelesPage() {
         <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nombre</th>
               <th>Domicilio</th>
               <th>Categoría</th>
@@ -50,7 +52,6 @@ export default function HotelesPage() {
           <tbody>
             {hoteles.map((hotel) => (
               <tr key={hotel.id}>
-                <td>{hotel.id}</td>
                 <td>{hotel.nombre}</td>
                 <td>{hotel.domicilio || '-'}</td>
                 <td>{hotel.categoria ?? '-'}</td>

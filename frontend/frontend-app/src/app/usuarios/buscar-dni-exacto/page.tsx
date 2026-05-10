@@ -92,9 +92,6 @@ export default function BuscarPorDniPage() {
         <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
           <h2>Resultado</h2>
           <p>
-            <strong>ID:</strong> {usuario.id}
-          </p>
-          <p>
             <strong>Nombre:</strong> {usuario.nombre}
           </p>
           <p>

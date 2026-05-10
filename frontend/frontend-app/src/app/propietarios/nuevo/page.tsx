@@ -152,7 +152,7 @@ export default function NuevoPropietarioPage() {
             </div>
 
             <div>
-              <label htmlFor="idHotel" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>ID Hotel</label>
+              <label htmlFor="idHotel" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Hotel asociado</label>
               <input
                 type="number"
                 id="idHotel"

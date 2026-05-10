@@ -38,7 +38,6 @@ export default function TipoHabitacionDetailPage() {
       {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
       {loading ? <p>Cargando...</p> : tipo ? (
         <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
-          <p><strong>ID:</strong> {tipo.id}</p>
           <p><strong>Nombre:</strong> {tipo.nombre}</p>
           <p><strong>Capacidad:</strong> {tipo.capacidad}</p>
           <p><strong>Descripción:</strong> {tipo.descripcion || '-'}</p>

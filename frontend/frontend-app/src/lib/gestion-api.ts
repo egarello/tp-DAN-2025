@@ -17,7 +17,7 @@ async function fetchGestion<T>(path: string): Promise<T> {
   return await response.json() as T;
 }
 
-async function sendGestion<T>(path: string, method: 'POST', body: unknown): Promise<T | null> {
+async function sendGestion<T>(path: string, method: 'POST' | 'PUT', body: unknown): Promise<T | null> {
   const response = await fetch(`${GESTION_BASE_PATH}${path}`, {
     method,
     headers: {
@@ -33,6 +33,23 @@ async function sendGestion<T>(path: string, method: 'POST', body: unknown): Prom
 
   const responseText = await response.text();
   return responseText ? JSON.parse(responseText) as T : null;
+}
+
+async function deleteGestion(path: string): Promise<string | null> {
+  const response = await fetch(`${GESTION_BASE_PATH}${path}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
+  }
+
+  const responseText = await response.text();
+  return responseText || null;
 }
 
 export interface AmenityHotel {
@@ -133,6 +150,30 @@ export async function crearHotel(hotel: HotelRecord): Promise<Hotel | null> {
   return sendGestion<Hotel>('/hoteles', 'POST', hotel);
 }
 
+export async function actualizarHotel(id: number, hotel: HotelRecord): Promise<Hotel | null> {
+  return sendGestion<Hotel>(`/hoteles/${id}`, 'PUT', hotel);
+}
+
+export async function eliminarHotel(id: number): Promise<void> {
+  await deleteGestion(`/hoteles/${id}`);
+}
+
+export async function eliminarAmenityHotel(idHotel: number, amenity: string): Promise<Hotel | null> {
+  const params = new URLSearchParams({ amenity });
+  const response = await fetch(`${GESTION_BASE_PATH}/hoteles/${idHotel}/amenities/remove?${params.toString()}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
+  }
+
+  const responseText = await response.text();
+  return responseText ? JSON.parse(responseText) as Hotel : null;
+}
+
 export async function agregarAmenitiesHotel(idHotel: number, amenities: Amenity[]): Promise<Hotel | null> {
   return sendGestion<Hotel>(`/hoteles/${idHotel}/amenities/add`, 'POST', amenities);
 }
@@ -149,6 +190,14 @@ export async function crearHabitacion(habitacion: HabitacionRecord): Promise<Hab
   return sendGestion<Habitacion>('/habitaciones', 'POST', habitacion);
 }
 
+export async function actualizarHabitacion(id: number, habitacion: HabitacionRecord): Promise<Habitacion | null> {
+  return sendGestion<Habitacion>(`/habitaciones/${id}`, 'PUT', habitacion);
+}
+
+export async function eliminarHabitacion(id: number): Promise<void> {
+  await deleteGestion(`/habitaciones/${id}`);
+}
+
 export async function getHabitacionPorId(id: number): Promise<Habitacion> {
   return fetchGestion<Habitacion>(`/habitaciones/${id}`);
 }
@@ -161,6 +210,14 @@ export async function crearTipoHabitacion(tipoHabitacion: TipoHabitacionRecord):
   return sendGestion<TipoHabitacion>('/tipos-habitacion', 'POST', tipoHabitacion);
 }
 
+export async function actualizarTipoHabitacion(id: number, tipoHabitacion: TipoHabitacionRecord): Promise<TipoHabitacion | null> {
+  return sendGestion<TipoHabitacion>(`/tipos-habitacion/${id}`, 'PUT', tipoHabitacion);
+}
+
+export async function eliminarTipoHabitacion(id: number): Promise<void> {
+  await deleteGestion(`/tipos-habitacion/${id}`);
+}
+
 export async function getTipoHabitacionPorId(id: number): Promise<TipoHabitacion> {
   return fetchGestion<TipoHabitacion>(`/tipos-habitacion/${id}`);
 }
@@ -171,6 +228,14 @@ export async function getTarifas(): Promise<Tarifa[]> {
 
 export async function crearTarifa(tarifa: TarifaRecord): Promise<Tarifa | null> {
   return sendGestion<Tarifa>('/tarifas', 'POST', tarifa);
+}
+
+export async function actualizarTarifa(id: number, tarifa: TarifaRecord): Promise<Tarifa | null> {
+  return sendGestion<Tarifa>(`/tarifas/${id}`, 'PUT', tarifa);
+}
+
+export async function eliminarTarifa(id: number): Promise<void> {
+  await deleteGestion(`/tarifas/${id}`);
 }
 
 export async function crearTarifaPromocional(tarifa: TarifaRecord, fechaInicio: string, fechaFin: string): Promise<Tarifa[] | null> {

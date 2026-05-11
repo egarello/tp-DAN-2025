@@ -1,0 +1,33 @@
+[ADJUNTAR IMAGEN]
+Objetivo: mejorar la UI existente de gestión hotelera sin cambiar la estructura funcional.
+
+Estilo deseado:
+- dashboard dark premium
+- más limpio, más elegante, más legible
+- menos ruido visual
+- jerarquía clara para reservas, huéspedes y disponibilidad
+
+Tipografía:
+- Base: Inter
+- Display: Inter Tight
+- Títulos: 700
+- Body: 400/500
+- Mejorar tracking, line-height y consistencia
+
+Reglas visuales:
+- usar el coral solo como acento
+- usar azules para acciones primarias
+- aumentar espacios internos
+- suavizar bordes y sombras
+- mejorar contraste en textos secundarios
+- mantener listas y tablas fáciles de escanear
+
+Prioridad:
+1. legibilidad
+2. consistencia
+3. sensación premium
+4. velocidad operativa
+
+Refactor the UI using the provided design system skill.
+Do not invent new styles outside the tokens.
+Improve spacing, typography, and hierarchy.

@@ -1,0 +1,80 @@
+---
+name: styles
+description: Design system for hotel management dashboard UI
+---
+
+tokens:
+  typography:
+    base: Inter
+    display: Inter Tight
+    weights:
+      regular: 400
+      medium: 500
+      semibold: 600
+      bold: 700
+    sizes:
+      body: 14px
+      label: 13px
+      title: 18px
+      heading: 24px
+      display: 32px
+
+  colors:
+    background:
+      app: "#0B1630"
+      sidebar: "#243149"
+      topbar: "#2E3954"
+      panel: "#112042"
+    text:
+      primary: "#EAF0F8"
+      secondary: "#B6C2D6"
+      muted: "#7F90AA"
+    brand:
+      primary: "#2F9BFF"
+      accent: "#FF6B72"
+    border:
+      subtle: "#4A6088"
+
+  spacing:
+    xs: 4px
+    sm: 8px
+    md: 12px
+    lg: 16px
+    xl: 24px
+
+rules:
+  - Use Inter for all UI text
+  - Use Inter Tight only for titles and key numbers
+  - Prioritize readability over decoration
+  - Keep layouts clean and spaced
+  - Use accent color sparingly
+  - Use blue for primary actions
+  - Maintain consistent spacing scale
+  - Avoid visual clutter
+  - Ensure clear hierarchy in lists and tables
+
+components:
+  pageTitle:
+    font: display
+    weight: bold
+    color: accent
+
+  navItem:
+    font: base
+    weight: semibold
+
+  userCard:
+    background: panel
+    padding: lg
+    border: subtle
+    radius: md
+
+  userName:
+    font: base
+    weight: bold
+    color: primary
+
+  userMeta:
+    font: base
+    size: label
+    color: secondary

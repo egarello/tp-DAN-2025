@@ -52,7 +52,7 @@ export default function TiposHabitacionPage() {
                 <td>{tipo.nombre}</td>
                 <td>{tipo.capacidad}</td>
                 <td>{tipo.descripcion || '-'}</td>
-                <td><Link href={`/gestion/tipos-habitacion/${tipo.id}`}>Ver</Link></td>
+                <td><Link href={`/gestion/tipos-habitacion/${tipo.id}`}>Ver</Link> | <Link href={`/gestion/tipos-habitacion/editar/${tipo.id}`}>Editar</Link></td>
               </tr>
             ))}
           </tbody>

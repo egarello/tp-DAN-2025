@@ -54,7 +54,7 @@ export default function HabitacionesPage() {
                 <td>{habitacion.piso}</td>
                 <td>{habitacion.tipoHabitacion?.nombre || '-'}</td>
                 <td>{habitacion.hotel?.nombre || '-'}</td>
-                <td><Link href={`/gestion/habitaciones/${habitacion.id}`}>Ver</Link></td>
+                <td><Link href={`/gestion/habitaciones/${habitacion.id}`}>Ver</Link> | <Link href={`/gestion/habitaciones/editar/${habitacion.id}`}>Editar</Link></td>
               </tr>
             ))}
           </tbody>

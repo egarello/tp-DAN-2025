@@ -59,7 +59,7 @@ export default function TarifasPage() {
                 <td>{tarifa.fechaFin}</td>
                 <td>{tarifa.tipoHabitacion?.nombre || '-'}</td>
                 <td>{tarifa.precioNoche}</td>
-                <td><Link href={`/gestion/tarifas/${tarifa.id}`}>Ver</Link></td>
+                <td><Link href={`/gestion/tarifas/${tarifa.id}`}>Ver</Link> | <Link href={`/gestion/tarifas/editar/${tarifa.id}`}>Editar</Link></td>
               </tr>
             ))}
           </tbody>

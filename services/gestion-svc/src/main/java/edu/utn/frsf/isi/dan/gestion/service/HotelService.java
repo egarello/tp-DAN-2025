@@ -3,6 +3,7 @@ package edu.utn.frsf.isi.dan.gestion.service;
 import edu.utn.frsf.isi.dan.gestion.dao.HotelRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Hotel;
 import edu.utn.frsf.isi.dan.shared.HotelDTO;
+import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,7 @@ public class HotelService {
         return Optional.of(saved);
     }
 
+    @Transactional
     public Optional<Hotel> removeAmenity(Integer hotelId, Amenity amenity) {
         Optional<Hotel> optionalHotel = hotelRepository.findById(hotelId);
         if (!optionalHotel.isPresent()) {

@@ -1,7 +1,7 @@
-# Skill: Servicio de Gestión de Hoteles (GESTION‑SVC)
-
-Descripción
-Skill para el frontend que documenta los endpoints del servicio gestion-svc (consumidos a través del API Gateway en http://localhost:8080). Incluye método, ruta completa (vía Gateway /gestion), parámetros, esquema/estructura del RequestBody cuando aplica y ejemplos JSON.
+---
+name: gestion
+description: Skill para el frontend que documenta los endpoints del servicio gestion-svc (consumidos a través del API Gateway en http://localhost:8080). Incluye método, ruta completa (vía Gateway /gestion), parámetros, esquema/estructura del RequestBody cuando aplica y ejemplos JSON.
+---
 
 Base URL
 

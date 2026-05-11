@@ -56,7 +56,7 @@ export default function HotelesPage() {
                 <td>{hotel.domicilio || '-'}</td>
                 <td>{hotel.categoria ?? '-'}</td>
                 <td>{hotel.telefono || '-'}</td>
-                <td><Link href={`/gestion/hoteles/${hotel.id}`}>Ver</Link></td>
+                <td><Link href={`/gestion/hoteles/${hotel.id}`}>Ver</Link> | <Link href={`/gestion/hoteles/editar/${hotel.id}`}>Editar</Link></td>
               </tr>
             ))}
           </tbody>

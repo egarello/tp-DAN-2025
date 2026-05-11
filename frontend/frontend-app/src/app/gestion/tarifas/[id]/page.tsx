@@ -1,23 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getTarifaPorId, Tarifa } from '@/lib/gestion-api';
+import { eliminarTarifa, getTarifaPorId, Tarifa } from '@/lib/gestion-api';
 
 export default function TarifaDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const tarifaId = Number(Array.isArray(params.id) ? params.id[0] : params.id);
   const [tarifa, setTarifa] = useState<Tarifa | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     const fetchTarifa = async () => {
       try {
         setLoading(true);
         setError(null);
-        setTarifa(await getTarifaPorId(Number(id)));
+        setTarifa(await getTarifaPorId(tarifaId));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido');
       } finally {
@@ -25,8 +26,19 @@ export default function TarifaDetailPage() {
       }
     };
 
-    if (id) fetchTarifa();
-  }, [params.id]);
+    if (tarifaId) fetchTarifa();
+  }, [tarifaId]);
+
+  const handleEliminar = async () => {
+    if (!window.confirm('¿Eliminar definitivamente esta tarifa?')) return;
+    try {
+      setError(null);
+      await eliminarTarifa(tarifaId);
+      router.push('/gestion/tarifas');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar la tarifa');
+    }
+  };
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
@@ -42,6 +54,14 @@ export default function TarifaDetailPage() {
           <p><strong>Fecha Fin:</strong> {tarifa.fechaFin}</p>
           <p><strong>Precio por Noche:</strong> {tarifa.precioNoche}</p>
           <p><strong>Tipo Habitación:</strong> {tarifa.tipoHabitacion?.nombre || '-'}</p>
+          <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
+            <Link href={`/gestion/tarifas/editar/${tarifa.id}`} style={{ padding: '10px 16px', backgroundColor: '#ffc107', color: 'black', textDecoration: 'none', borderRadius: '4px' }}>
+              Editar Tarifa
+            </Link>
+            <button onClick={handleEliminar} style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              Eliminar Tarifa
+            </button>
+          </div>
         </div>
       ) : <p>Tarifa no encontrada</p>}
     </div>

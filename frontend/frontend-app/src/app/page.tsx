@@ -29,6 +29,9 @@ export default function Home() {
         <li>
           <Link href="/gestion">Gestión Hotelera</Link>
         </li>
+        <li>
+          <Link href="/reservas">Reservas</Link>
+        </li>
       </ul>
 
       <h2>Estado del Sistema</h2>
@@ -92,6 +95,14 @@ export default function Home() {
         <li><strong>POST /gestion/tarifas</strong> - Crear tarifa</li>
         <li><strong>POST /gestion/tarifas/promocional</strong> - Crear tarifa promocional</li>
       </ul>
+
+      <h3>Endpoints RESERVAS-SVC disponibles</h3>
+      <ul>
+        <li><strong>GET /reservas/reservas</strong> - Listar reservas</li>
+        <li><strong>GET /reservas/reservas/{'{'}id{'}'}</strong> - Obtener reserva por ID</li>
+        <li><strong>GET /reservas/habitaciones</strong> - Listar habitaciones cacheadas</li>
+        <li><strong>GET /reservas/habitaciones/{'{'}id{'}'}</strong> - Obtener habitación cacheada por ID</li>
+      </ul>
     </div>
   );
-}
+ }

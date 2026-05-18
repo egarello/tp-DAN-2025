@@ -14,16 +14,16 @@ Frontend de la aplicación de gestión hotelera construida con Next.js 16.2.4 y 
 
 ### Requisitos
 - Node.js 22+
-- npm o yarn
+- [pnpm 11](https://pnpm.io/11.x/installation) (vía Corepack: `corepack enable`)
 
 ### Instalación
 
 ```bash
 # Instalar dependencias
-npm install
+pnpm install
 
 # Ejecutar servidor de desarrollo
-npm run dev
+pnpm dev
 ```
 
 Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
@@ -34,16 +34,16 @@ El servidor se recargará automáticamente cuando edites archivos.
 
 ```bash
 # Desarrollo
-npm run dev
+pnpm dev
 
 # Build para producción
-npm run build
+pnpm build
 
 # Ejecutar versión de producción
-npm start
+pnpm start
 
 # Linter
-npm run lint
+pnpm lint
 ```
 
 ## Docker

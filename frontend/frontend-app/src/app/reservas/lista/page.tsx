@@ -36,6 +36,9 @@ export default function ReservasListaPage() {
       </Link>
 
       <h1>Reservas</h1>
+      <Link href="/reservas/nueva" style={{ display: 'inline-block', marginBottom: '20px', padding: '10px 16px', backgroundColor: '#28a745', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+        + Nueva Reserva
+      </Link>
 
       {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
 

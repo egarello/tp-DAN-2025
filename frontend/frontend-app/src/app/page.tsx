@@ -97,11 +97,24 @@ export default function Home() {
       </ul>
 
       <h3>Endpoints RESERVAS-SVC disponibles</h3>
+      <h4>GET (Lectura)</h4>
       <ul>
         <li><strong>GET /reservas/reservas</strong> - Listar reservas</li>
         <li><strong>GET /reservas/reservas/{'{'}id{'}'}</strong> - Obtener reserva por ID</li>
         <li><strong>GET /reservas/habitaciones</strong> - Listar habitaciones cacheadas</li>
         <li><strong>GET /reservas/habitaciones/{'{'}id{'}'}</strong> - Obtener habitación cacheada por ID</li>
+      </ul>
+      <h4>POST (Creación)</h4>
+      <ul>
+        <li><strong>POST /reservas/reservas</strong> - Crear nueva reserva</li>
+      </ul>
+      <h4>PUT (Actualización)</h4>
+      <ul>
+        <li><strong>PUT /reservas/reservas/{'{'}id{'}'}</strong> - Actualizar reserva (reemplazo completo)</li>
+      </ul>
+      <h4>DELETE (Eliminación)</h4>
+      <ul>
+        <li><strong>DELETE /reservas/reservas/{'{'}id{'}'}</strong> - Eliminar reserva</li>
       </ul>
     </div>
   );

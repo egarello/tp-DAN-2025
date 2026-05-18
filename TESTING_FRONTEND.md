@@ -18,11 +18,11 @@
 ### Pasos
 
 ```bash
-# 1. Instalar dependencias
-npm install
+# 1. Instalar dependencias (desde frontend/frontend-app)
+pnpm install
 
 # 2. Correr el servidor de desarrollo
-npm run dev
+pnpm dev
 
 # 3. Abrir en el navegador
 http://localhost:3000

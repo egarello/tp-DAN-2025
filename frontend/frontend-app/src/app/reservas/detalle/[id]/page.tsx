@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getReservaPorId, Reserva } from '@/lib/reservas-api';
+import { eliminarReserva, getReservaPorId, Reserva } from '@/lib/reservas-api';
 
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
@@ -11,6 +11,7 @@ function formatFecha(iso: string) {
 
 export default function ReservaDetallePage() {
   const params = useParams();
+  const router = useRouter();
   const [reserva, setReserva] = useState<Reserva | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,18 @@ export default function ReservaDetallePage() {
 
     if (reservaId) fetchReserva();
   }, [reservaId]);
+
+  const handleEliminarReserva = async () => {
+    if (!reservaId) return;
+    if (!window.confirm('¿Eliminar definitivamente esta reserva?')) return;
+    try {
+      setError(null);
+      await eliminarReserva(reservaId);
+      router.push('/reservas/lista');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar la reserva');
+    }
+  };
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
@@ -87,6 +100,15 @@ export default function ReservaDetallePage() {
               {reserva.clientReview.createdAt && <p><strong>Fecha:</strong> {formatFecha(reserva.clientReview.createdAt)}</p>}
             </section>
           )}
+
+          <div style={{ marginTop: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <Link href={`/reservas/editar/${reserva._id}`} style={{ padding: '10px 16px', backgroundColor: '#ffc107', color: 'black', textDecoration: 'none', borderRadius: '4px' }}>
+              Editar Reserva
+            </Link>
+            <button onClick={handleEliminarReserva} style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              Eliminar Reserva
+            </button>
+          </div>
         </div>
       ) : <p>Reserva no encontrada</p>}
     </div>

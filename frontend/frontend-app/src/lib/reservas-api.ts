@@ -14,6 +14,34 @@ async function fetchReservas<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+async function sendReservas<T>(path: string, method: 'POST' | 'PUT', body: unknown): Promise<T | null> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
+  }
+
+  const responseText = await response.text();
+  return responseText ? JSON.parse(responseText) as T : null;
+}
+
+async function deleteReservas(path: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
+  }
+}
+
 export interface HuespedReserva {
   idUsuario: string;
   nombreApellido?: string;
@@ -99,6 +127,30 @@ export async function getReservaPorId(id: string): Promise<Reserva> {
 
 export async function getHabitacionesCacheadas(): Promise<HabitacionCacheada[]> {
   return fetchReservas<HabitacionCacheada[]>('/reservas/habitaciones');
+}
+
+export interface ReservaRecord {
+  idHabitacion: string;
+  hotelId: number;
+  checkIn: string;
+  checkOut: string;
+  precioNoche?: number;
+  precioTotal?: number;
+  status?: string;
+  huesped?: HuespedReserva;
+  estadoReserva?: EstadoReserva;
+}
+
+export async function crearReserva(reserva: ReservaRecord): Promise<Reserva | null> {
+  return sendReservas<Reserva>('/reservas/reservas', 'POST', reserva);
+}
+
+export async function actualizarReserva(id: string, reserva: ReservaRecord): Promise<Reserva | null> {
+  return sendReservas<Reserva>(`/reservas/reservas/${id}`, 'PUT', reserva);
+}
+
+export async function eliminarReserva(id: string): Promise<void> {
+  await deleteReservas(`/reservas/reservas/${id}`);
 }
 
 export async function getHabitacionCacheadaPorId(id: string): Promise<HabitacionCacheada> {

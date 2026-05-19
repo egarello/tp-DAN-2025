@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -23,4 +24,180 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ============================================================
+   BOOKING-DARK TOKENS — SKILL
+   ============================================================ */
+:root {
+  /* --- SURFACE --- */
+  --bd-bg-page:        #0b1423;
+  --bd-bg-card:        #162032;
+  --bd-bg-card-hover:  #1c2a40;
+  --bd-bg-overlay:     #0d1928cc;
+  --bd-bg-input:       #1a2840;
+  --bd-bg-sidebar:     #111e30;
+  --bd-bg-skeleton:    #1e2d42;
+
+  /* --- BRAND / INTERACTIVE --- */
+  --bd-blue-bright:    #4fa3f7;
+  --bd-blue-cta:       #1a73e8;
+  --bd-blue-cta-hover: #1557c0;
+  --bd-blue-badge:     #1565c0;
+  --bd-blue-badge-txt: #ddeeff;
+
+  /* --- TEXTO --- */
+  --bd-text-primary:   #e8ecf4;
+  --bd-text-secondary: #8b9bb4;
+  --bd-text-muted:     #4f6080;
+  --bd-text-link:      #4fa3f7;
+  --bd-text-inverse:   #ffffff;
+
+  /* --- BORDES --- */
+  --bd-border-subtle:  rgba(255,255,255,0.07);
+  --bd-border-medium:  rgba(255,255,255,0.13);
+  --bd-border-input:   rgba(255,255,255,0.15);
+  --bd-border-focus:   #4fa3f7;
+
+  /* --- SEMÁNTICOS --- */
+  --bd-green-deal:     #1b5e35;
+  --bd-green-deal-txt: #6fcf97;
+  --bd-green-free:     #27ae60;
+  --bd-yellow-star:    #ffb700;
+  --bd-red-urgency:    #c0392b;
+  --bd-amber-promo:    #e67e22;
+
+  /* --- TIPOGRAFÍA --- */
+  --bd-font-sans:      -apple-system, BlinkMacSystemFont, "Inter",
+                       Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bd-fs-xl:          1.25rem;
+  --bd-fs-lg:          1.0625rem;
+  --bd-fs-md:          0.9375rem;
+  --bd-fs-sm:          0.8125rem;
+  --bd-fs-xs:          0.6875rem;
+
+  /* --- ESPACIADO --- */
+  --bd-space-xs:  4px;
+  --bd-space-sm:  8px;
+  --bd-space-md:  12px;
+  --bd-space-lg:  16px;
+  --bd-space-xl:  24px;
+  --bd-space-2xl: 32px;
+
+  /* --- RADIOS --- */
+  --bd-radius-sm:   4px;
+  --bd-radius-md:   6px;
+  --bd-radius-card: 8px;
+  --bd-radius-pill: 20px;
+  --bd-radius-full: 9999px;
+
+  /* --- IMÁGENES --- */
+  --bd-img-w:  220px;
+  --bd-img-w-sm: 120px;
+  --bd-img-ratio: 66%;
+
+  /* --- SOMBRAS --- */
+  --bd-shadow-card:       0 2px 8px rgba(0,0,0,0.45);
+  --bd-shadow-card-hover: 0 8px 24px rgba(0,0,0,0.65);
+  --bd-shadow-cta:        0 4px 12px rgba(26,115,232,0.4);
+
+  /* --- ANIMACIONES --- */
+  --bd-duration-fast:   150ms;
+  --bd-duration-base:   250ms;
+  --bd-duration-slow:   400ms;
+  --bd-ease-out:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --bd-ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1.0);
+  --bd-ease-enter:      cubic-bezier(0.0, 0.0, 0.2, 1.0);
+
+  /* --- Z-INDEX --- */
+  --bd-z-card:    1;
+  --bd-z-badge:   2;
+  --bd-z-tooltip: 10;
+  --bd-z-modal:   100;
+}
+
+/* ============================================================
+   BRAND OVERRIDES — teal acento, radios cálidos, superficie
+   ============================================================ */
+:root {
+  /* Acento principal: teal cálido en vez de azul frío */
+  --bd-blue-cta:        #0d9488;
+  --bd-blue-cta-hover:  #0f766e;
+  --bd-blue-bright:     #2dd4bf;
+  --bd-blue-badge:      #134e4a;
+  --bd-blue-badge-txt:  #99f6e4;
+
+  /* Radios: más redondeados = más amigable */
+  --bd-radius-card:  12px;
+  --bd-radius-md:    8px;
+  --bd-radius-pill:  24px;
+
+  /* Superficie: levemente más cálida (menos azul puro) */
+  --bd-bg-page:    #0c1420;
+  --bd-bg-card:    #16202e;
+  --bd-bg-sidebar: #101b28;
+
+  /* Animaciones: más suaves para usuarios no técnicos */
+  --bd-duration-base: 200ms;
+  --bd-ease-spring:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ============================================================
+   ANIMATIONS — @keyframes
+   ============================================================ */
+@keyframes bd-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bd-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+@keyframes bd-pulse {
+  0%   { transform: scale(1);    }
+  50%  { transform: scale(1.12); }
+  100% { transform: scale(1);    }
+}
+
+@keyframes bd-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+/* ============================================================
+   RESET MÍNIMO + BASE TIPOGRÁFICA
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--bd-font-sans);
+  font-size: var(--bd-fs-md);
+  color: var(--bd-text-primary);
+  background: var(--bd-bg-page);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--bd-text-link);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+img { display: block; max-width: 100%; }
+
+button, input, select {
+  font-family: inherit;
+  font-size: inherit;
 }

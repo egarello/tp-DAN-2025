@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { eliminarHuespedPorDni, eliminarTarjetaCredito, getHuespedPorId, Huesped } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function HuespedDetailPage() {
   const params = useParams();
@@ -90,7 +91,7 @@ export default function HuespedDetailPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <button
         onClick={() => router.back()}
         style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}
@@ -235,6 +236,6 @@ export default function HuespedDetailPage() {
       ) : (
         <p>Huésped no encontrado</p>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

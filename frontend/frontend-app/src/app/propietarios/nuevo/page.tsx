@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { crearPropietario, PropietarioRecord, getBancos, Banco } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function NuevoPropietarioPage() {
   const router = useRouter();
@@ -76,7 +77,7 @@ export default function NuevoPropietarioPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '900px', margin: '0 auto' }}>
+    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 900 }}>
       <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
       </Link>
@@ -264,6 +265,6 @@ export default function NuevoPropietarioPage() {
           </button>
         </div>
       </form>
-    </div>
+    </div></BdPageLayout>
   );
 }

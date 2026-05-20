@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function HuespedesPage() {
   const router = useRouter();
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
       </Link>
@@ -61,6 +62,6 @@ export default function HuespedesPage() {
           </li>
         </ul>
       </div>
-    </div>
+    </BdPageLayout>
   );
 }

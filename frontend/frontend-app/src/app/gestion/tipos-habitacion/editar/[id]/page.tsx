@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { actualizarTipoHabitacion, getTipoHabitacionPorId, TipoHabitacionRecord } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function EditarTipoHabitacionPage() {
   const params = useParams();
@@ -48,7 +49,7 @@ export default function EditarTipoHabitacionPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '700px', margin: '0 auto' }}>
+    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 700 }}>
       <Link href={`/gestion/tipos-habitacion/${tipoId}`} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Tipo de Habitación
       </Link>
@@ -69,6 +70,6 @@ export default function EditarTipoHabitacionPage() {
           </div>
         </form>
       )}
-    </div>
+    </div></BdPageLayout>
   );
 }

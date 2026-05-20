@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BdPageLayout from '@/components/BdPageLayout';
 
 const sections = [
   {
@@ -20,7 +21,7 @@ const sections = [
 
 export default function ReservasLandingPage() {
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
       </Link>
@@ -47,6 +48,6 @@ export default function ReservasLandingPage() {
           </Link>
         ))}
       </div>
-    </div>
+    </BdPageLayout>
   );
 }

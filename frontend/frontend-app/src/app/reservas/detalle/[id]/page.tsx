@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { eliminarReserva, getReservaPorId, Reserva } from '@/lib/reservas-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
@@ -48,7 +49,7 @@ export default function ReservaDetallePage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/reservas/lista" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Reservas
       </Link>
@@ -111,6 +112,6 @@ export default function ReservaDetallePage() {
           </div>
         </div>
       ) : <p>Reserva no encontrada</p>}
-    </div>
+    </BdPageLayout>
   );
 }

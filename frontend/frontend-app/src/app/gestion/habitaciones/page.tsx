@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getHabitaciones, Habitacion } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function HabitacionesPage() {
   const [habitaciones, setHabitaciones] = useState<Habitacion[]>([]);
@@ -26,7 +27,7 @@ export default function HabitacionesPage() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/gestion" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Gestión
       </Link>
@@ -60,6 +61,6 @@ export default function HabitacionesPage() {
           </tbody>
         </table>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

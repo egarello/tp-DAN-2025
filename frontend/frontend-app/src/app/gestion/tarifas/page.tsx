@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getTarifas, Tarifa } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function TarifasPage() {
   const [tarifas, setTarifas] = useState<Tarifa[]>([]);
@@ -26,7 +27,7 @@ export default function TarifasPage() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/gestion" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Gestión
       </Link>
@@ -65,6 +66,6 @@ export default function TarifasPage() {
           </tbody>
         </table>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

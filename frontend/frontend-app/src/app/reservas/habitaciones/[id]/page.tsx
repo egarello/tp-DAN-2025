@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getHabitacionCacheadaPorId, HabitacionCacheada } from '@/lib/reservas-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function HabitacionCacheadaDetallePage() {
   const params = useParams();
@@ -31,7 +32,7 @@ export default function HabitacionCacheadaDetallePage() {
   }, [habitacionId]);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/reservas/habitaciones" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Habitaciones
       </Link>
@@ -76,6 +77,6 @@ export default function HabitacionCacheadaDetallePage() {
           )}
         </div>
       ) : <p>Habitación no encontrada</p>}
-    </div>
+    </BdPageLayout>
   );
 }

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getReservas, Reserva } from '@/lib/reservas-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
@@ -30,7 +31,7 @@ export default function ReservasListaPage() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/reservas" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Reservas
       </Link>
@@ -68,6 +69,6 @@ export default function ReservasListaPage() {
           </tbody>
         </table>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

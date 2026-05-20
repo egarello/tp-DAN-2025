@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function Home() {
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <h1>Hotel Management System - Frontend</h1>
       <p>Bienvenido a la aplicación de gestión hotelera</p>
 
@@ -116,6 +117,6 @@ export default function Home() {
       <ul>
         <li><strong>DELETE /reservas/reservas/{'{'}id{'}'}</strong> - Eliminar reserva</li>
       </ul>
-    </div>
+    </BdPageLayout>
   );
  }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { eliminarAmenityHotel, eliminarHotel, getHotelPorId, Hotel } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 function formatAmenity(amenity: NonNullable<Hotel['amenities']>[number]) {
   return typeof amenity === 'string' ? amenity : amenity.amenity;
@@ -66,7 +67,7 @@ export default function HotelDetailPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/gestion/hoteles" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Hoteles
       </Link>
@@ -126,6 +127,6 @@ export default function HotelDetailPage() {
           </div>
         </div>
       ) : <p>Hotel no encontrado</p>}
-    </div>
+    </BdPageLayout>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { crearHotel, HotelRecord } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function NuevoHotelPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function NuevoHotelPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
       <Link href="/gestion/hoteles" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Hoteles
       </Link>
@@ -68,6 +69,6 @@ export default function NuevoHotelPage() {
           </button>
         </div>
       </form>
-    </div>
+    </div></BdPageLayout>
   );
 }

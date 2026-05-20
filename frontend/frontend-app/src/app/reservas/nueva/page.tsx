@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { crearReserva, getHabitacionesCacheadas, HabitacionCacheada, EstadoReserva } from '@/lib/reservas-api';
 import { getHoteles, Hotel } from '@/lib/gestion-api';
 import { buscarUsuariosPorDni, Usuario } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 type EstadoLabel = { value: EstadoReserva; label: string };
 
@@ -143,7 +144,7 @@ export default function NuevaReservaPage() {
   if (dataLoading) return <div style={{ padding: '20px' }}><p>Cargando datos...</p></div>;
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
       <Link href="/reservas/lista" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Reservas
       </Link>
@@ -295,7 +296,7 @@ export default function NuevaReservaPage() {
           </button>
         </div>
       </form>
-    </div>
+    </div></BdPageLayout>
   );
 }
 

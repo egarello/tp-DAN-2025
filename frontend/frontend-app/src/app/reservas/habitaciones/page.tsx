@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getHabitacionesCacheadas, HabitacionCacheada } from '@/lib/reservas-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function HabitacionesCacheadasPage() {
   const [habitaciones, setHabitaciones] = useState<HabitacionCacheada[]>([]);
@@ -26,7 +27,7 @@ export default function HabitacionesCacheadasPage() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/reservas" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Reservas
       </Link>
@@ -61,6 +62,6 @@ export default function HabitacionesCacheadasPage() {
           </tbody>
         </table>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { eliminarTipoHabitacion, getTipoHabitacionPorId, TipoHabitacion } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function TipoHabitacionDetailPage() {
   const params = useParams();
@@ -41,7 +42,7 @@ export default function TipoHabitacionDetailPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/gestion/tipos-habitacion" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Tipos de Habitación
       </Link>
@@ -63,6 +64,6 @@ export default function TipoHabitacionDetailPage() {
           </div>
         </div>
       ) : <p>Tipo de habitación no encontrado</p>}
-    </div>
+    </BdPageLayout>
   );
 }

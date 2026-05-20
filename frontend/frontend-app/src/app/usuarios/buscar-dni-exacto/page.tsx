@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUsuarioPorDniExacto, Usuario } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function BuscarPorDniPage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function BuscarPorDniPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <button
         onClick={() => router.back()}
         style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}
@@ -108,6 +109,6 @@ export default function BuscarPorDniPage() {
           </p>
         </div>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

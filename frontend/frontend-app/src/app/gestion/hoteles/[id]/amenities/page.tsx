@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { agregarAmenitiesHotel, Amenity, getHotelPorId, Hotel } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 const AMENITIES: Amenity[] = [
   'PILETA',
@@ -73,7 +74,7 @@ export default function AgregarAmenitiesHotelPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
       <Link href={hotel ? `/gestion/hoteles/${hotel.id}` : '/gestion/hoteles'} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Hotel
       </Link>
@@ -103,6 +104,6 @@ export default function AgregarAmenitiesHotelPage() {
           </div>
         </form>
       )}
-    </div>
+    </div></BdPageLayout>
   );
 }

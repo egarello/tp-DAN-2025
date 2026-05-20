@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getBancos, Banco, PageResponse } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function BancosPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function BancosPage() {
   }, [page]);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <button
         onClick={() => router.back()}
         style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}
@@ -113,6 +114,6 @@ export default function BancosPage() {
           </div>
         </>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

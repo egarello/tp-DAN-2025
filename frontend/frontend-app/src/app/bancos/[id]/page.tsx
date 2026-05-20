@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getBancoPorId, Banco } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function BancoDetailPage() {
   const params = useParams();
@@ -33,7 +34,7 @@ export default function BancoDetailPage() {
   }, [params.id]);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <button
         onClick={() => router.back()}
         style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}
@@ -63,6 +64,6 @@ export default function BancoDetailPage() {
       ) : (
         <p>Banco no encontrado</p>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

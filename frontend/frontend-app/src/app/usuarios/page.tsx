@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getUsuarios, searchUsuariosByNombre, buscarUsuariosPorDni, Usuario, PageResponse } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function UsuariosPage() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export default function UsuariosPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
       </Link>
@@ -260,6 +261,6 @@ export default function UsuariosPage() {
           </div>
         </>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

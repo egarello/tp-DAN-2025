@@ -12,6 +12,7 @@ import {
   Tarifa,
   TipoHabitacion,
 } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function HabitacionDetailPage() {
   const params = useParams();
@@ -69,7 +70,7 @@ export default function HabitacionDetailPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/gestion/habitaciones" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Habitaciones
       </Link>
@@ -121,6 +122,6 @@ export default function HabitacionDetailPage() {
           </section>
         </div>
       ) : <p>Habitación no encontrada</p>}
-    </div>
+    </BdPageLayout>
   );
 }

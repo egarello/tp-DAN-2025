@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getHoteles, Hotel } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function HotelesPage() {
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
@@ -26,7 +27,7 @@ export default function HotelesPage() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/gestion" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Gestión
       </Link>
@@ -62,6 +63,6 @@ export default function HotelesPage() {
           </tbody>
         </table>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

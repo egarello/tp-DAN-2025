@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { actualizarHotel, getHotelPorId, HotelRecord } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function EditarHotelPage() {
   const params = useParams();
@@ -73,7 +74,7 @@ export default function EditarHotelPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
       <Link href={`/gestion/hoteles/${hotelId}`} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Hotel
       </Link>
@@ -100,6 +101,6 @@ export default function EditarHotelPage() {
           </div>
         </form>
       )}
-    </div>
+    </div></BdPageLayout>
   );
 }

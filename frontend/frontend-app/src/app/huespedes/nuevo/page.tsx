@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { crearHuesped, HuespedRecord, getBancos, Banco } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function NuevoHuespedPage() {
   const router = useRouter();
@@ -66,7 +67,7 @@ export default function NuevoHuespedPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
       <Link href="/huespedes" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Volver a Huéspedes
       </Link>
@@ -280,6 +281,6 @@ export default function NuevoHuespedPage() {
           </button>
         </div>
       </form>
-    </div>
+    </div></BdPageLayout>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { eliminarTarifa, getTarifaPorId, Tarifa } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function TarifaDetailPage() {
   const params = useParams();
@@ -41,7 +42,7 @@ export default function TarifaDetailPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/gestion/tarifas" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Tarifas
       </Link>
@@ -64,6 +65,6 @@ export default function TarifaDetailPage() {
           </div>
         </div>
       ) : <p>Tarifa no encontrada</p>}
-    </div>
+    </BdPageLayout>
   );
 }

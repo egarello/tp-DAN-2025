@@ -18,11 +18,15 @@ import edu.utn.frsf.isi.dan.user.model.Huesped;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Tag(name = "User Controller", description = "Operaciones para la gestión de usuarios")
 @RestController
-@RequestMapping("/users")
+@RequestMapping({"", "/users"})
 public class UserController {
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -36,6 +40,7 @@ public class UserController {
     )
     @PostMapping("/huesped")
     public ResponseEntity<Huesped> crearUsuarioHuesped(@RequestBody HuespedRecord huespedRecord) {
+        log.info("POST /huesped dni={} email={}", huespedRecord.dni(), huespedRecord.email());
         Huesped huesped = userService.crearUsuarioHuesped(huespedRecord);
         return new ResponseEntity<>(huesped, HttpStatus.CREATED);
     }
@@ -43,6 +48,7 @@ public class UserController {
     @Operation(summary = "Crear usuario propietario", description = "Crea un nuevo usuario de tipo propietario")
     @PostMapping("/propietario")
     public ResponseEntity<Void> crearUsuarioPropietario(@RequestBody @Valid PropietarioRecord propietarioRecord) {
+        log.info("POST /propietario dni={} email={}", propietarioRecord.dni(), propietarioRecord.email());
         userService.crearUsuarioPropietario(propietarioRecord);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -51,6 +57,7 @@ public class UserController {
     @Operation(summary = "Agregar tarjeta de crédito a un huesped", description = "Asocia una tarjeta de crédito a un usuario de tipo huesped")
     @PostMapping("/huesped/{dni}/tarjeta")
     public ResponseEntity<Void> agregarTarjetaHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord) {
+        log.info("POST /huesped/{}/tarjeta numero={} titular={}", dni, tarjetaCreditoRecord.numeroCC(), tarjetaCreditoRecord.nombreTitular());
         userService.agregarTarjetaHuesped(dni, tarjetaCreditoRecord);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

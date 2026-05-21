@@ -128,7 +128,7 @@ public class HabitacionService {
     public void actualizarPrecioPorTarifa(TarifaDTO tarifaDTO) {
  
         // Buscar todas las habitaciones del tipo especificado
-        Query query = new Query(Criteria.where("tipoHabitacion.id").is(tarifaDTO.getTipoHabitacionId()));
+        Query query = new Query(Criteria.where("idTipoHabitacion").is(tarifaDTO.getTipoHabitacionId()));
         List<Habitacion> habitaciones = mongoTemplate.find(query, Habitacion.class);
                 
         // Actualizar precio en cada habitación

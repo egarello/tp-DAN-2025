@@ -142,7 +142,9 @@ public class TarifaService {
             tarifa.setFechaFin(LocalDate.parse(tarifaRecord.fechaFin()));
         }
 
-        return tarifaRepository.save(tarifa);
+        Tarifa tarifaActualizada = tarifaRepository.save(tarifa);
+        programarActualizacionTarifa(tarifaActualizada);
+        return tarifaActualizada;
     }
 
     public void deleteById(Integer id) {

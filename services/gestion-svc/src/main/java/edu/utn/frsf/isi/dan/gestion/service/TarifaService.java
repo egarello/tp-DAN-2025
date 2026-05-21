@@ -13,27 +13,23 @@ import lombok.extern.log4j.Log4j2;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Duration; 
 import java.util.ArrayList;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
-import edu.utn.frsf.isi.dan.shared.TarifaDTO;
-import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
-import edu.utn.frsf.isi.dan.shared.TipoEvento;
-import lombok.extern.log4j.Log4j2;
 
 
 @Service
 @Log4j2
 public class TarifaService {
+    private static final LocalDate FECHA_FIN_ABIERTA = LocalDate.of(9999, 12, 31);
+
     @Autowired
     private TarifaRepository tarifaRepository;
 
@@ -73,15 +69,25 @@ public class TarifaService {
         tarifa.setTipoHabitacion(tipo);
         tarifa.setPrecioNoche(tarifaRecord.precioNoche());
 
+        boolean hasFechaInicio = tarifaRecord.fechaInicio() != null && !tarifaRecord.fechaInicio().isBlank();
+        boolean hasFechaFin = tarifaRecord.fechaFin() != null && !tarifaRecord.fechaFin().isBlank();
+
 
         if(existentes.isEmpty()) {
-            // Si no hay tarifas existentes, la nueva es la única y vigente
-            tarifa.setFechaInicio(LocalDate.now());
-            tarifa.setFechaFin(null);
+            // Si no hay tarifas previas, usar las fechas del body cuando se envían.
+            if (hasFechaInicio && hasFechaFin) {
+                tarifa.setFechaInicio(LocalDate.parse(tarifaRecord.fechaInicio()));
+                tarifa.setFechaFin(LocalDate.parse(tarifaRecord.fechaFin()));
+            } else if (!hasFechaInicio && !hasFechaFin) {
+                tarifa.setFechaInicio(LocalDate.now());
+                tarifa.setFechaFin(FECHA_FIN_ABIERTA);
+            } else {
+                throw new IllegalArgumentException("Debe enviar ambas fechas (fechaInicio y fechaFin) o ninguna");
+            }
             return tarifaRepository.save(tarifa);
         }
 
-        if(tarifaRecord.fechaInicio().isEmpty() && tarifaRecord.fechaFin().isEmpty()) {
+        if(!hasFechaInicio && !hasFechaFin) {
             Tarifa anterior = existentes.stream()
                     .filter(t -> t.getFechaFin() == null || t.getFechaFin().isAfter(LocalDate.now()))
                     .max((t1, t2) -> {
@@ -99,11 +105,40 @@ public class TarifaService {
                         return fecha1.compareTo(fecha2);
                     })
                     .orElse(null);
-            anterior.setFechaFin(LocalDate.now().minusDays(1));
+            if (anterior != null) {
+                anterior.setFechaFin(LocalDate.now().minusDays(1));
+                tarifaRepository.save(anterior);
+            }
             tarifa.setFechaInicio(LocalDate.now());
-        } else if(!tarifaRecord.fechaInicio().isEmpty() && !tarifaRecord.fechaFin().isEmpty()) {
+            tarifa.setFechaFin(FECHA_FIN_ABIERTA);
+        } else if(hasFechaInicio && hasFechaFin) {
             // Si se proporcionan fechas específicas, setearlas en la tarifa
             tarifa.setFechaInicio(LocalDate.parse(tarifaRecord.fechaInicio()));
+            tarifa.setFechaFin(LocalDate.parse(tarifaRecord.fechaFin()));
+        } else {
+            throw new IllegalArgumentException("Debe enviar ambas fechas (fechaInicio y fechaFin) o ninguna");
+        }
+
+        return tarifaRepository.save(tarifa);
+    }
+
+    public Tarifa update(Integer id, TarifaRecord tarifaRecord) {
+        Tarifa tarifa = tarifaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tarifa no encontrada con id: " + id));
+
+        if (tarifaRecord.idTipoHabitacion() != null) {
+            TipoHabitacion tipo = tipoHabitacionRepository.findById(tarifaRecord.idTipoHabitacion())
+                    .orElseThrow(() -> new IllegalArgumentException("TipoHabitacion no encontrado con id: " + tarifaRecord.idTipoHabitacion()));
+            tarifa.setTipoHabitacion(tipo);
+        }
+
+        tarifa.setPrecioNoche(tarifaRecord.precioNoche());
+
+        if (tarifaRecord.fechaInicio() != null && !tarifaRecord.fechaInicio().isBlank()) {
+            tarifa.setFechaInicio(LocalDate.parse(tarifaRecord.fechaInicio()));
+        }
+
+        if (tarifaRecord.fechaFin() != null && !tarifaRecord.fechaFin().isBlank()) {
             tarifa.setFechaFin(LocalDate.parse(tarifaRecord.fechaFin()));
         }
 

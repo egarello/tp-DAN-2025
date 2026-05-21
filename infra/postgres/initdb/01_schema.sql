@@ -1,6 +1,14 @@
 -- Crear esquema
 CREATE SCHEMA IF NOT EXISTS tp_dan;
 
+-- Crear secuencia para el ID de la tabla tipo_habitacion
+do $$
+begin
+    if not exists (select 1 from pg_class where relname = 'tipo_habitacion_id_seq') then
+        create sequence tp_dan.tipo_habitacion_id_seq;
+    end if;
+end$$;
+
 -- Crear secuencia para el ID de la tabla HOTEL
 do $$
 begin
@@ -24,7 +32,7 @@ CREATE TABLE IF NOT EXISTS tp_dan.hotel (
 
 -- Tabla tipo_habitacion
 CREATE TABLE IF NOT EXISTS tp_dan.tipo_habitacion (
-    id integer PRIMARY KEY,
+    id integer PRIMARY KEY DEFAULT nextval('tp_dan.tipo_habitacion_id_seq'),
     nombre varchar(50) NOT NULL,
     descripcion varchar(255) NOT NULL,
     capacidad integer NOT NULL
@@ -41,6 +49,12 @@ INSERT INTO tp_dan.tipo_habitacion (id, nombre, descripcion, capacidad) VALUES
     (8, 'TRIPLE SUPERIOR', 'Dos camas individuales', 3),
     (9, 'CUADRUPLE SUPERIOR', 'Dos camas individuales', 4)
 ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+    'tp_dan.tipo_habitacion_id_seq',
+    GREATEST((SELECT COALESCE(MAX(id), 0) FROM tp_dan.tipo_habitacion), 1),
+    (SELECT COALESCE(MAX(id), 0) > 0 FROM tp_dan.tipo_habitacion)
+);
 
 -- Tabla tarifa
 CREATE TABLE IF NOT EXISTS tp_dan.tarifa (
@@ -83,6 +97,3 @@ CREATE TABLE IF NOT EXISTS tp_dan.amenity_hotel (
     amenity varchar(250) NOT NULL
 );
 
--- Agregar una secuencia:
-ALTER TABLE tp_dan.tipo_habitacion
-    ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY;

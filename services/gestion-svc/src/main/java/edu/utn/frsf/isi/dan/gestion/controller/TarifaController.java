@@ -53,8 +53,8 @@ public class TarifaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Tarifa> update(@PathVariable Integer id, @RequestBody TarifaRecord tarifaRecord) {
-        if (!tarifaService.findById(id).isPresent()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(tarifaService.save(tarifaRecord));
+        if (tarifaService.findById(id).isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(tarifaService.update(id, tarifaRecord));
     }
 
     @DeleteMapping("/{id}")

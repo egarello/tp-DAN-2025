@@ -76,10 +76,17 @@ public class HabitacionService {
     }
 
     public void enviarHabitacionJms(Habitacion habitacion,boolean isNew) {
+        Habitacion habitacionCompleta = habitacion.getId() != null
+                ? habitacionRepository.findByIdWithTipoAndHotel(habitacion.getId()).orElse(habitacion)
+                : habitacion;
+
+        if (habitacionCompleta.getTipoHabitacion() == null || habitacionCompleta.getHotel() == null) {
+            throw new IllegalStateException("La habitación debe tener tipo de habitación y hotel asociados");
+        }
 
         // Traer el hotel completo de la BD para obtener todos sus datos (latitud, longitud, etc.)
-        Hotel hotelCompleto = habitacion.getHotel() != null ? 
-            hotelRepository.findById(habitacion.getHotel().getId()).orElse(habitacion.getHotel()) : null;
+        Hotel hotelCompleto = hotelRepository.findById(habitacionCompleta.getHotel().getId())
+                .orElse(habitacionCompleta.getHotel());
 
         // Extraer amenities del hotel (convertir enum a String)
         List<String> amenitiesList = hotelCompleto != null && hotelCompleto.getAmenities() != null ? 
@@ -88,13 +95,13 @@ public class HabitacionService {
                 .collect(Collectors.toList()) : null;
 
         HabitacionDTO dto = HabitacionDTO.builder()
-                .habitacionId(habitacion.getId().longValue())
-                .numero(habitacion.getNumero())
-                .tipoHabitacionId(habitacion.getTipoHabitacion().getId())
-                .tipoHabitacion(habitacion.getTipoHabitacion().getDescripcion())
-                .capacidad(habitacion.getTipoHabitacion().getCapacidad())
-                .precioNoche(tarifaService.getTarifaByHabitacion(habitacion)
-                    .orElseThrow(() -> new RuntimeException("No existe tarifa vigente para la habitación con id: " + habitacion.getId()))
+                .habitacionId(habitacionCompleta.getId().longValue())
+                .numero(habitacionCompleta.getNumero())
+                .tipoHabitacionId(habitacionCompleta.getTipoHabitacion().getId())
+                .tipoHabitacion(habitacionCompleta.getTipoHabitacion().getDescripcion())
+                .capacidad(habitacionCompleta.getTipoHabitacion().getCapacidad())
+                .precioNoche(tarifaService.getTarifaByHabitacion(habitacionCompleta)
+                    .orElseThrow(() -> new RuntimeException("No existe tarifa vigente para la habitación con id: " + habitacionCompleta.getId()))
                     .getPrecioNoche())
                 .amenities(amenitiesList)
                 .hotel(mapToHotelDTO(hotelCompleto))

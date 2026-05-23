@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { crearPropietario, PropietarioRecord, getBancos, Banco } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
+import BdAlert from '@/components/BdAlert';
 
 export default function NuevoPropietarioPage() {
   const router = useRouter();
@@ -77,194 +79,171 @@ export default function NuevoPropietarioPage() {
   };
 
   return (
-    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 900 }}>
-      <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Inicio
-      </Link>
+    <BdPageLayout>
+      <div className="mx-auto max-w-3xl">
+        <BdBackLink href="/" className="mb-bd-lg" />
 
-      <h1>Nuevo Propietario</h1>
+        <h1 className="text-bd-primary text-bd-xl font-bold mb-bd-lg">Nuevo Propietario</h1>
 
-      {error && (
-        <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red', borderRadius: '4px', backgroundColor: '#ffe6e6' }}>
-          <strong>Error:</strong> {error}
-        </div>
-      )}
+        {error && (
+          <BdAlert variant="error" className="mb-bd-lg">
+            <strong>Error:</strong> {error}
+          </BdAlert>
+        )}
 
-      {success && (
-        <div style={{ color: 'green', padding: '10px', marginBottom: '20px', border: '1px solid green', borderRadius: '4px', backgroundColor: '#e6ffe6' }}>
-          ¡Propietario creado exitosamente! Redirigiendo...
-        </div>
-      )}
+        {success && (
+          <BdAlert variant="success" className="mb-bd-lg">
+            ¡Propietario creado exitosamente! Redirigiendo...
+          </BdAlert>
+        )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <fieldset style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
-          <legend style={{ fontWeight: 'bold', fontSize: '1.2em' }}>Datos del Propietario</legend>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <div>
-              <label htmlFor="nombre" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Nombre * (mín. 5 caracteres)</label>
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                required
-                minLength={5}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-bd-lg">
+          <div className="bd-card p-bd-xl">
+            <h2 className="text-bd-muted text-bd-xs uppercase tracking-widest mb-bd-lg">Datos del Propietario</h2>
 
-            <div>
-              <label htmlFor="telefono" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Teléfono *</label>
-              <input
-                type="tel"
-                id="telefono"
-                name="telefono"
-                value={formData.telefono}
-                onChange={handleChange}
-                required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
+            <div className="grid grid-cols-2 gap-bd-md">
+              <div>
+                <label htmlFor="nombre" className="text-bd-muted text-bd-xs block mb-bd-xs">Nombre * (mín. 5 caracteres)</label>
+                <input
+                  type="text"
+                  id="nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  required
+                  minLength={5}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="dni" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>DNI</label>
-              <input
-                type="text"
-                id="dni"
-                name="dni"
-                value={formData.dni}
-                onChange={handleChange}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
+              <div>
+                <label htmlFor="telefono" className="text-bd-muted text-bd-xs block mb-bd-xs">Teléfono *</label>
+                <input
+                  type="tel"
+                  id="telefono"
+                  name="telefono"
+                  value={formData.telefono}
+                  onChange={handleChange}
+                  required
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="email" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
+              <div>
+                <label htmlFor="dni" className="text-bd-muted text-bd-xs block mb-bd-xs">DNI</label>
+                <input
+                  type="text"
+                  id="dni"
+                  name="dni"
+                  value={formData.dni}
+                  onChange={handleChange}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="idHotel" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Hotel asociado</label>
-              <input
-                type="number"
-                id="idHotel"
-                name="idHotel"
-                value={formData.idHotel ?? ''}
-                onChange={handleChange}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
-          </div>
-        </fieldset>
+              <div>
+                <label htmlFor="email" className="text-bd-muted text-bd-xs block mb-bd-xs">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
 
-        <fieldset style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
-          <legend style={{ fontWeight: 'bold', fontSize: '1.2em' }}>Cuenta Bancaria *</legend>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <div>
-              <label htmlFor="numeroCuenta" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Número de Cuenta *</label>
-              <input
-                type="text"
-                id="numeroCuenta"
-                name="numeroCuenta"
-                value={formData.cuentaBancaria.numeroCuenta}
-                onChange={handleChange}
-                required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="cbu" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>CBU *</label>
-              <input
-                type="text"
-                id="cbu"
-                name="cbu"
-                value={formData.cuentaBancaria.cbu}
-                onChange={handleChange}
-                required
-                maxLength={22}
-                placeholder="1230000000000000000001"
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="alias" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Alias</label>
-              <input
-                type="text"
-                id="alias"
-                name="alias"
-                value={formData.cuentaBancaria.alias}
-                onChange={handleChange}
-                placeholder="mi.alias.bancario"
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="idBanco" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Banco *</label>
-              <select
-                id="idBanco"
-                name="idBanco"
-                value={formData.cuentaBancaria.idBanco || ''}
-                onChange={handleChange}
-                required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-              >
-                <option value="">Seleccionar banco</option>
-                {bancos.map((banco) => (
-                  <option key={banco.id} value={banco.id}>
-                    {banco.nombre}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label htmlFor="idHotel" className="text-bd-muted text-bd-xs block mb-bd-xs">Hotel asociado</label>
+                {/* TODO: SKILL/BRAND no cubren input type="number" — usar Tailwind nativo */}
+                <input
+                  type="number"
+                  id="idHotel"
+                  name="idHotel"
+                  value={formData.idHotel ?? ''}
+                  onChange={handleChange}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
             </div>
           </div>
-        </fieldset>
 
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            onClick={() => router.push('/')}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '1em',
-            }}
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: loading ? '#ccc' : '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '1em',
-            }}
-          >
-            {loading ? 'Guardando...' : 'Crear Propietario'}
-          </button>
-        </div>
-      </form>
-    </div></BdPageLayout>
+          <div className="bd-card p-bd-xl">
+            <h2 className="text-bd-muted text-bd-xs uppercase tracking-widest mb-bd-lg">Cuenta Bancaria *</h2>
+
+            <div className="grid grid-cols-2 gap-bd-md">
+              <div>
+                <label htmlFor="numeroCuenta" className="text-bd-muted text-bd-xs block mb-bd-xs">Número de Cuenta *</label>
+                <input
+                  type="text"
+                  id="numeroCuenta"
+                  name="numeroCuenta"
+                  value={formData.cuentaBancaria.numeroCuenta}
+                  onChange={handleChange}
+                  required
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="cbu" className="text-bd-muted text-bd-xs block mb-bd-xs">CBU *</label>
+                <input
+                  type="text"
+                  id="cbu"
+                  name="cbu"
+                  value={formData.cuentaBancaria.cbu}
+                  onChange={handleChange}
+                  required
+                  maxLength={22}
+                  placeholder="1230000000000000000001"
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="alias" className="text-bd-muted text-bd-xs block mb-bd-xs">Alias</label>
+                <input
+                  type="text"
+                  id="alias"
+                  name="alias"
+                  value={formData.cuentaBancaria.alias}
+                  onChange={handleChange}
+                  placeholder="mi.alias.bancario"
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="idBanco" className="text-bd-muted text-bd-xs block mb-bd-xs">Banco *</label>
+                <select
+                  id="idBanco"
+                  name="idBanco"
+                  value={formData.cuentaBancaria.idBanco || ''}
+                  onChange={handleChange}
+                  required
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                >
+                  <option value="">Seleccionar banco</option>
+                  {bancos.map((banco) => (
+                    <option key={banco.id} value={banco.id}>
+                      {banco.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-row gap-bd-xl justify-end">
+            <BdButton variant="ghost" onClick={() => router.push('/')}>
+              Cancelar
+            </BdButton>
+            <BdButton variant="cta" type="submit" disabled={loading}>
+              {loading ? 'Guardando...' : 'Crear Propietario'}
+            </BdButton>
+          </div>
+        </form>
+      </div>
+    </BdPageLayout>
   );
 }

@@ -1,10 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { eliminarTipoHabitacion, getTipoHabitacionPorId, TipoHabitacion } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
 
 export default function TipoHabitacionDetailPage() {
   const params = useParams();
@@ -43,27 +45,35 @@ export default function TipoHabitacionDetailPage() {
 
   return (
     <BdPageLayout>
-      <Link href="/gestion/tipos-habitacion" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Tipos de Habitación
-      </Link>
+      <BdBackLink href="/gestion/tipos-habitacion" className="mb-bd-lg" />
+      {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
-      <h1>Detalle del Tipo de Habitación</h1>
-      {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
-      {loading ? <p>Cargando...</p> : tipo ? (
-        <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
-          <p><strong>Nombre:</strong> {tipo.nombre}</p>
-          <p><strong>Capacidad:</strong> {tipo.capacidad}</p>
-          <p><strong>Descripción:</strong> {tipo.descripcion || '-'}</p>
-          <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
-            <Link href={`/gestion/tipos-habitacion/editar/${tipo.id}`} style={{ padding: '10px 16px', backgroundColor: '#ffc107', color: 'black', textDecoration: 'none', borderRadius: '4px' }}>
-              Editar Tipo
-            </Link>
-            <button onClick={handleEliminar} style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-              Eliminar Tipo
-            </button>
-          </div>
+      <h1 className="text-bd-primary">Detalle del Tipo de Habitación</h1>
+      {error && (
+        <div className="bd-alert bd-alert-error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+          <strong>Error:</strong> {error}
         </div>
-      ) : <p>Tipo de habitación no encontrado</p>}
+      )}
+      {loading ? (
+        <div className="bd-skeleton bd-skeleton-text" />
+      ) : tipo ? (
+        <BdCard>
+          {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }} */}
+          <p className="text-bd-primary mb-bd-sm"><strong>Nombre:</strong> {tipo.nombre}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Capacidad:</strong> {tipo.capacidad}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Descripción:</strong> {tipo.descripcion || '-'}</p>
+          <div className="mt-bd-lg flex flex-row gap-bd-sm">
+            {/* style={{ marginTop: '16px', display: 'flex', gap: '10px' }} */}
+            <BdButton variant="primary" href={`/gestion/tipos-habitacion/editar/${tipo.id}`}>
+              Editar Tipo
+            </BdButton>
+            <BdButton variant="danger" onClick={handleEliminar}>
+              Eliminar Tipo
+            </BdButton>
+          </div>
+        </BdCard>
+      ) : <p className="text-bd-secondary">Tipo de habitación no encontrado</p>}
     </BdPageLayout>
   );
 }

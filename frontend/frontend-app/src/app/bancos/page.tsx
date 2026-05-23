@@ -4,6 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getBancos, Banco, PageResponse } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdButton from '@/components/BdButton';
+import BdBackLink from '@/components/BdBackLink';
+import BdPagination from '@/components/BdPagination';
+import BdAlert from '@/components/BdAlert';
+import BdTable from '@/components/BdTable';
 
 export default function BancosPage() {
   const router = useRouter();
@@ -34,84 +40,56 @@ export default function BancosPage() {
 
   return (
     <BdPageLayout>
-      <button
-        onClick={() => router.back()}
-        style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}
-      >
-        ← Volver
-      </button>
+      <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
+      {/* style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }} */}
 
-      <h1>Bancos</h1>
+      <h1 className="text-bd-primary">Bancos</h1>
 
       {error && (
-        <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
+        <BdAlert variant="error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
 
       {loading ? (
-        <p>Cargando...</p>
+        <div className="bd-skeleton bd-skeleton-text" />
       ) : (
         <>
           {bancos.length === 0 ? (
-            <p>No hay bancos disponibles</p>
+            <p className="text-bd-secondary">No hay bancos disponibles</p>
           ) : (
-            <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Código</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bancos.map((banco) => (
-                  <tr key={banco.id}>
-                    <td>{banco.nombre}</td>
-                    <td>{banco.codigo}</td>
-                    <td>
-                      <button
-                        onClick={() => router.push(`/bancos/${banco.id}`)}
-                        style={{
-                          padding: '5px 10px',
-                          marginRight: '5px',
-                          backgroundColor: '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '3px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Ver
-                      </button>
-                    </td>
+            <BdTable>
+              <table className="bd-table w-full mt-bd-xl" border={1} cellPadding="10" /* style={{ width: '100%', marginTop: '20px' }} */>
+                <thead>
+                  <tr>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Nombre</th>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Código</th>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {bancos.map((banco) => (
+                    <tr key={banco.id}>
+                      <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{banco.nombre}</td>
+                      <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{banco.codigo}</td>
+                      <td className="p-bd-md border-b border-bd-subtle bd-row-actions">
+                        <BdButton variant="ghost" size="sm" onClick={() => router.push(`/bancos/${banco.id}`)}>
+                          Ver
+                        </BdButton>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </BdTable>
           )}
 
-          <div style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button
-              onClick={() => setPage(Math.max(0, page - 1))}
-              disabled={page === 0}
-              style={{ padding: '5px 10px', cursor: page === 0 ? 'not-allowed' : 'pointer' }}
-            >
-              Anterior
-            </button>
-
-            <span>
-              Página {page + 1} de {totalPages}
-            </span>
-
-            <button
-              onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-              disabled={page >= totalPages - 1}
-              style={{ padding: '5px 10px', cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer' }}
-            >
-              Siguiente
-            </button>
-          </div>
+          <BdPagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </>
       )}
     </BdPageLayout>

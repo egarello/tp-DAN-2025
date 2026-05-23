@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { crearHuesped, HuespedRecord, getBancos, Banco } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdButton from '@/components/BdButton';
+import BdBackLink from '@/components/BdBackLink';
+import BdAlert from '@/components/BdAlert';
 
 export default function NuevoHuespedPage() {
   const router = useRouter();
@@ -67,32 +69,39 @@ export default function NuevoHuespedPage() {
   };
 
   return (
-    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
-      <Link href="/huespedes" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Volver a Huéspedes
-      </Link>
+    <BdPageLayout>
+      <div className="mx-auto max-w-3xl">
+        {/* style={{ maxWidth: 800 }} */}
+      <BdBackLink href="/huespedes" className="mb-bd-lg" />
+      {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
-      <h1>Nuevo Huésped</h1>
+      <h1 className="text-bd-primary text-bd-xl font-bold">Nuevo Huésped</h1>
 
       {error && (
-        <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red', borderRadius: '4px', backgroundColor: '#ffe6e6' }}>
+        <BdAlert variant="error" className="mb-bd-lg">
+          {/* style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red', borderRadius: '4px', backgroundColor: '#ffe6e6' }} */}
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
 
       {success && (
-        <div style={{ color: 'green', padding: '10px', marginBottom: '20px', border: '1px solid green', borderRadius: '4px', backgroundColor: '#e6ffe6' }}>
+        <BdAlert variant="success" className="mb-bd-lg">
+          {/* style={{ color: 'green', padding: '10px', marginBottom: '20px', border: '1px solid green', borderRadius: '4px', backgroundColor: '#e6ffe6' }} */}
           ¡Huésped creado exitosamente! Redirigiendo...
-        </div>
+        </BdAlert>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <fieldset style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
-          <legend style={{ fontWeight: 'bold', fontSize: '1.2em' }}>Datos del Huésped</legend>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-bd-lg">
+        {/* style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} */}
+        <div className="bd-card p-bd-xl">
+          <h2 className="text-bd-muted text-bd-xs uppercase tracking-widest mb-bd-lg">Datos del Huésped</h2>
+          {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }} */}
+          {/* style={{ fontWeight: 'bold', fontSize: '1.2em' }} */}
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div className="grid grid-cols-2 gap-bd-md" /* style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }} */>
             <div>
-              <label htmlFor="nombre" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Nombre *</label>
+              <label htmlFor="nombre" className="text-bd-muted text-bd-xs block mb-bd-xs">Nombre *</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="text"
                 id="nombre"
@@ -100,12 +109,14 @@ export default function NuevoHuespedPage() {
                 value={formData.nombre}
                 onChange={handleChange}
                 required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
 
             <div>
-              <label htmlFor="dni" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>DNI *</label>
+              <label htmlFor="dni" className="text-bd-muted text-bd-xs block mb-bd-xs">DNI *</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="text"
                 id="dni"
@@ -113,12 +124,14 @@ export default function NuevoHuespedPage() {
                 value={formData.dni}
                 onChange={handleChange}
                 required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
 
             <div>
-              <label htmlFor="email" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Email *</label>
+              <label htmlFor="email" className="text-bd-muted text-bd-xs block mb-bd-xs">Email *</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="email"
                 id="email"
@@ -126,12 +139,14 @@ export default function NuevoHuespedPage() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
 
             <div>
-              <label htmlFor="telefono" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Teléfono *</label>
+              <label htmlFor="telefono" className="text-bd-muted text-bd-xs block mb-bd-xs">Teléfono *</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="tel"
                 id="telefono"
@@ -139,30 +154,36 @@ export default function NuevoHuespedPage() {
                 value={formData.telefono}
                 onChange={handleChange}
                 required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
 
             <div>
-              <label htmlFor="fechaNacimiento" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Fecha de Nacimiento</label>
+              <label htmlFor="fechaNacimiento" className="text-bd-muted text-bd-xs block mb-bd-xs">Fecha de Nacimiento</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="date"
                 id="fechaNacimiento"
                 name="fechaNacimiento"
                 value={formData.fechaNacimiento}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
           </div>
-        </fieldset>
+        </div>
 
-        <fieldset style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
-          <legend style={{ fontWeight: 'bold', fontSize: '1.2em' }}>Tarjeta de Crédito (opcional)</legend>
+        <div className="bd-card p-bd-xl">
+          <h2 className="text-bd-muted text-bd-xs uppercase tracking-widest mb-bd-lg">Tarjeta de Crédito (opcional)</h2>
+          {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }} */}
+          {/* style={{ fontWeight: 'bold', fontSize: '1.2em' }} */}
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div className="grid grid-cols-2 gap-bd-md" /* style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }} */>
             <div>
-              <label htmlFor="numeroCC" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Número de Tarjeta</label>
+              <label htmlFor="numeroCC" className="text-bd-muted text-bd-xs block mb-bd-xs">Número de Tarjeta</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="text"
                 id="numeroCC"
@@ -171,12 +192,14 @@ export default function NuevoHuespedPage() {
                 onChange={handleChange}
                 maxLength={16}
                 placeholder="4111111111111111"
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
 
             <div>
-              <label htmlFor="nombreTitular" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Nombre del Titular</label>
+              <label htmlFor="nombreTitular" className="text-bd-muted text-bd-xs block mb-bd-xs">Nombre del Titular</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="text"
                 id="nombreTitular"
@@ -184,12 +207,14 @@ export default function NuevoHuespedPage() {
                 value={formData.nombreTitular}
                 onChange={handleChange}
                 placeholder="JUAN PEREZ"
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
 
             <div>
-              <label htmlFor="fechaVencimientoCC" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Fecha Vencimiento (MM/YY)</label>
+              <label htmlFor="fechaVencimientoCC" className="text-bd-muted text-bd-xs block mb-bd-xs">Fecha Vencimiento (MM/YY)</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="text"
                 id="fechaVencimientoCC"
@@ -198,12 +223,14 @@ export default function NuevoHuespedPage() {
                 onChange={handleChange}
                 placeholder="12/25"
                 maxLength={5}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
 
             <div>
-              <label htmlFor="cvcCC" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>CVC</label>
+              <label htmlFor="cvcCC" className="text-bd-muted text-bd-xs block mb-bd-xs">CVC</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <input
                 type="text"
                 id="cvcCC"
@@ -212,18 +239,21 @@ export default function NuevoHuespedPage() {
                 onChange={handleChange}
                 maxLength={4}
                 placeholder="123"
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               />
             </div>
 
             <div>
-              <label htmlFor="idBanco" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Banco</label>
+              <label htmlFor="idBanco" className="text-bd-muted text-bd-xs block mb-bd-xs">Banco</label>
+              {/* style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }} */}
               <select
                 id="idBanco"
                 name="idBanco"
                 value={formData.idBanco ?? ''}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
               >
                 <option value="">Seleccionar banco</option>
                 {bancos.map((banco) => (
@@ -234,51 +264,31 @@ export default function NuevoHuespedPage() {
               </select>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="flex flex-row items-center">
+              {/* style={{ display: 'flex', alignItems: 'center' }} */}
               <input
                 type="checkbox"
                 id="esPrincipalCC"
                 name="esPrincipalCC"
                 checked={formData.esPrincipalCC ?? true}
                 onChange={handleChange}
+                className="mr-bd-sm"
                 style={{ marginRight: '8px', width: '18px', height: '18px' }}
               />
-              <label htmlFor="esPrincipalCC" style={{ fontWeight: 'bold' }}>¿Es tarjeta principal?</label>
+              <label htmlFor="esPrincipalCC" className="text-bd-muted text-bd-xs">¿Es tarjeta principal?</label>
+              {/* style={{ fontWeight: 'bold' }} */}
             </div>
           </div>
-        </fieldset>
+        </div>
 
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            onClick={() => router.push('/huespedes')}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '1em',
-            }}
-          >
+        <div className="flex flex-row gap-bd-xl justify-end">
+          {/* style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} */}
+          <BdButton variant="ghost" onClick={() => router.push('/huespedes')}>
             Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: loading ? '#ccc' : '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '1em',
-            }}
-          >
+          </BdButton>
+          <BdButton variant="cta" type="submit" disabled={loading}>
             {loading ? 'Guardando...' : 'Crear Huésped'}
-          </button>
+          </BdButton>
         </div>
       </form>
     </div></BdPageLayout>

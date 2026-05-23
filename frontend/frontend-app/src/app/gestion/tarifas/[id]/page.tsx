@@ -1,10 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { eliminarTarifa, getTarifaPorId, Tarifa } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
 
 export default function TarifaDetailPage() {
   const params = useParams();
@@ -43,28 +45,36 @@ export default function TarifaDetailPage() {
 
   return (
     <BdPageLayout>
-      <Link href="/gestion/tarifas" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Tarifas
-      </Link>
+      <BdBackLink href="/gestion/tarifas" className="mb-bd-lg" />
+      {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
-      <h1>Detalle de Tarifa</h1>
-      {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
-      {loading ? <p>Cargando...</p> : tarifa ? (
-        <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
-          <p><strong>Fecha Inicio:</strong> {tarifa.fechaInicio}</p>
-          <p><strong>Fecha Fin:</strong> {tarifa.fechaFin}</p>
-          <p><strong>Precio por Noche:</strong> {tarifa.precioNoche}</p>
-          <p><strong>Tipo Habitación:</strong> {tarifa.tipoHabitacion?.nombre || '-'}</p>
-          <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
-            <Link href={`/gestion/tarifas/editar/${tarifa.id}`} style={{ padding: '10px 16px', backgroundColor: '#ffc107', color: 'black', textDecoration: 'none', borderRadius: '4px' }}>
-              Editar Tarifa
-            </Link>
-            <button onClick={handleEliminar} style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-              Eliminar Tarifa
-            </button>
-          </div>
+      <h1 className="text-bd-primary">Detalle de Tarifa</h1>
+      {error && (
+        <div className="bd-alert bd-alert-error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+          <strong>Error:</strong> {error}
         </div>
-      ) : <p>Tarifa no encontrada</p>}
+      )}
+      {loading ? (
+        <div className="bd-skeleton bd-skeleton-text" />
+      ) : tarifa ? (
+        <BdCard>
+          {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }} */}
+          <p className="text-bd-primary mb-bd-sm"><strong>Fecha Inicio:</strong> {tarifa.fechaInicio}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Fecha Fin:</strong> {tarifa.fechaFin}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Precio por Noche:</strong> {tarifa.precioNoche}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Tipo Habitación:</strong> {tarifa.tipoHabitacion?.nombre || '-'}</p>
+          <div className="mt-bd-lg flex flex-row gap-bd-sm">
+            {/* style={{ marginTop: '16px', display: 'flex', gap: '10px' }} */}
+            <BdButton variant="primary" href={`/gestion/tarifas/editar/${tarifa.id}`}>
+              Editar Tarifa
+            </BdButton>
+            <BdButton variant="danger" onClick={handleEliminar}>
+              Eliminar Tarifa
+            </BdButton>
+          </div>
+        </BdCard>
+      ) : <p className="text-bd-secondary">Tarifa no encontrada</p>}
     </BdPageLayout>
   );
 }

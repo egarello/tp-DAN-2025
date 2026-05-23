@@ -1,10 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { eliminarReserva, getReservaPorId, Reserva } from '@/lib/reservas-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
 
 function formatFecha(iso: string) {
   return new Date(iso).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
@@ -50,68 +52,80 @@ export default function ReservaDetallePage() {
 
   return (
     <BdPageLayout>
-      <Link href="/reservas/lista" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Reservas
-      </Link>
+      <BdBackLink href="/reservas/lista" className="mb-bd-lg" />
+      {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
-      <h1>Detalle de Reserva</h1>
+      <h1 className="text-bd-primary">Detalle de Reserva</h1>
 
-      {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
+      {error && (
+        <div className="bd-alert bd-alert-error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+          <strong>Error:</strong> {error}
+        </div>
+      )}
 
-      {loading ? <p>Cargando...</p> : reserva ? (
-        <div style={{ display: 'grid', gap: '20px', maxWidth: '900px' }}>
-          <section style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
-            <h2>Datos de la Reserva</h2>
-            <p><strong>Check In:</strong> {formatFecha(reserva.checkIn)}</p>
-            <p><strong>Check Out:</strong> {formatFecha(reserva.checkOut)}</p>
-            <p><strong>Estado:</strong> {reserva.estadoReserva || reserva.status || '-'}</p>
-            <p><strong>Precio por Noche:</strong> {reserva.precioNoche != null ? `$${reserva.precioNoche.toFixed(2)}` : '-'}</p>
-            <p><strong>Precio Total:</strong> {reserva.precioTotal != null ? `$${reserva.precioTotal.toFixed(2)}` : '-'}</p>
-            <p><strong>Habitación (ID):</strong> {reserva.idHabitacion}</p>
-            <p><strong>Hotel:</strong> {reserva.hotelId}</p>
-          </section>
+      {loading ? <div className="bd-skeleton bd-skeleton-text" /> : reserva ? (
+        <div className="flex flex-col gap-bd-lg" style={{ maxWidth: '900px' }}>
+          {/* style={{ display: 'grid', gap: '20px', maxWidth: '900px' }} */}
+
+          <BdCard>
+            {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }} */}
+            <h2 className="text-bd-primary mb-bd-md">Datos de la Reserva</h2>
+            <p className="text-bd-primary mb-bd-sm"><strong>Check In:</strong> {formatFecha(reserva.checkIn)}</p>
+            <p className="text-bd-primary mb-bd-sm"><strong>Check Out:</strong> {formatFecha(reserva.checkOut)}</p>
+            <p className="text-bd-primary mb-bd-sm"><strong>Estado:</strong> {reserva.estadoReserva || reserva.status || '-'}</p>
+            <p className="text-bd-primary mb-bd-sm"><strong>Precio por Noche:</strong> {reserva.precioNoche != null ? `$${reserva.precioNoche.toFixed(2)}` : '-'}</p>
+            <p className="text-bd-primary mb-bd-sm"><strong>Precio Total:</strong> {reserva.precioTotal != null ? `$${reserva.precioTotal.toFixed(2)}` : '-'}</p>
+            <p className="text-bd-primary mb-bd-sm"><strong>Habitación (ID):</strong> {reserva.idHabitacion}</p>
+            <p className="text-bd-primary mb-bd-sm"><strong>Hotel:</strong> {reserva.hotelId}</p>
+          </BdCard>
 
           {reserva.huesped && (
-            <section style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
-              <h2>Huésped</h2>
-              <p><strong>Nombre:</strong> {reserva.huesped.nombreApellido || '-'}</p>
-              <p><strong>Email:</strong> {reserva.huesped.email || '-'}</p>
-            </section>
+            <BdCard>
+              {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }} */}
+              <h2 className="text-bd-primary mb-bd-md">Huésped</h2>
+              <p className="text-bd-primary mb-bd-sm"><strong>Nombre:</strong> {reserva.huesped.nombreApellido || '-'}</p>
+              <p className="text-bd-primary mb-bd-sm"><strong>Email:</strong> {reserva.huesped.email || '-'}</p>
+            </BdCard>
           )}
 
           {reserva.pago && reserva.pago.length > 0 && (
-            <section style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
-              <h2>Pago</h2>
+            <BdCard>
+              {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }} */}
+              <h2 className="text-bd-primary mb-bd-md">Pago</h2>
               {reserva.pago.map((pago, index) => (
-                <div key={index} style={{ borderBottom: '1px solid #eee', padding: '10px 0' }}>
-                  <p><strong>Método:</strong> {pago.method}</p>
-                  <p><strong>Transacción:</strong> {pago.transactionId || '-'}</p>
-                  {pago.amount && <p><strong>Monto:</strong> {pago.amount.precio} {pago.amount.moneda}</p>}
-                  <p><strong>Estado:</strong> {pago.status || '-'}</p>
+                <div key={index} className="pb-bd-sm mb-bd-sm" style={{ borderBottom: '1px solid #eee' }}>
+                  {/* style={{ borderBottom: '1px solid #eee', padding: '10px 0' }} */}
+                  <p className="text-bd-primary mb-bd-sm"><strong>Método:</strong> {pago.method}</p>
+                  <p className="text-bd-primary mb-bd-sm"><strong>Transacción:</strong> {pago.transactionId || '-'}</p>
+                  {pago.amount && <p className="text-bd-primary mb-bd-sm"><strong>Monto:</strong> {pago.amount.precio} {pago.amount.moneda}</p>}
+                  <p className="text-bd-primary mb-bd-sm"><strong>Estado:</strong> {pago.status || '-'}</p>
                 </div>
               ))}
-            </section>
+            </BdCard>
           )}
 
           {reserva.clientReview && (
-            <section style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
-              <h2>Reseña del Cliente</h2>
-              <p><strong>Puntaje:</strong> {reserva.clientReview.rating ?? '-'}</p>
-              <p><strong>Comentario:</strong> {reserva.clientReview.comment || '-'}</p>
-              {reserva.clientReview.createdAt && <p><strong>Fecha:</strong> {formatFecha(reserva.clientReview.createdAt)}</p>}
-            </section>
+            <BdCard>
+              {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }} */}
+              <h2 className="text-bd-primary mb-bd-md">Reseña del Cliente</h2>
+              <p className="text-bd-primary mb-bd-sm"><strong>Puntaje:</strong> {reserva.clientReview.rating ?? '-'}</p>
+              <p className="text-bd-primary mb-bd-sm"><strong>Comentario:</strong> {reserva.clientReview.comment || '-'}</p>
+              {reserva.clientReview.createdAt && <p className="text-bd-primary mb-bd-sm"><strong>Fecha:</strong> {formatFecha(reserva.clientReview.createdAt)}</p>}
+            </BdCard>
           )}
 
-          <div style={{ marginTop: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <Link href={`/reservas/editar/${reserva._id}`} style={{ padding: '10px 16px', backgroundColor: '#ffc107', color: 'black', textDecoration: 'none', borderRadius: '4px' }}>
+          <div className="mt-bd-lg flex flex-row gap-bd-sm flex flex-wrap">
+            {/* style={{ marginTop: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }} */}
+            <BdButton variant="primary" href={`/reservas/editar/${reserva._id}`}>
               Editar Reserva
-            </Link>
-            <button onClick={handleEliminarReserva} style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+            </BdButton>
+            <BdButton variant="danger" onClick={handleEliminarReserva}>
               Eliminar Reserva
-            </button>
+            </BdButton>
           </div>
         </div>
-      ) : <p>Reserva no encontrada</p>}
+      ) : <p className="text-bd-secondary">Reserva no encontrada</p>}
     </BdPageLayout>
   );
 }

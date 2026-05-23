@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getTiposHabitacion, TipoHabitacion } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdTable from '@/components/BdTable';
+import BdButton from '@/components/BdButton';
+import BdBackLink from '@/components/BdBackLink';
 
 export default function TiposHabitacionPage() {
   const [tipos, setTipos] = useState<TipoHabitacion[]>([]);
@@ -28,36 +31,32 @@ export default function TiposHabitacionPage() {
 
   return (
     <BdPageLayout>
-      <Link href="/gestion" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Gestión
-      </Link>
+      <BdBackLink href="/gestion">Gestión</BdBackLink>
 
-      <h1>Tipos de Habitación</h1>
-      <Link href="/gestion/tipos-habitacion/nuevo" style={{ display: 'inline-block', marginBottom: '20px', padding: '10px 16px', backgroundColor: '#28a745', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
-        + Nuevo Tipo de Habitación
-      </Link>
-      {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
-      {loading ? <p>Cargando...</p> : tipos.length === 0 ? <p>No hay tipos de habitación disponibles</p> : (
-        <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
+      <h1 className="text-bd-primary">Tipos de Habitación</h1>
+      <BdButton href="/gestion/tipos-habitacion/nuevo" variant="primary" size="md">+ Nuevo Tipo de Habitación</BdButton>
+      {error && <div className="bd-alert bd-alert-error" /* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */><strong>Error:</strong> {error}</div>}
+      {loading ? <p className="bd-skeleton bd-skeleton-text">Cargando...</p> : tipos.length === 0 ? <p className="text-bd-secondary">No hay tipos de habitación disponibles</p> : (
+        <BdTable><table className="bd-table w-full" border={1} cellPadding="10" /* style={{ width: '100%', marginTop: '20px' }} */>
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Capacidad</th>
-              <th>Descripción</th>
-              <th>Acciones</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Nombre</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Capacidad</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Descripción</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {tipos.map((tipo) => (
               <tr key={tipo.id}>
-                <td>{tipo.nombre}</td>
-                <td>{tipo.capacidad}</td>
-                <td>{tipo.descripcion || '-'}</td>
-                <td><Link href={`/gestion/tipos-habitacion/${tipo.id}`}>Ver</Link> | <Link href={`/gestion/tipos-habitacion/editar/${tipo.id}`}>Editar</Link></td>
+                <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{tipo.nombre}</td>
+                <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{tipo.capacidad}</td>
+                <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{tipo.descripcion || '-'}</td>
+                <td className="p-bd-md border-b border-bd-subtle bd-row-actions"><Link className="text-bd-link" href={`/gestion/tipos-habitacion/${tipo.id}`}>Ver</Link> | <Link className="text-bd-link" href={`/gestion/tipos-habitacion/editar/${tipo.id}`}>Editar</Link></td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></BdTable>
       )}
     </BdPageLayout>
   );

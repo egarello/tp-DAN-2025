@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getHoteles, Hotel } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdTable from '@/components/BdTable';
+import BdButton from '@/components/BdButton';
+import BdBackLink from '@/components/BdBackLink';
 
 export default function HotelesPage() {
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
@@ -28,40 +31,36 @@ export default function HotelesPage() {
 
   return (
     <BdPageLayout>
-      <Link href="/gestion" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Gestión
-      </Link>
+      <BdBackLink href="/gestion">Gestión</BdBackLink>
 
-      <h1>Hoteles</h1>
-      <Link href="/gestion/hoteles/nuevo" style={{ display: 'inline-block', marginBottom: '20px', padding: '10px 16px', backgroundColor: '#28a745', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
-        + Nuevo Hotel
-      </Link>
+      <h1 className="text-bd-primary">Hoteles</h1>
+      <BdButton href="/gestion/hoteles/nuevo" variant="primary" size="md">+ Nuevo Hotel</BdButton>
 
-      {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
+      {error && <div className="bd-alert bd-alert-error" /* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */><strong>Error:</strong> {error}</div>}
 
-      {loading ? <p>Cargando...</p> : hoteles.length === 0 ? <p>No hay hoteles disponibles</p> : (
-        <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
+      {loading ? <p className="bd-skeleton bd-skeleton-text">Cargando...</p> : hoteles.length === 0 ? <p className="text-bd-secondary">No hay hoteles disponibles</p> : (
+        <BdTable><table className="bd-table w-full" border={1} cellPadding="10" /* style={{ width: '100%', marginTop: '20px' }} */>
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Domicilio</th>
-              <th>Categoría</th>
-              <th>Teléfono</th>
-              <th>Acciones</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Nombre</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Domicilio</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Categoría</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Teléfono</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {hoteles.map((hotel) => (
               <tr key={hotel.id}>
-                <td>{hotel.nombre}</td>
-                <td>{hotel.domicilio || '-'}</td>
-                <td>{hotel.categoria ?? '-'}</td>
-                <td>{hotel.telefono || '-'}</td>
-                <td><Link href={`/gestion/hoteles/${hotel.id}`}>Ver</Link> | <Link href={`/gestion/hoteles/editar/${hotel.id}`}>Editar</Link></td>
+                <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{hotel.nombre}</td>
+                <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{hotel.domicilio || '-'}</td>
+                <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{hotel.categoria ?? '-'}</td>
+                <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{hotel.telefono || '-'}</td>
+                <td className="p-bd-md border-b border-bd-subtle bd-row-actions"><Link className="text-bd-link" href={`/gestion/hoteles/${hotel.id}`}>Ver</Link> | <Link className="text-bd-link" href={`/gestion/hoteles/editar/${hotel.id}`}>Editar</Link></td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></BdTable>
       )}
     </BdPageLayout>
   );

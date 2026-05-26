@@ -3,6 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getHuespedPorId, Huesped, cambiarTarjetaPrincipal, TarjetaCreditoRecord } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
+import BdAlert from '@/components/BdAlert';
 
 export default function CambiarTarjetaPrincipalPage() {
   const params = useParams();
@@ -44,11 +48,9 @@ export default function CambiarTarjetaPrincipalPage() {
     setSuccess(false);
 
     try {
-      // Find the selected tarjeta
       const tarjeta = huesped.tarjetaCredito?.find(t => t.id === selectedTarjetaId);
       if (!tarjeta) throw new Error('Tarjeta no encontrada');
 
-      // Prepare data for PUT request (minimum required fields)
       const tarjetaData: Partial<TarjetaCreditoRecord> = {
         numeroCC: tarjeta.numero,
         idBanco: tarjeta.banco.id
@@ -56,8 +58,7 @@ export default function CambiarTarjetaPrincipalPage() {
 
       await cambiarTarjetaPrincipal(huesped.dni, tarjetaData);
       setSuccess(true);
-      
-      // Redirect back to detail page after success
+
       setTimeout(() => {
         router.push(`/huespedes/${params.id}`);
       }, 1500);
@@ -70,133 +71,101 @@ export default function CambiarTarjetaPrincipalPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', textAlign: 'center' }}>
-        <p>Cargando datos del huésped...</p>
-      </div>
+      <BdPageLayout>
+        <div className="text-center py-12">
+          <p className="text-bd-secondary">Cargando datos del huésped...</p>
+        </div>
+      </BdPageLayout>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-        <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red', borderRadius: '4px', backgroundColor: '#ffe6e6' }}>
+      <BdPageLayout>
+        <BdAlert variant="error" className="mb-bd-lg">
           <strong>Error:</strong> {error}
-        </div>
-        <button
-          onClick={() => router.back()}
-          style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-        >
-          ← Volver
-        </button>
-      </div>
+        </BdAlert>
+        <BdBackLink onClick={() => router.back()} />
+      </BdPageLayout>
     );
   }
 
   if (!huesped) {
     return (
-      <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', textAlign: 'center' }}>
-        <p>Huésped no encontrado</p>
-        <button
-          onClick={() => router.back()}
-          style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-        >
-          ← Volver
-        </button>
-      </div>
+      <BdPageLayout>
+        <div className="bd-empty-state">
+          <p className="bd-empty-state-title">Huésped no encontrado</p>
+          <BdButton variant="primary" className="bd-empty-state-action" onClick={() => router.back()}>
+            ← Volver
+          </BdButton>
+        </div>
+      </BdPageLayout>
     );
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <button
-          onClick={() => router.back()}
-          style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-        >
-          ← Volver al detalle
-        </button>
-        <h1>Cambiar Tarjeta Principal</h1>
-      </div>
+    <BdPageLayout>
+      <div className="mx-auto max-w-3xl">
+        <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
 
-      <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px', marginBottom: '30px' }}>
-        <h2>{huesped.nombre} (DNI: {huesped.dni})</h2>
-        <p>Seleccione qué tarjeta desea establecer como principal:</p>
-      </div>
+        <h1 className="text-bd-primary text-bd-xl font-bold mb-bd-lg">Cambiar Tarjeta Principal</h1>
 
-      {success && (
-        <div style={{ color: 'green', padding: '10px', marginBottom: '20px', border: '1px solid green', borderRadius: '4px', backgroundColor: '#e6ffe6' }}>
-          ¡Tarjeta principal actualizada exitosamente! Redirigiendo...
+        <div className="bd-card mb-bd-lg">
+          <h2 className="bd-card-title">{huesped.nombre} (DNI: {huesped.dni})</h2>
+          <p className="text-bd-secondary text-bd-md">Seleccione qué tarjeta desea establecer como principal:</p>
         </div>
-      )}
 
-      {!huesped.tarjetaCredito || huesped.tarjetaCredito.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>Este huésped no tiene tarjetas de crédito registradas.</p>
-      ) : (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <fieldset style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
-            <legend style={{ fontWeight: 'bold', fontSize: '1.2em' }}>Tarjetas de Crédito</legend>
-            
-            {huesped.tarjetaCredito.map((tarjeta) => (
-              <div key={tarjeta.id} style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '10px', borderRadius: '4px', backgroundColor: selectedTarjetaId === tarjeta.id ? '#e6ffe6' : 'white' }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                  <input
-                    type="radio"
-                    id={`tarjeta-${tarjeta.id}`}
-                    name="tarjetaSeleccionada"
-                    value={tarjeta.id}
-                    checked={selectedTarjetaId === tarjeta.id}
-                    onChange={(e) => setSelectedTarjetaId(Number(e.target.value))}
-                    style={{ marginRight: '10px', width: '18px', height: '18px' }}
-                  />
-                  <div>
-                    <strong>Tarjeta terminada en {tarjeta.numero.slice(-4)}</strong>
-                    {tarjeta.esPrincipal ? ' (ACTUALMENTE PRINCIPAL)' : ''}
+        {success && (
+          <BdAlert variant="success" className="mb-bd-lg">
+            ¡Tarjeta principal actualizada exitosamente! Redirigiendo...
+          </BdAlert>
+        )}
+
+        {!huesped.tarjetaCredito || huesped.tarjetaCredito.length === 0 ? (
+          <p className="bd-empty-state-message text-center">Este huésped no tiene tarjetas de crédito registradas.</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-bd-lg">
+            <div className="bd-card p-bd-xl">
+              <h2 className="text-bd-muted text-bd-xs uppercase tracking-widest mb-bd-lg">Tarjetas de Crédito</h2>
+
+              {huesped.tarjetaCredito.map((tarjeta) => (
+                <div key={tarjeta.id} className={`border ${selectedTarjetaId === tarjeta.id ? 'border-bd-medium bg-bd-card-hover' : 'border-bd-subtle bg-bd-card'} rounded-bd-md p-bd-lg mb-bd-sm`}>
+                  <div className="flex items-center gap-bd-md mb-bd-sm">
+                    {/* TODO: SKILL/BRAND no cubren radio inputs — usar Tailwind nativo */}
+                    <input
+                      type="radio"
+                      id={`tarjeta-${tarjeta.id}`}
+                      name="tarjetaSeleccionada"
+                      value={tarjeta.id}
+                      checked={selectedTarjetaId === tarjeta.id}
+                      onChange={(e) => setSelectedTarjetaId(Number(e.target.value))}
+                      className="w-4 h-4"
+                    />
+                    <div>
+                      <span className="font-semibold text-bd-primary">Tarjeta terminada en {tarjeta.numero.slice(-4)}</span>
+                      {tarjeta.esPrincipal ? <span className="text-bd-free font-semibold ml-bd-sm">(ACTUALMENTE PRINCIPAL)</span> : ''}
+                    </div>
+                  </div>
+                  <div className="text-bd-sm text-bd-secondary space-y-1">
+                    <p><span className="font-medium text-bd-primary">Titular:</span> {tarjeta.nombreTitular}</p>
+                    <p><span className="font-medium text-bd-primary">Vencimiento:</span> {tarjeta.fechaVencimiento}</p>
+                    <p><span className="font-medium text-bd-primary">Banco:</span> {tarjeta.banco.nombre}</p>
                   </div>
                 </div>
-                <div style={{ fontSize: '0.9em', color: '#666' }}>
-                  <p><strong>Titular:</strong> {tarjeta.nombreTitular}</p>
-                  <p><strong>Vencimiento:</strong> {tarjeta.fechaVencimiento}</p>
-                  <p><strong>Banco:</strong> {tarjeta.banco.nombre}</p>
-                </div>
-              </div>
-            ))}
-          </fieldset>
+              ))}
+            </div>
 
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-            <button
-              type="button"
-              onClick={() => router.back()}
-              disabled={saving}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                fontSize: '1em',
-              }}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={!selectedTarjetaId || saving}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: (!selectedTarjetaId || saving) ? '#ccc' : '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: (!selectedTarjetaId || saving) ? 'not-allowed' : 'pointer',
-                fontSize: '1em',
-              }}
-            >
-              {saving ? 'Guardando...' : 'Cambiar a Principal'}
-            </button>
-          </div>
-        </form>
-      )}
-    </div>
+            <div className="flex flex-row gap-bd-xl justify-end">
+              <BdButton variant="ghost" onClick={() => router.back()} disabled={saving}>
+                Cancelar
+              </BdButton>
+              <BdButton variant="cta" type="submit" disabled={!selectedTarjetaId || saving}>
+                {saving ? 'Guardando...' : 'Cambiar a Principal'}
+              </BdButton>
+            </div>
+          </form>
+        )}
+      </div>
+    </BdPageLayout>
   );
 }

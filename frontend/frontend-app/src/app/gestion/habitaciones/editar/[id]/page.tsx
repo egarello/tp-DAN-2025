@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { actualizarHabitacion, getHabitacionPorId, getHoteles, getTiposHabitacion, HabitacionRecord, Hotel, TipoHabitacion } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
 
 export default function EditarHabitacionPage() {
   const params = useParams();
@@ -69,7 +70,7 @@ export default function EditarHabitacionPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '700px', margin: '0 auto' }}>
+    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 700 }}>
       <Link href={`/gestion/habitaciones/${habitacionId}`} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Habitación
       </Link>
@@ -101,6 +102,6 @@ export default function EditarHabitacionPage() {
           </div>
         </form>
       )}
-    </div>
+    </div></BdPageLayout>
   );
 }

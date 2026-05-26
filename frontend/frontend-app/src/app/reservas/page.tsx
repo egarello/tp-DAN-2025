@@ -1,10 +1,16 @@
 import Link from 'next/link';
+import BdPageLayout from '@/components/BdPageLayout';
 
 const sections = [
   {
     href: '/reservas/lista',
     title: 'Reservas',
-    description: 'Listado y detalle de reservas registradas.',
+    description: 'Listado, detalle y creación de reservas.',
+  },
+  {
+    href: '/reservas/nueva',
+    title: 'Nueva Reserva',
+    description: 'Crear una nueva reserva.',
   },
   {
     href: '/reservas/habitaciones',
@@ -15,13 +21,13 @@ const sections = [
 
 export default function ReservasLandingPage() {
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
       </Link>
 
       <h1>Reservas</h1>
-      <p>Frontend de solo lectura para el microservicio reservas-svc.</p>
+      <p>Frontend para el microservicio reservas-svc.</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginTop: '24px' }}>
         {sections.map((section) => (
@@ -42,6 +48,6 @@ export default function ReservasLandingPage() {
           </Link>
         ))}
       </div>
-    </div>
+    </BdPageLayout>
   );
 }

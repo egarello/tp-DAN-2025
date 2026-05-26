@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
@@ -12,6 +11,10 @@ import {
   Tarifa,
   TipoHabitacion,
 } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
 
 export default function HabitacionDetailPage() {
   const params = useParams();
@@ -69,58 +72,74 @@ export default function HabitacionDetailPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <Link href="/gestion/habitaciones" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Habitaciones
-      </Link>
+    <BdPageLayout>
+      <BdBackLink href="/gestion/habitaciones" className="mb-bd-lg" />
+      {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
-      <h1>Detalle de Habitación</h1>
-      {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
-      {loading ? <p>Cargando...</p> : habitacion ? (
-        <div style={{ display: 'grid', gap: '20px', maxWidth: '900px' }}>
-          <section style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
-            <h2>Habitación</h2>
-            <p><strong>Número:</strong> {habitacion.numero}</p>
-            <p><strong>Piso:</strong> {habitacion.piso}</p>
-            <p><strong>Hotel:</strong> {habitacion.hotel?.nombre || '-'}</p>
-            <Link href={`/gestion/habitaciones/editar/${habitacion.id}`} style={{ display: 'inline-block', marginTop: '12px', padding: '10px 16px', backgroundColor: '#ffc107', color: 'black', textDecoration: 'none', borderRadius: '4px' }}>
-              Editar Habitación
-            </Link>
-            <button onClick={handleEliminar} style={{ marginTop: '12px', marginLeft: '10px', padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-              Eliminar Habitación
-            </button>
-          </section>
+      <h1 className="text-bd-primary">Detalle de Habitación</h1>
+      {error && (
+        <div className="bd-alert bd-alert-error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+      {loading ? (
+        <div className="bd-skeleton bd-skeleton-text" />
+      ) : habitacion ? (
+        <div className="flex flex-col gap-bd-lg" style={{ maxWidth: '900px' }}>
+          {/* style={{ display: 'grid', gap: '20px', maxWidth: '900px' }} */}
 
-          <section style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
-            <h2>Tipo de Habitación</h2>
+          <BdCard>
+            {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }} */}
+            <h2 className="text-bd-primary mb-bd-md">Habitación</h2>
+            <p className="text-bd-primary mb-bd-sm"><strong>Número:</strong> {habitacion.numero}</p>
+            <p className="text-bd-primary mb-bd-sm"><strong>Piso:</strong> {habitacion.piso}</p>
+            <p className="text-bd-primary mb-bd-sm"><strong>Hotel:</strong> {habitacion.hotel?.nombre || '-'}</p>
+            <div className="mt-bd-lg flex flex-row gap-bd-sm">
+              <BdButton variant="primary" href={`/gestion/habitaciones/editar/${habitacion.id}`}>
+                Editar Habitación
+              </BdButton>
+              <BdButton variant="danger" onClick={handleEliminar}>
+                Eliminar Habitación
+              </BdButton>
+            </div>
+          </BdCard>
+
+          <BdCard>
+            {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }} */}
+            <h2 className="text-bd-primary mb-bd-md">Tipo de Habitación</h2>
             {tipoHabitacion ? (
               <>
-                <p><strong>Nombre:</strong> {tipoHabitacion.nombre || '-'}</p>
-                <p><strong>Capacidad:</strong> {tipoHabitacion.capacidad ?? '-'}</p>
-                <p><strong>Descripción:</strong> {tipoHabitacion.descripcion || '-'}</p>
+                <p className="text-bd-primary mb-bd-sm"><strong>Nombre:</strong> {tipoHabitacion.nombre || '-'}</p>
+                <p className="text-bd-primary mb-bd-sm"><strong>Capacidad:</strong> {tipoHabitacion.capacidad ?? '-'}</p>
+                <p className="text-bd-primary mb-bd-sm"><strong>Descripción:</strong> {tipoHabitacion.descripcion || '-'}</p>
               </>
             ) : (
-              <p>No hay tipo de habitación asociado.</p>
+              <p className="text-bd-secondary">No hay tipo de habitación asociado.</p>
             )}
-          </section>
+          </BdCard>
 
-          <section style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
-            <h2>Tarifa Vigente</h2>
+          <BdCard>
+            {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }} */}
+            <h2 className="text-bd-primary mb-bd-md">Tarifa Vigente</h2>
             {tarifaError ? (
-              <div style={{ color: 'red' }}>{tarifaError}</div>
+              <div className="bd-alert bd-alert-error">
+                {/* style={{ color: 'red' }} */}
+                {tarifaError}
+              </div>
             ) : tarifa ? (
               <>
-                <p><strong>Fecha Inicio:</strong> {tarifa.fechaInicio}</p>
-                <p><strong>Fecha Fin:</strong> {tarifa.fechaFin}</p>
-                <p><strong>Precio por Noche:</strong> {tarifa.precioNoche}</p>
-                <p><strong>Tipo Habitación:</strong> {tarifa.tipoHabitacion?.nombre || tipoHabitacion?.nombre || '-'}</p>
+                <p className="text-bd-primary mb-bd-sm"><strong>Fecha Inicio:</strong> {tarifa.fechaInicio}</p>
+                <p className="text-bd-primary mb-bd-sm"><strong>Fecha Fin:</strong> {tarifa.fechaFin}</p>
+                <p className="text-bd-primary mb-bd-sm"><strong>Precio por Noche:</strong> {tarifa.precioNoche}</p>
+                <p className="text-bd-primary mb-bd-sm"><strong>Tipo Habitación:</strong> {tarifa.tipoHabitacion?.nombre || tipoHabitacion?.nombre || '-'}</p>
               </>
             ) : (
-              <p>No hay tarifa vigente para esta habitación.</p>
+              <p className="text-bd-secondary">No hay tarifa vigente para esta habitación.</p>
             )}
-          </section>
+          </BdCard>
         </div>
-      ) : <p>Habitación no encontrada</p>}
-    </div>
+      ) : <p className="text-bd-secondary">Habitación no encontrada</p>}
+    </BdPageLayout>
   );
 }

@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getUsuarioById, Usuario } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdBackLink from '@/components/BdBackLink';
 
 export default function UsuarioDetailPage() {
   const params = useParams();
@@ -33,45 +36,43 @@ export default function UsuarioDetailPage() {
   }, [params.id]);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <button
-        onClick={() => router.back()}
-        style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}
-      >
-        ← Volver
-      </button>
+    <BdPageLayout>
+      <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
+      {/* style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }} */}
 
-      <h1>Detalle del Usuario</h1>
+      <h1 className="text-bd-primary">Detalle del Usuario</h1>
 
       {error && (
-        <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
+        <div className="bd-alert bd-alert-error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
           <strong>Error:</strong> {error}
         </div>
       )}
 
       {loading ? (
-        <p>Cargando...</p>
+        <div className="bd-skeleton bd-skeleton-text" />
       ) : usuario ? (
-        <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
-          <p>
+        <BdCard>
+          {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }} */}
+          <p className="text-bd-primary mb-bd-sm">
             <strong>Nombre:</strong> {usuario.nombre}
           </p>
-          <p>
+          <p className="text-bd-primary mb-bd-sm">
             <strong>Apellido:</strong> {usuario.apellido}
           </p>
-          <p>
+          <p className="text-bd-primary mb-bd-sm">
             <strong>DNI:</strong> {usuario.dni}
           </p>
-          <p>
+          <p className="text-bd-primary mb-bd-sm">
             <strong>Email:</strong> {usuario.email}
           </p>
-          <p>
+          <p className="text-bd-primary mb-bd-sm">
             <strong>Teléfono:</strong> {usuario.telefono}
           </p>
-        </div>
+        </BdCard>
       ) : (
-        <p>Usuario no encontrado</p>
+        <p className="text-bd-secondary">Usuario no encontrado</p>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

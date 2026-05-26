@@ -1,9 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { eliminarAmenityHotel, eliminarHotel, getHotelPorId, Hotel } from '@/lib/gestion-api';
+import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
 
 function formatAmenity(amenity: NonNullable<Hotel['amenities']>[number]) {
   return typeof amenity === 'string' ? amenity : amenity.amenity;
@@ -66,66 +69,68 @@ export default function HotelDetailPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <Link href="/gestion/hoteles" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Hoteles
-      </Link>
+    <BdPageLayout>
+      <BdBackLink href="/gestion/hoteles" className="mb-bd-lg" />
+      {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
-      <h1>Detalle del Hotel</h1>
-      {error && <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
-      {loading ? <p>Cargando...</p> : hotel ? (
-        <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '700px' }}>
-          <p><strong>Nombre:</strong> {hotel.nombre}</p>
-          <p><strong>CUIT:</strong> {hotel.cuit || '-'}</p>
-          <p><strong>Domicilio:</strong> {hotel.domicilio || '-'}</p>
-          <p><strong>Latitud:</strong> {hotel.latitud ?? '-'}</p>
-          <p><strong>Longitud:</strong> {hotel.longitud ?? '-'}</p>
-          <p><strong>Teléfono:</strong> {hotel.telefono || '-'}</p>
-          <p><strong>Correo:</strong> {hotel.correoContacto || '-'}</p>
-          <p><strong>Categoría:</strong> {hotel.categoria ?? '-'}</p>
-          <p><strong>Amenities:</strong></p>
+      <h1 className="text-bd-primary">Detalle del Hotel</h1>
+      {error && (
+        <div className="bd-alert bd-alert-error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+      {loading ? <div className="bd-skeleton bd-skeleton-text" /> : hotel ? (
+        <BdCard>
+          {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '700px' }} */}
+          <p className="text-bd-primary mb-bd-sm"><strong>Nombre:</strong> {hotel.nombre}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>CUIT:</strong> {hotel.cuit || '-'}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Domicilio:</strong> {hotel.domicilio || '-'}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Latitud:</strong> {hotel.latitud ?? '-'}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Longitud:</strong> {hotel.longitud ?? '-'}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Teléfono:</strong> {hotel.telefono || '-'}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Correo:</strong> {hotel.correoContacto || '-'}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Categoría:</strong> {hotel.categoria ?? '-'}</p>
+          <p className="text-bd-primary mb-bd-sm"><strong>Amenities:</strong></p>
           {hotel.amenities?.length ? (
-            <ul>
+            <ul className="list-none mb-bd-md">
               {hotel.amenities.map((amenity) => {
                 const label = formatAmenity(amenity);
                 return (
-                  <li key={label} style={{ marginBottom: '6px' }}>
-                    {label}
-                    <button
+                  <li key={label} className="flex flex-row items-center mb-bd-sm">
+                    {/* style={{ marginBottom: '6px' }} */}
+                    <span className="text-bd-primary">{label}</span>
+                    <BdButton
+                      variant="danger"
+                      size="sm"
                       onClick={() => handleEliminarAmenity(label)}
                       disabled={deletingAmenity === label}
-                      style={{
-                        marginLeft: '10px',
-                        padding: '2px 8px',
-                        backgroundColor: deletingAmenity === label ? '#ccc' : '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '3px',
-                        cursor: deletingAmenity ? 'not-allowed' : 'pointer',
-                        fontSize: '0.8em',
-                      }}
+                      className="ml-bd-sm"
                     >
                       {deletingAmenity === label ? '...' : '✕'}
-                    </button>
+                    </BdButton>
                   </li>
                 );
               })}
             </ul>
-          ) : <p style={{ marginLeft: '20px' }}>-</p>}
+          ) : <p className="text-bd-secondary mb-bd-md">
+            {/* style={{ marginLeft: '20px' }} */}
+            -</p>}
 
-          <div style={{ marginTop: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <Link href={`/gestion/hoteles/${hotel.id}/amenities`} style={{ padding: '10px 16px', backgroundColor: '#28a745', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+          <div className="mt-bd-lg flex flex-row gap-bd-sm flex flex-wrap">
+            {/* style={{ marginTop: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }} */}
+            <BdButton variant="primary" href={`/gestion/hoteles/${hotel.id}/amenities`}>
               Agregar Amenities
-            </Link>
-            <Link href={`/gestion/hoteles/editar/${hotel.id}`} style={{ padding: '10px 16px', backgroundColor: '#ffc107', color: 'black', textDecoration: 'none', borderRadius: '4px' }}>
+            </BdButton>
+            <BdButton variant="primary" href={`/gestion/hoteles/editar/${hotel.id}`}>
               Editar Hotel
-            </Link>
-            <button onClick={handleEliminarHotel} style={{ padding: '10px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+            </BdButton>
+            <BdButton variant="danger" onClick={handleEliminarHotel}>
               Eliminar Hotel
-            </button>
+            </BdButton>
           </div>
-        </div>
-      ) : <p>Hotel no encontrado</p>}
-    </div>
+        </BdCard>
+      ) : <p className="text-bd-secondary">Hotel no encontrado</p>}
+    </BdPageLayout>
   );
 }

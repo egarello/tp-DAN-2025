@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BdPageLayout from '@/components/BdPageLayout';
 
 const sections = [
   {
@@ -25,7 +26,7 @@ const sections = [
 
 export default function GestionPage() {
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <BdPageLayout>
       <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
         ← Inicio
       </Link>
@@ -52,6 +53,6 @@ export default function GestionPage() {
           </Link>
         ))}
       </div>
-    </div>
+    </BdPageLayout>
   );
 }

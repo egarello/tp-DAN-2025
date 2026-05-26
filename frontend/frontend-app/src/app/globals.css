@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -8,7 +9,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--bd-font-sans);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -19,8 +20,564 @@
   }
 }
 
+/* ============================================================
+   BOOKING-DARK TOKENS — SKILL
+   ============================================================ */
+:root {
+  /* --- SURFACE --- */
+  --bd-bg-page:        #0b1423;
+  --bd-bg-card:        #162032;
+  --bd-bg-card-hover:  #1c2a40;
+  --bd-bg-overlay:     #0d1928cc;
+  --bd-bg-input:       #1a2840;
+  --bd-bg-sidebar:     #111e30;
+  --bd-bg-skeleton:    #1e2d42;
+
+  /* --- BRAND / INTERACTIVE --- */
+  --bd-blue-bright:    #4fa3f7;
+  --bd-blue-cta:       #1a73e8;
+  --bd-blue-cta-hover: #1557c0;
+  --bd-blue-badge:     #1565c0;
+  --bd-blue-badge-txt: #ddeeff;
+
+  /* --- TEXTO --- */
+  --bd-text-primary:   #e8ecf4;
+  --bd-text-secondary: #8b9bb4;
+  --bd-text-muted:     #4f6080;
+  --bd-text-link:      #4fa3f7;
+  --bd-text-inverse:   #ffffff;
+
+  /* --- BORDES --- */
+  --bd-border-subtle:  rgba(255,255,255,0.07);
+  --bd-border-medium:  rgba(255,255,255,0.13);
+  --bd-border-input:   rgba(255,255,255,0.15);
+  --bd-border-focus:   #4fa3f7;
+
+  /* --- SEMÁNTICOS --- */
+  --bd-green-deal:     #1b5e35;
+  --bd-green-deal-txt: #6fcf97;
+  --bd-green-free:     #27ae60;
+  --bd-yellow-star:    #ffb700;
+  --bd-red-urgency:    #c0392b;
+  --bd-amber-promo:    #e67e22;
+
+  /* --- TIPOGRAFÍA --- */
+  --bd-font-sans:      "Inter", -apple-system, BlinkMacSystemFont,
+                       "Segoe UI", Arial, sans-serif;
+  --bd-fs-xl:          1.25rem;
+  --bd-fs-lg:          1.0625rem;
+  --bd-fs-md:          0.9375rem;
+  --bd-fs-sm:          0.8125rem;
+  --bd-fs-xs:          0.6875rem;
+
+  /* --- ESPACIADO --- */
+  --bd-space-xs:  4px;
+  --bd-space-sm:  8px;
+  --bd-space-md:  12px;
+  --bd-space-lg:  16px;
+  --bd-space-xl:  24px;
+  --bd-space-2xl: 32px;
+
+  /* --- RADIOS --- */
+  --bd-radius-sm:   4px;
+  --bd-radius-md:   6px;
+  --bd-radius-card: 8px;
+  --bd-radius-pill: 20px;
+  --bd-radius-full: 9999px;
+
+  /* --- IMÁGENES --- */
+  --bd-img-w:  220px;
+  --bd-img-w-sm: 120px;
+  --bd-img-ratio: 66%;
+
+  /* --- SOMBRAS --- */
+  --bd-shadow-card:       0 2px 8px rgba(0,0,0,0.45);
+  --bd-shadow-card-hover: 0 8px 24px rgba(0,0,0,0.65);
+  --bd-shadow-cta:        0 4px 12px rgba(26,115,232,0.4);
+
+  /* --- ANIMACIONES --- */
+  --bd-duration-fast:   150ms;
+  --bd-duration-base:   250ms;
+  --bd-duration-slow:   400ms;
+  --bd-ease-out:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --bd-ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1.0);
+  --bd-ease-enter:      cubic-bezier(0.0, 0.0, 0.2, 1.0);
+
+  /* --- Z-INDEX --- */
+  --bd-z-card:    1;
+  --bd-z-badge:   2;
+  --bd-z-tooltip: 10;
+  --bd-z-modal:   100;
+}
+
+/* ============================================================
+   BRAND OVERRIDES — teal acento, radios cálidos, superficie
+   ============================================================ */
+:root {
+  /* Acento principal: teal cálido en vez de azul frío */
+  --bd-blue-cta:        #0d9488;
+  --bd-blue-cta-hover:  #0f766e;
+  --bd-blue-bright:     #2dd4bf;
+  --bd-blue-badge:      #134e4a;
+  --bd-blue-badge-txt:  #99f6e4;
+
+  /* Radios: más redondeados = más amigable */
+  --bd-radius-card:  12px;
+  --bd-radius-md:    8px;
+  --bd-radius-pill:  24px;
+
+  /* Superficie: levemente más cálida (menos azul puro) */
+  --bd-bg-page:    #0c1420;
+  --bd-bg-card:    #16202e;
+  --bd-bg-sidebar: #101b28;
+
+  /* Animaciones: más suaves para usuarios no técnicos */
+  --bd-duration-base: 200ms;
+  --bd-ease-spring:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ============================================================
+   ANIMATIONS — @keyframes
+   ============================================================ */
+@keyframes bd-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bd-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+@keyframes bd-pulse {
+  0%   { transform: scale(1);    }
+  50%  { transform: scale(1.12); }
+  100% { transform: scale(1);    }
+}
+
+@keyframes bd-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+/* ============================================================
+   BD-TABLE COMPONENT
+   ============================================================ */
+.bd-table-wrap {
+  overflow-x: auto;
+  margin-top: var(--bd-space-xl);
+  border: 1px solid var(--bd-border-medium);
+  border-radius: var(--bd-radius-card);
+  background: var(--bd-bg-card);
+}
+
+.bd-table-toolbar {
+  display: flex;
+  gap: var(--bd-space-md);
+  flex-wrap: wrap;
+  padding: var(--bd-space-lg) var(--bd-space-xl);
+  border-bottom: 1px solid var(--bd-border-subtle);
+}
+
+.bd-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bd-table-wrap thead {
+  border-bottom: 1px solid var(--bd-border-subtle);
+}
+
+.bd-table-wrap th {
+  text-align: left;
+  padding: var(--bd-space-md) var(--bd-space-lg);
+  font-size: var(--bd-fs-sm);
+  color: var(--bd-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--bd-bg-sidebar);
+}
+
+.bd-table-wrap td {
+  padding: var(--bd-space-md) var(--bd-space-lg);
+  color: var(--bd-text-primary);
+  border-bottom: 1px solid var(--bd-border-subtle);
+}
+
+.bd-table-wrap tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.bd-table-wrap tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.bd-table-wrap tbody tr:hover {
+  background: var(--bd-bg-card-hover);
+}
+
+.bd-table-row-actions {
+  display: flex;
+  gap: var(--bd-space-sm);
+  align-items: center;
+}
+
+.bd-table-row-actions a {
+  color: var(--bd-text-link);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.bd-table-row-actions a:hover {
+  text-decoration: underline;
+}
+
+.bd-table-row-actions button {
+  cursor: pointer;
+}
+
+/* ============================================================
+   BD-BUTTON COMPONENT
+   ============================================================ */
+.bd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bd-space-sm);
+  font-family: var(--bd-font-sans);
+  font-weight: 500;
+  line-height: 1.4;
+  border: none;
+  border-radius: var(--bd-radius-md);
+  cursor: pointer;
+  transition:
+    background var(--bd-duration-fast) var(--bd-ease-out),
+    box-shadow var(--bd-duration-fast) var(--bd-ease-out),
+    opacity var(--bd-duration-fast) var(--bd-ease-out);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bd-btn:focus-visible {
+  outline: 2px solid var(--bd-border-focus);
+  outline-offset: 2px;
+}
+
+/* Sizes */
+.bd-btn-md {
+  padding: 10px 20px;
+  font-size: var(--bd-fs-md);
+}
+
+.bd-btn-sm {
+  padding: 5px 10px;
+  font-size: var(--bd-fs-sm);
+}
+
+/* Variants */
+.bd-btn-primary {
+  background: var(--bd-blue-cta);
+  color: var(--bd-text-inverse);
+}
+
+.bd-btn-primary:hover:not(.bd-btn-disabled) {
+  background: var(--bd-blue-cta-hover);
+}
+
+.bd-btn-group {
+  display: flex;
+  align-items: center;
+  gap: var(--bd-space-md);
+}
+
+.bd-btn-cta {
+  background: var(--bd-blue-cta);
+  color: var(--bd-text-inverse);
+  box-shadow: var(--bd-shadow-cta);
+}
+
+.bd-btn-cta:hover:not(.bd-btn-disabled) {
+  box-shadow: 0 6px 20px rgba(26, 115, 232, 0.55);
+}
+
+.bd-btn-danger {
+  background: var(--bd-red-urgency);
+  color: var(--bd-text-inverse);
+}
+
+.bd-btn-danger:hover:not(.bd-btn-disabled) {
+  background: #a93226;
+}
+
+.bd-btn-ghost {
+  background: transparent;
+  color: var(--bd-text-primary);
+}
+
+.bd-btn-ghost:hover:not(.bd-btn-disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Disabled */
+.bd-btn-disabled,
+.bd-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================================================
+   BD-ALERT COMPONENT
+   ============================================================ */
+.bd-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bd-space-sm);
+  padding: var(--bd-space-md) var(--bd-space-lg);
+  border: 1px solid;
+  border-radius: var(--bd-radius-md);
+  font-size: var(--bd-fs-md);
+  line-height: 1.5;
+}
+
+.bd-alert-body {
+  flex: 1;
+}
+
+.bd-alert-error {
+  color: var(--bd-red-urgency);
+  border-color: var(--bd-red-urgency);
+  background: color-mix(in srgb, var(--bd-red-urgency) 10%, transparent);
+}
+
+.bd-alert-success {
+  color: var(--bd-green-free);
+  border-color: var(--bd-green-free);
+  background: color-mix(in srgb, var(--bd-green-free) 10%, transparent);
+}
+
+.bd-alert-warning {
+  color: var(--bd-amber-promo);
+  border-color: var(--bd-amber-promo);
+  background: color-mix(in srgb, var(--bd-amber-promo) 10%, transparent);
+}
+
+.bd-alert-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  margin: 0;
+  color: inherit;
+  opacity: 0.6;
+  transition: opacity var(--bd-duration-fast) var(--bd-ease-out);
+  line-height: 1;
+}
+
+.bd-alert-close:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   BD-BACKLINK COMPONENT
+   ============================================================ */
+.bd-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bd-space-xs);
+  color: var(--bd-text-link);
+  font-size: var(--bd-fs-md);
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  transition: opacity var(--bd-duration-fast) var(--bd-ease-out);
+}
+
+.bd-back-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.bd-back-link:focus-visible {
+  outline: 2px solid var(--bd-border-focus);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   BD-EMPTY-STATE COMPONENT
+   ============================================================ */
+.bd-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--bd-space-2xl);
+  margin-top: var(--bd-space-xl);
+  border: 1px solid var(--bd-border-subtle);
+  border-radius: var(--bd-radius-card);
+  background: var(--bd-bg-card);
+}
+
+.bd-empty-state-title {
+  font-size: var(--bd-fs-lg);
+  font-weight: 600;
+  color: var(--bd-text-primary);
+  margin: 0;
+}
+
+.bd-empty-state-title + .bd-empty-state-message {
+  margin-top: var(--bd-space-sm);
+}
+
+.bd-empty-state-message {
+  font-size: var(--bd-fs-md);
+  color: var(--bd-text-secondary);
+  margin: 0;
+  max-width: 400px;
+}
+
+.bd-empty-state-action {
+  margin-top: var(--bd-space-lg);
+}
+
+/* ============================================================
+   BD-PAGINATION COMPONENT
+   ============================================================ */
+.bd-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bd-space-md);
+  margin-top: var(--bd-space-xl);
+}
+
+.bd-pagination-btn {
+  padding: 5px 10px;
+  font-family: inherit;
+  font-size: var(--bd-fs-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  border: none;
+  border-radius: var(--bd-radius-sm);
+  cursor: pointer;
+  background: transparent;
+  color: var(--bd-text-link);
+  transition: background var(--bd-duration-fast) var(--bd-ease-out);
+}
+
+.bd-pagination-btn:hover:not(:disabled) {
+  background: rgba(79, 163, 247, 0.1);
+}
+
+.bd-pagination-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  color: var(--bd-text-muted);
+}
+
+.bd-pagination-info {
+  font-size: var(--bd-fs-sm);
+  color: var(--bd-text-secondary);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   BD-CARD COMPONENT
+   ============================================================ */
+.bd-card {
+  border: 1px solid var(--bd-border-medium);
+  border-radius: var(--bd-radius-card);
+  background: var(--bd-bg-card);
+  padding: var(--bd-space-xl);
+}
+
+.bd-card-title {
+  margin: 0 0 var(--bd-space-lg);
+  font-size: var(--bd-fs-lg);
+  font-weight: 600;
+  color: var(--bd-text-primary);
+}
+
+.bd-card + .bd-card {
+  margin-top: var(--bd-space-lg);
+}
+
+/* ============================================================
+   BD-SKELETON COMPONENT
+   ============================================================ */
+.bd-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--bd-bg-skeleton);
+  border-radius: var(--bd-radius-sm);
+}
+
+.bd-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(255, 255, 255, 0.06) 55%,
+    transparent 100%
+  );
+  background-size: 600px 100%;
+  animation: bd-shimmer 1.5s ease-in-out infinite;
+}
+
+.bd-skeleton-line {
+  height: 14px;
+  width: 100%;
+}
+
+.bd-skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bd-space-sm);
+}
+
+.bd-skeleton-card {
+  min-height: 100px;
+}
+
+/* ============================================================
+   RESET MÍNIMO + BASE TIPOGRÁFICA
+   ============================================================ */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--bd-font-sans);
+  font-size: var(--bd-fs-md);
+  color: var(--bd-text-primary);
+  background: var(--bd-bg-page);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--bd-text-link);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+img { display: block; max-width: 100%; }
+
+button, input, select {
+  font-family: inherit;
+  font-size: inherit;
 }

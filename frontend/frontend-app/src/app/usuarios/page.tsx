@@ -1,9 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getUsuarios, searchUsuariosByNombre, buscarUsuariosPorDni, Usuario, PageResponse } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdButton from '@/components/BdButton';
+import BdBackLink from '@/components/BdBackLink';
+import BdPagination from '@/components/BdPagination';
+import BdAlert from '@/components/BdAlert';
+import BdTable from '@/components/BdTable';
 
 export default function UsuariosPage() {
   const router = useRouter();
@@ -50,216 +56,131 @@ export default function UsuariosPage() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Inicio
-      </Link>
+    <BdPageLayout>
+      <BdBackLink href="/" className="mb-bd-lg" />
+      {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
-      <h1>Usuarios</h1>
+      <h1 className="text-bd-primary">Usuarios</h1>
 
-      <div style={{ marginBottom: '30px', backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '5px' }}>
-        <h3>Búsquedas</h3>
-        <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', flexWrap: 'wrap' }}>
-          <button
+      <BdCard className="mb-bd-2xl">
+        {/* style={{ marginBottom: '30px', backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '5px' }} */}
+        <h3 className="text-bd-primary mb-bd-md">Búsquedas</h3>
+        <div className="flex gap-bd-lg mb-bd-lg flex-wrap" /* style={{ display: 'flex', gap: '15px', marginBottom: '15px', flexWrap: 'wrap' }} */>
+          <BdButton
+            variant={searchMode === 'all' ? 'primary' : 'ghost'}
             onClick={() => {
               setSearchMode('all');
               setSearchTerm('');
               setPage(0);
             }}
-            style={{
-              padding: '8px 15px',
-              backgroundColor: searchMode === 'all' ? '#28a745' : '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
           >
             Ver Todos
-          </button>
-          <button
-            onClick={() => router.push('/usuarios/buscar-dni-exacto')}
-            style={{
-              padding: '8px 15px',
-              backgroundColor: '#17a2b8',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
+          </BdButton>
+          <BdButton variant="primary" onClick={() => router.push('/usuarios/buscar-dni-exacto')}>
             Buscar por DNI Exacto
-          </button>
-          <button
-            onClick={() => router.push('/bancos')}
-            style={{
-              padding: '8px 15px',
-              backgroundColor: '#ffc107',
-              color: 'black',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
+          </BdButton>
+          <BdButton variant="primary" onClick={() => router.push('/bancos')}>
             Ver Bancos
-          </button>
+          </BdButton>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="flex gap-bd-sm flex-wrap" /* style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }} */>
           <form
             onSubmit={(e) => handleSearch(e, 'nombre')}
-            style={{ display: 'flex', gap: '5px', flex: 1, minWidth: '300px' }}
+            className="flex gap-bd-xs flex-1 min-w-[300px]"
+            /* style={{ display: 'flex', gap: '5px', flex: 1, minWidth: '300px' }} */
           >
             <input
               type="text"
               placeholder="Buscar por nombre"
               value={searchMode === 'nombre' ? searchTerm : ''}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: '8px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                flex: 1,
-              }}
+              className="bg-bd-input text-bd-primary border-bd-input rounded-bd-md p-bd-sm flex-1"
+              /* style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', flex: 1 }} */
             />
-            <button
-              type="submit"
-              style={{
-                padding: '8px 15px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-            >
+            <BdButton variant="primary" type="submit">
               Buscar
-            </button>
+            </BdButton>
           </form>
 
           <form
             onSubmit={(e) => handleSearch(e, 'dni')}
-            style={{ display: 'flex', gap: '5px', flex: 1, minWidth: '300px' }}
+            className="flex gap-bd-xs flex-1 min-w-[300px]"
+            /* style={{ display: 'flex', gap: '5px', flex: 1, minWidth: '300px' }} */
           >
             <input
               type="text"
               placeholder="Buscar por DNI (contiene)"
               value={searchMode === 'dni' ? searchTerm : ''}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: '8px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                flex: 1,
-              }}
+              className="bg-bd-input text-bd-primary border-bd-input rounded-bd-md p-bd-sm flex-1"
+              /* style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', flex: 1 }} */
             />
-            <button
-              type="submit"
-              style={{
-                padding: '8px 15px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-            >
+            <BdButton variant="primary" type="submit">
               Buscar
-            </button>
+            </BdButton>
           </form>
         </div>
-      </div>
+      </BdCard>
 
       {error && (
-        <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
+        <BdAlert variant="error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
 
       {loading ? (
-        <p>Cargando...</p>
+        <div className="bd-skeleton bd-skeleton-text" />
       ) : (
         <>
           {usuarios.length === 0 ? (
-            <p>No hay usuarios disponibles</p>
+            <p className="text-bd-secondary">No hay usuarios disponibles</p>
           ) : (
-            <table border={1} cellPadding="10" style={{ width: '100%', marginTop: '20px' }}>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>DNI</th>
-                  <th>Email</th>
-                  <th>Teléfono</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usuarios.map((usuario) => (
-                  <tr key={usuario.id}>
-                    <td>{usuario.nombre}</td>
-                    <td>{usuario.apellido}</td>
-                    <td>{usuario.dni}</td>
-                    <td>{usuario.email}</td>
-                    <td>{usuario.telefono}</td>
-                    <td>
-                      <button
-                        onClick={() => router.push(`/usuarios/${usuario.id}`)}
-                        style={{
-                          padding: '5px 10px',
-                          marginRight: '5px',
-                          backgroundColor: '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '3px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Ver
-                      </button>
-                      <button
-                        onClick={() => router.push(`/huespedes/${usuario.id}`)}
-                        style={{
-                          padding: '5px 10px',
-                          backgroundColor: '#17a2b8',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '3px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Como Huésped
-                      </button>
-                    </td>
+            <BdTable>
+              <table className="bd-table w-full mt-bd-xl" border={1} cellPadding="10" /* style={{ width: '100%', marginTop: '20px' }} */>
+                <thead>
+                  <tr>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Nombre</th>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Apellido</th>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">DNI</th>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Email</th>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Teléfono</th>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {usuarios.map((usuario) => (
+                    <tr key={usuario.id}>
+                      <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{usuario.nombre}</td>
+                      <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{usuario.apellido}</td>
+                      <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{usuario.dni}</td>
+                      <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{usuario.email}</td>
+                      <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{usuario.telefono}</td>
+                      <td className="p-bd-md border-b border-bd-subtle bd-row-actions">
+                        <BdButton variant="ghost" size="sm" onClick={() => router.push(`/usuarios/${usuario.id}`)}>
+                          Ver
+                        </BdButton>
+                        <BdButton variant="primary" size="sm" onClick={() => router.push(`/huespedes/${usuario.id}`)}>
+                          Como Huésped
+                        </BdButton>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </BdTable>
           )}
 
-          <div style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button
-              onClick={() => setPage(Math.max(0, page - 1))}
-              disabled={page === 0}
-              style={{ padding: '5px 10px', cursor: page === 0 ? 'not-allowed' : 'pointer' }}
-            >
-              Anterior
-            </button>
-
-            <span>
-              Página {page + 1} de {totalPages}
-            </span>
-
-            <button
-              onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-              disabled={page >= totalPages - 1}
-              style={{ padding: '5px 10px', cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer' }}
-            >
-              Siguiente
-            </button>
-          </div>
+          {totalPages > 0 && (
+            <BdPagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          )}
         </>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

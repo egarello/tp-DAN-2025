@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getBancoPorId, Banco } from '@/lib/api';
+import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdBackLink from '@/components/BdBackLink';
 
 export default function BancoDetailPage() {
   const params = useParams();
@@ -33,36 +36,34 @@ export default function BancoDetailPage() {
   }, [params.id]);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <button
-        onClick={() => router.back()}
-        style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}
-      >
-        ← Volver
-      </button>
+    <BdPageLayout>
+      <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
+      {/* style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }} */}
 
-      <h1>Detalle del Banco</h1>
+      <h1 className="text-bd-primary">Detalle del Banco</h1>
 
       {error && (
-        <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
+        <div className="bd-alert bd-alert-error">
+          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
           <strong>Error:</strong> {error}
         </div>
       )}
 
       {loading ? (
-        <p>Cargando...</p>
+        <div className="bd-skeleton bd-skeleton-text" />
       ) : banco ? (
-        <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
-          <p>
+        <BdCard>
+          {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }} */}
+          <p className="text-bd-primary mb-bd-sm">
             <strong>Nombre:</strong> {banco.nombre}
           </p>
-          <p>
+          <p className="text-bd-primary mb-bd-sm">
             <strong>Código:</strong> {banco.codigo}
           </p>
-        </div>
+        </BdCard>
       ) : (
-        <p>Banco no encontrado</p>
+        <p className="text-bd-secondary">Banco no encontrado</p>
       )}
-    </div>
+    </BdPageLayout>
   );
 }

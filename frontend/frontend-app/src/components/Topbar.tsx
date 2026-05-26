@@ -4,7 +4,7 @@ export default function Topbar() {
       <span className="text-bd-blue-bright font-bold text-bd-xl tracking-wide">
         DAN Hotels
       </span>
-      <span className="text-bd-muted text-bd-sm">Panel de administración</span>
+      <span className="text-bd-muted text-bd-sm">Plataforma hotelera</span>
     </header>
   );
 }

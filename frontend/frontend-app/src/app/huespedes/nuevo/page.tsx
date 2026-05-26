@@ -72,7 +72,7 @@ export default function NuevoHuespedPage() {
     <BdPageLayout>
       <div className="mx-auto max-w-3xl">
         {/* style={{ maxWidth: 800 }} */}
-      <BdBackLink href="/huespedes" className="mb-bd-lg" />
+      <BdBackLink href="/" className="mb-bd-lg" />
       {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
       <h1 className="text-bd-primary text-bd-xl font-bold">Nuevo Huésped</h1>

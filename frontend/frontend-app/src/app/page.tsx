@@ -1,122 +1,67 @@
-import Link from 'next/link';
+import BdButton from '@/components/BdButton';
+import BdCard from '@/components/BdCard';
 import BdPageLayout from '@/components/BdPageLayout';
+
+const quickAccess = [
+  { href: '/reservas', title: 'Reservas', description: 'Buscar, crear y seguir reservas desde un solo lugar.' },
+  { href: '/gestion', title: 'Gestión', description: 'Hoteles, habitaciones, tarifas y estados operativos.' },
+  { href: '/huespedes', title: 'Huéspedes', description: 'Alta y administración del perfil de huésped.' },
+  { href: '/propietarios/nuevo', title: 'Propietarios', description: 'Registro de propietarios con su cuenta bancaria.' },
+  { href: '/usuarios', title: 'Usuarios', description: 'Listado y búsqueda de usuarios del sistema.' },
+  { href: '/bancos', title: 'Bancos', description: 'CRUD de bancos para medios de pago.' },
+];
 
 export default function Home() {
   return (
     <BdPageLayout>
-      <h1>Hotel Management System - Frontend</h1>
-      <p>Bienvenido a la aplicación de gestión hotelera</p>
+      <div className="mx-auto mt-8 flex w-full max-w-7xl flex-col gap-12 px-4 sm:px-6 lg:px-8">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-[2rem] border border-bd-medium/70 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.18),_transparent_40%),linear-gradient(135deg,_rgba(12,18,28,0.96),_rgba(15,23,42,0.88))] px-6 py-16 text-center shadow-bd-card sm:px-10 lg:px-14">
+          <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.03),transparent)]" />
+          <div className="relative flex flex-col items-center space-y-6">
+            <span className="inline-flex rounded-full border border-bd-medium/70 bg-bd-card/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-bd-blue-bright">
+              Plataforma hotelera modular
+            </span>
+            <div className="space-y-4">
+              <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-bd-primary sm:text-5xl lg:text-6xl">
+                Gestión de reservas y hoteles desde un solo lugar.
+              </h1>
+            </div>
 
-      <h2>Navegación</h2>
-      <ul>
-        <li>
-          <Link href="/usuarios">Usuarios</Link>
-        </li>
-        <li>
-          <Link href="/usuarios/buscar-dni-exacto">Buscar Usuario por DNI Exacto</Link>
-        </li>
-        <li>
-          <Link href="/bancos">Bancos</Link>
-        </li>
-        <li>
-          <Link href="/huespedes">Gestión de Huéspedes</Link>
-        </li>
-        <li>
-          <Link href="/huespedes/nuevo">Nuevo Huésped</Link>
-        </li>
-        <li>
-          <Link href="/propietarios/nuevo">Nuevo Propietario</Link>
-        </li>
-        <li>
-          <Link href="/gestion">Gestión Hotelera</Link>
-        </li>
-        <li>
-          <Link href="/reservas">Reservas</Link>
-        </li>
-      </ul>
+            <div className="flex flex-col justify-center gap-3 pt-4 sm:flex-row">
+              <BdButton href="/login" variant="cta">
+                Entrar al sistema
+              </BdButton>
+              <BdButton href="/registro/huesped" variant="ghost">
+                Registrar huésped
+              </BdButton>
+              <BdButton href="/registro/propietario" variant="ghost">
+                Registrar propietario
+              </BdButton>
+            </div>
+          </div>
+        </section>
 
-      <h2>Estado del Sistema</h2>
-      <p>
-        Esta aplicación frontend se conecta a través del API Gateway (puerto 8080) que rutea las solicitudes a los diferentes microservicios.
-      </p>
-
-      <h3>API Gateway</h3>
-      <ul>
-        <li>URL: http://localhost:8080</li>
-        <li>/users/* → user-svc (puerto 8081)</li>
-        <li>/reservas/* → reservas-svc (puerto 8082)</li>
-        <li>/gestion/* → gestion-svc (puerto 8083)</li>
-      </ul>
-
-      <h3>Endpoints USER-SVC disponibles</h3>
-      <h4>GET (Lectura)</h4>
-      <ul>
-        <li><strong>GET /users</strong> - Listar usuarios (con búsqueda por nombre)</li>
-        <li><strong>GET /users/{'{'}id{'}'}</strong> - Obtener usuario por ID</li>
-        <li><strong>GET /users/dni/{'{'}dni{'}'}</strong> - Obtener usuario por DNI exacto</li>
-        <li><strong>GET /users/buscar-dni</strong> - Buscar usuarios por DNI (contiene)</li>
-        <li><strong>GET /users/huesped/{'{'}id{'}'}</strong> - Obtener huésped por ID</li>
-        <li><strong>GET /users/banco</strong> - Listar bancos</li>
-        <li><strong>GET /users/banco/{'{'}bancoId{'}'}</strong> - Obtener banco por ID</li>
-      </ul>
-
-      <h4>POST (Creación)</h4>
-      <ul>
-        <li><strong>POST /users/huesped</strong> - Crear nuevo huésped</li>
-        <li><strong>POST /users/propietario</strong> - Crear nuevo propietario</li>
-        <li><strong>POST /users/huesped/{'{'}dni{'}'}/tarjeta</strong> - Agregar tarjeta de crédito a huésped</li>
-      </ul>
-
-      <h4>PUT (Actualización)</h4>
-      <ul>
-        <li><strong>PUT /users/huesped/{'{'}dni{'}'}/cambiar-tarjeta-principal</strong> - Cambiar tarjeta principal de un huésped</li>
-      </ul>
-
-      <h4>DELETE (Eliminación)</h4>
-      <ul>
-        <li><strong>DELETE /users/huesped/{'{'}dni{'}'}/eliminar-tarjeta</strong> - Eliminar tarjeta de crédito de un huésped</li>
-        <li><strong>DELETE /users/huesped/eliminar/{'{'}dni{'}'}</strong> - Eliminar huésped por DNI</li>
-      </ul>
-
-      <h3>Endpoints GESTION-SVC disponibles</h3>
-      <h4>GET (Lectura)</h4>
-      <ul>
-        <li><strong>GET /gestion/hoteles</strong> - Listar hoteles</li>
-        <li><strong>GET /gestion/habitaciones</strong> - Listar habitaciones</li>
-        <li><strong>GET /gestion/tipos-habitacion</strong> - Listar tipos de habitación</li>
-        <li><strong>GET /gestion/tarifas</strong> - Listar tarifas</li>
-      </ul>
-
-      <h4>POST (Creación)</h4>
-      <ul>
-        <li><strong>POST /gestion/hoteles</strong> - Crear hotel</li>
-        <li><strong>POST /gestion/hoteles/{'{'}hotel{'}'}/amenities/add</strong> - Agregar amenities a hotel</li>
-        <li><strong>POST /gestion/habitaciones</strong> - Crear habitación</li>
-        <li><strong>POST /gestion/tipos-habitacion</strong> - Crear tipo de habitación</li>
-        <li><strong>POST /gestion/tarifas</strong> - Crear tarifa</li>
-        <li><strong>POST /gestion/tarifas/promocional</strong> - Crear tarifa promocional</li>
-      </ul>
-
-      <h3>Endpoints RESERVAS-SVC disponibles</h3>
-      <h4>GET (Lectura)</h4>
-      <ul>
-        <li><strong>GET /reservas/reservas</strong> - Listar reservas</li>
-        <li><strong>GET /reservas/reservas/{'{'}id{'}'}</strong> - Obtener reserva por ID</li>
-        <li><strong>GET /reservas/habitaciones</strong> - Listar habitaciones cacheadas</li>
-        <li><strong>GET /reservas/habitaciones/{'{'}id{'}'}</strong> - Obtener habitación cacheada por ID</li>
-      </ul>
-      <h4>POST (Creación)</h4>
-      <ul>
-        <li><strong>POST /reservas/reservas</strong> - Crear nueva reserva</li>
-      </ul>
-      <h4>PUT (Actualización)</h4>
-      <ul>
-        <li><strong>PUT /reservas/reservas/{'{'}id{'}'}</strong> - Actualizar reserva (reemplazo completo)</li>
-      </ul>
-      <h4>DELETE (Eliminación)</h4>
-      <ul>
-        <li><strong>DELETE /reservas/reservas/{'{'}id{'}'}</strong> - Eliminar reserva</li>
-      </ul>
+      {/* Módulos del Sistema */}
+        <section>
+        <h2 className="mb-6 text-2xl font-semibold text-bd-primary">Módulos del sistema</h2>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {quickAccess.map((item) => (
+            <BdCard key={item.href} title={item.title} className="flex flex-col h-full !mt-0">
+              {/* flex-grow empuja el botón hacia abajo para mantener alineación */}
+              <div className="flex-grow">
+                <p className="text-sm leading-6 text-bd-secondary">{item.description}</p>
+              </div>
+              <div className="mt-6">
+                <BdButton href={item.href} variant="ghost" size="sm" className="w-full justify-center">
+                  Abrir sección
+                </BdButton>
+              </div>
+            </BdCard>
+          ))}
+        </div>
+      </section>
+      </div>
     </BdPageLayout>
   );
- }
+}

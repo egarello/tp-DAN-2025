@@ -262,9 +262,19 @@
   transition:
     background var(--bd-duration-fast) var(--bd-ease-out),
     box-shadow var(--bd-duration-fast) var(--bd-ease-out),
-    opacity var(--bd-duration-fast) var(--bd-ease-out);
+    opacity var(--bd-duration-fast) var(--bd-ease-out),
+    transform var(--bd-duration-fast) var(--bd-ease-out),
+    filter var(--bd-duration-fast) var(--bd-ease-out);
   text-decoration: none;
   white-space: nowrap;
+  position: relative;
+  will-change: transform, box-shadow;
+}
+
+.bd-btn:hover,
+.bd-btn:active,
+.bd-btn:visited {
+  text-decoration: none !important;
 }
 
 .bd-btn:focus-visible {
@@ -291,6 +301,8 @@
 
 .bd-btn-primary:hover:not(.bd-btn-disabled) {
   background: var(--bd-blue-cta-hover);
+  box-shadow: 0 8px 18px rgba(13, 148, 136, 0.28);
+  transform: translateY(-1px);
 }
 
 .bd-btn-group {
@@ -307,6 +319,7 @@
 
 .bd-btn-cta:hover:not(.bd-btn-disabled) {
   box-shadow: 0 6px 20px rgba(26, 115, 232, 0.55);
+  transform: translateY(-1px);
 }
 
 .bd-btn-danger {
@@ -316,6 +329,8 @@
 
 .bd-btn-danger:hover:not(.bd-btn-disabled) {
   background: #a93226;
+  box-shadow: 0 8px 18px rgba(192, 57, 43, 0.24);
+  transform: translateY(-1px);
 }
 
 .bd-btn-ghost {
@@ -325,6 +340,8 @@
 
 .bd-btn-ghost:hover:not(.bd-btn-disabled) {
   background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+  transform: translateY(-1px);
 }
 
 /* Disabled */

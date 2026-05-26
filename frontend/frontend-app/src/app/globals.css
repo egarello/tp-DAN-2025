@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@config "../../tailwind.config.ts";
 @import "tailwindcss";
 
 :root {
@@ -530,9 +531,6 @@
   color: var(--bd-text-primary);
 }
 
-.bd-card + .bd-card {
-  margin-top: var(--bd-space-lg);
-}
 
 /* ============================================================
    BD-SKELETON COMPONENT

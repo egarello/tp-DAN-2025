@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUsuarioPorDniExacto, Usuario } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
+import BdAlert from '@/components/BdAlert';
+import BdCard from '@/components/BdCard';
 
 export default function BuscarPorDniPage() {
   const router = useRouter();
@@ -38,77 +42,60 @@ export default function BuscarPorDniPage() {
 
   return (
     <BdPageLayout>
-      <button
-        onClick={() => router.back()}
-        style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}
-      >
-        ← Volver
-      </button>
+      <div className="mx-auto w-full max-w-3xl">
+        <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
 
-      <h1>Buscar Usuario por DNI</h1>
+        <h1 className="text-bd-primary text-bd-xl font-bold">Buscar usuario por DNI</h1>
 
-      <form onSubmit={handleSearch} style={{ marginBottom: '30px' }}>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="dni" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-            DNI:
-          </label>
-          <input
-            id="dni"
-            type="text"
-            value={dni}
-            onChange={(e) => setDni(e.target.value)}
-            placeholder="Ingresa el DNI"
-            style={{
-              padding: '8px',
-              width: '300px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: '8px 20px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1,
-          }}
-        >
-          {loading ? 'Buscando...' : 'Buscar'}
-        </button>
-      </form>
+        <form onSubmit={handleSearch} className="mt-bd-lg flex flex-col gap-bd-md">
+          <div>
+            <label htmlFor="dni" className="text-bd-muted text-bd-xs block mb-bd-xs">
+              DNI
+            </label>
+            <input
+              id="dni"
+              type="text"
+              value={dni}
+              onChange={(e) => setDni(e.target.value)}
+              placeholder="Ingresa el DNI"
+              className="bg-bd-input text-bd-primary border-bd-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+            />
+          </div>
+          <div className="flex items-center gap-bd-md">
+            <BdButton type="submit" variant="primary" disabled={loading}>
+              {loading ? 'Buscando...' : 'Buscar'}
+            </BdButton>
+          </div>
+        </form>
 
-      {error && (
-        <div style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
-          <strong>Error:</strong> {error}
-        </div>
-      )}
+        {error && (
+          <BdAlert variant="error" className="mt-bd-lg">
+            <strong>Error:</strong> {error}
+          </BdAlert>
+        )}
 
-      {buscado && usuario && (
-        <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
-          <h2>Resultado</h2>
-          <p>
-            <strong>Nombre:</strong> {usuario.nombre}
-          </p>
-          <p>
-            <strong>Apellido:</strong> {usuario.apellido}
-          </p>
-          <p>
-            <strong>DNI:</strong> {usuario.dni}
-          </p>
-          <p>
-            <strong>Email:</strong> {usuario.email}
-          </p>
-          <p>
-            <strong>Teléfono:</strong> {usuario.telefono}
-          </p>
-        </div>
-      )}
+        {buscado && usuario && (
+          <BdCard title="Resultado" className="mt-bd-xl">
+            <div className="text-sm text-bd-secondary leading-6">
+              <p>
+                <strong className="text-bd-primary">Nombre:</strong> {usuario.nombre}
+              </p>
+              <p>
+                <strong className="text-bd-primary">Apellido:</strong> {usuario.apellido}
+              </p>
+              <p>
+                <strong className="text-bd-primary">DNI:</strong> {usuario.dni}
+              </p>
+              <p>
+                <strong className="text-bd-primary">Email:</strong> {usuario.email}
+              </p>
+              <p>
+                <strong className="text-bd-primary">Teléfono:</strong> {usuario.telefono}
+              </p>
+            </div>
+          </BdCard>
+        )}
+      </div>
     </BdPageLayout>
   );
 }

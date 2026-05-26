@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdCard from '@/components/BdCard';
+import BdButton from '@/components/BdButton';
+import BdBackLink from '@/components/BdBackLink';
 
 const sections = [
   {
@@ -22,31 +25,26 @@ const sections = [
 export default function ReservasLandingPage() {
   return (
     <BdPageLayout>
-      <Link href="/" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Inicio
-      </Link>
+      <div className="mx-auto w-full max-w-5xl">
+        <BdBackLink href="/" className="mb-bd-lg" />
 
-      <h1>Reservas</h1>
-      <p>Frontend para el microservicio reservas-svc.</p>
+        <h1 className="text-bd-primary text-bd-xl font-bold">Reservas</h1>
+        <p className="text-bd-secondary mb-bd-xl">
+          Panel de acceso al microservicio reservas-svc.
+        </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginTop: '24px' }}>
-        {sections.map((section) => (
-          <Link
-            key={section.href}
-            href={section.href}
-            style={{
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '18px',
-              textDecoration: 'none',
-              color: 'inherit',
-              backgroundColor: '#f8f9fa',
-            }}
-          >
-            <h2 style={{ marginTop: 0 }}>{section.title}</h2>
-            <p style={{ marginBottom: 0 }}>{section.description}</p>
-          </Link>
-        ))}
+        <div className="grid gap-bd-lg sm:grid-cols-2">
+          {sections.map((section) => (
+            <BdCard key={section.href} title={section.title} className="flex flex-col h-full">
+              <p className="text-bd-secondary text-sm leading-6">{section.description}</p>
+              <div className="mt-bd-lg">
+                <BdButton href={section.href} variant="ghost" size="sm">
+                  Abrir modulo
+                </BdButton>
+              </div>
+            </BdCard>
+          ))}
+        </div>
       </div>
     </BdPageLayout>
   );

@@ -1,6 +1,7 @@
 package edu.utn.frsf.isi.dan.gestion.dao;
 
 import edu.utn.frsf.isi.dan.gestion.model.Hotel;
+import edu.utn.frsf.isi.dan.gestion.model.Amenity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,5 +28,28 @@ public interface HotelRepository extends JpaRepository<Hotel, Integer> {
         @Param("telefono") String telefono,
         @Param("correoContacto") String correoContacto,
         @Param("categoria") Integer categoria
+    );
+
+    @Query("SELECT h FROM Hotel h JOIN h.amenities a " +
+           "WHERE (:nombre IS NULL OR h.nombre LIKE %:nombre%) " +
+           "AND (:domicilio IS NULL OR h.domicilio LIKE %:domicilio%) " +
+           "AND (:latitud IS NULL OR h.latitud = :latitud) " +
+           "AND (:longitud IS NULL OR h.longitud = :longitud) " +
+           "AND (:telefono IS NULL OR h.telefono LIKE %:telefono%) " +
+           "AND (:correoContacto IS NULL OR h.correoContacto LIKE %:correoContacto%) " +
+           "AND (:categoria IS NULL OR h.categoria = :categoria) " +
+           "AND a.amenity IN :amenities " +
+           "GROUP BY h " +
+           "HAVING COUNT(DISTINCT a.amenity) = :amenityCount")
+    List<Hotel> findByFiltroAndAmenities(
+        @Param("nombre") String nombre,
+        @Param("domicilio") String domicilio,
+        @Param("latitud") Double latitud,
+        @Param("longitud") Double longitud,
+        @Param("telefono") String telefono,
+        @Param("correoContacto") String correoContacto,
+        @Param("categoria") Integer categoria,
+        @Param("amenities") List<Amenity> amenities,
+        @Param("amenityCount") long amenityCount
     );
 }

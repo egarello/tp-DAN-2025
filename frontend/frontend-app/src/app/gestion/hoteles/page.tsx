@@ -34,7 +34,10 @@ export default function HotelesPage() {
       <BdBackLink href="/gestion">Gestión</BdBackLink>
 
       <h1 className="text-bd-primary">Hoteles</h1>
-      <BdButton href="/gestion/hoteles/nuevo" variant="primary" size="md">+ Nuevo Hotel</BdButton>
+      <div className="flex flex-wrap gap-bd-sm">
+        <BdButton href="/gestion/hoteles/nuevo" variant="primary" size="md">+ Nuevo Hotel</BdButton>
+        <BdButton href="/gestion/hoteles/buscar" variant="ghost" size="md">Buscar</BdButton>
+      </div>
 
       {error && <div className="bd-alert bd-alert-error" /* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */><strong>Error:</strong> {error}</div>}
 

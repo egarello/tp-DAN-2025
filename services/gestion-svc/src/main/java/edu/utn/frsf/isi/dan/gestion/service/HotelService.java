@@ -1,6 +1,7 @@
 package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.HotelRepository;
+import edu.utn.frsf.isi.dan.gestion.dao.AmenityHotelRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Hotel;
 import edu.utn.frsf.isi.dan.shared.HotelDTO;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,9 @@ import edu.utn.frsf.isi.dan.gestion.model.AmenityHotel;
 public class HotelService {
     @Autowired
     private HotelRepository hotelRepository;
+
+    @Autowired
+    private AmenityHotelRepository amenityHotelRepository;
 
     public Hotel save(Hotel hotel) {
         return hotelRepository.save(hotel);
@@ -83,5 +87,27 @@ public class HotelService {
             hotelFiltro.getCorreoContacto(),
             hotelFiltro.getCategoria()
         );
+    }
+
+    public List<Hotel> findBy(HotelDTO hotelFiltro, List<Amenity> amenities) {
+        if (amenities == null || amenities.isEmpty()) {
+            return findBy(hotelFiltro);
+        }
+
+        return hotelRepository.findByFiltroAndAmenities(
+            hotelFiltro.getNombre(),
+            hotelFiltro.getDomicilio(),
+            hotelFiltro.getLatitud(),
+            hotelFiltro.getLongitud(),
+            hotelFiltro.getTelefono(),
+            hotelFiltro.getCorreoContacto(),
+            hotelFiltro.getCategoria(),
+            amenities,
+            amenities.size()
+        );
+    }
+
+    public List<Amenity> getAvailableAmenities() {
+        return amenityHotelRepository.findDistinctAmenities();
     }
 }

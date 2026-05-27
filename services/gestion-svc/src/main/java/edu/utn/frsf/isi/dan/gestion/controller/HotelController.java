@@ -34,6 +34,11 @@ public class HotelController {
         return hotelService.findAll();
     }
 
+    @GetMapping("/amenities")
+    public List<Amenity> getAvailableAmenities() {
+        return hotelService.getAvailableAmenities();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Hotel> update(@PathVariable Integer id, @RequestBody Hotel hotel) {
         if (!hotelService.findById(id).isPresent()) return ResponseEntity.notFound().build();
@@ -72,7 +77,7 @@ public class HotelController {
         @RequestParam(required = false) String telefono,
         @RequestParam(required = false) String correoContacto,
         @RequestParam(required = false) Integer categoria,
-        @RequestParam(required = false) Amenity amenity,
+        @RequestParam(required = false) List<Amenity> amenities,
         @RequestParam(defaultValue = "nombre") String sortBy
         ) {
         HotelDTO hotelFiltro = HotelDTO.builder()
@@ -84,6 +89,6 @@ public class HotelController {
             .correoContacto(correoContacto)
             .categoria(categoria)
             .build();
-        return hotelService.findBy(hotelFiltro);
+        return hotelService.findBy(hotelFiltro, amenities);
     }
 }

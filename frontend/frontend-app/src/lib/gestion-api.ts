@@ -130,20 +130,38 @@ export interface TarifaRecord {
 
 export type Amenity =
   | 'PILETA'
+  | 'SAUNA'
   | 'GIMNASIO'
   | 'RESTAURANTE'
   | 'BAR'
   | 'ESTACIONAMIENTO'
   | 'WIFI'
   | 'AIRE_ACONDICIONADO'
+  | 'CALENTADOR'
   | 'TV_CABLE'
   | 'SERVICIO_HABITACIONES'
   | 'LIMPIEZA_DIARIA'
+  | 'PISCINA_CUBIERTA'
+  | 'PISCINA_DESCUBIERTA'
   | 'SPA'
-  | 'SALA_REUNIONES';
+  | 'SALA_JUEGOS'
+  | 'SALA_REUNIONES'
+  | 'TRANSPORTE_AEROPUERTO';
 
 export async function getHoteles(): Promise<Hotel[]> {
   return fetchGestion<Hotel[]>('/hoteles');
+}
+
+export async function getAvailableAmenities(): Promise<Amenity[]> {
+  return fetchGestion<Amenity[]>('/hoteles/amenities');
+}
+
+export async function searchHotelesByAmenities(amenities: Amenity[]): Promise<Hotel[]> {
+  const params = new URLSearchParams();
+  if (amenities.length > 0) {
+    params.set('amenities', amenities.join(','));
+  }
+  return fetchGestion<Hotel[]>(`/hoteles/buscar?${params.toString()}`);
 }
 
 export async function crearHotel(hotel: HotelRecord): Promise<Hotel | null> {

@@ -44,6 +44,7 @@ export default function HabitacionesPage() {
               <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Piso</th>
               <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Tipo</th>
               <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Hotel</th>
+              <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Estado Hotel</th>
               <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Acciones</th>
             </tr>
           </thead>
@@ -54,6 +55,17 @@ export default function HabitacionesPage() {
                 <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{habitacion.piso}</td>
                 <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{habitacion.tipoHabitacion?.nombre || '-'}</td>
                 <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{habitacion.hotel?.nombre || '-'}</td>
+                <td className="p-bd-md border-b border-bd-subtle">
+                  {habitacion.hotel ? (
+                    <span
+                      className={`inline-flex items-center rounded-bd-pill border px-bd-sm py-[2px] text-xs font-semibold ${habitacion.hotel.cerrado ? 'border-bd-urgency text-bd-urgency bg-[rgba(192,57,43,0.1)]' : 'border-bd-blue-bright text-bd-blue-bright bg-[rgba(45,212,191,0.08)]'}`}
+                    >
+                      {habitacion.hotel.cerrado ? 'Cerrado' : 'Abierto'}
+                    </span>
+                  ) : (
+                    <span className="text-bd-muted text-xs">-</span>
+                  )}
+                </td>
                 <td className="p-bd-md border-b border-bd-subtle bd-row-actions"><Link className="text-bd-link" href={`/gestion/habitaciones/${habitacion.id}`}>Ver</Link> | <Link className="text-bd-link" href={`/gestion/habitaciones/editar/${habitacion.id}`}>Editar</Link></td>
               </tr>
             ))}

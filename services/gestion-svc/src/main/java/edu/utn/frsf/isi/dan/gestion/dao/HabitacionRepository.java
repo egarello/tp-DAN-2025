@@ -26,4 +26,7 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Integer>
     """)
     List<Habitacion> findByFiltros(@Param("capacidad") Integer capacidad,@Param("tipoId") Integer tipoId,
         @Param("precioMin") Double precioMin,@Param("precioMax") Double precioMax);
+
+    @Query("SELECT h.id FROM Habitacion h WHERE h.hotel.id = :hotelId")
+    List<Integer> findIdsByHotelId(@Param("hotelId") Integer hotelId);
 }

@@ -15,7 +15,10 @@ import com.rabbitmq.client.Channel;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Habitacion;
 import edu.utn.frsf.isi.dan.reservas_svc.repository.HabitacionRepository;
 import edu.utn.frsf.isi.dan.reservas_svc.service.HabitacionService;
+import edu.utn.frsf.isi.dan.reservas_svc.service.ReservaService;
 import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
+import edu.utn.frsf.isi.dan.shared.HotelCierreEvent;
+import edu.utn.frsf.isi.dan.shared.TipoEvento;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
@@ -30,6 +33,9 @@ public class GestionMessageListener {
 
     @Autowired
     private HabitacionService habitacionService;
+
+    @Autowired
+    private ReservaService reservaService;
 
     @RabbitListener(
         bindings = @QueueBinding(
@@ -88,6 +94,37 @@ public class GestionMessageListener {
                 channel.basicReject(deliveryTag, false);
             } catch (IOException e1) {
                 log.error("Error rechazando mensaje tarifa delayed: {}", e.getMessage());
+            }
+        }
+    }
+
+    @RabbitListener(
+        bindings = @QueueBinding(
+            value = @Queue(value = "hotel.cierre.topic", durable = "true"),
+            exchange = @Exchange(value = "dan.exchange", type = "topic"),
+            key = "dan.hotel.cierre"
+        ),
+        ackMode = "MANUAL"
+    )
+    public void receiveHotelCierreMessage(String payload, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
+        try {
+            log.debug("[RabbitMQ-HOTEL-CIERRE] Mensaje recibido: {}", payload);
+            HotelCierreEvent cierreEvent = objectMapper.readValue(payload, HotelCierreEvent.class);
+            log.info("Evento hotel cierre recibido: {}", cierreEvent);
+
+            if (cierreEvent.getTipoEvento() == TipoEvento.HOTEL_CERRADO) {
+                reservaService.createClosedReservations(cierreEvent.getHotelId(), cierreEvent.getHabitacionIds());
+            } else if (cierreEvent.getTipoEvento() == TipoEvento.HOTEL_ABIERTO) {
+                reservaService.deleteClosedReservations(cierreEvent.getHotelId());
+            }
+
+            channel.basicAck(deliveryTag, false);
+        } catch (Exception e) {
+            log.error("Error procesando mensaje hotel cierre: {}", e.getMessage());
+            try {
+                channel.basicReject(deliveryTag, false);
+            } catch (IOException e1) {
+                log.error("Error rechazando mensaje hotel cierre: {}", e.getMessage());
             }
         }
     }

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.time.Instant;
 
 @Service
 public class ReservaService {
@@ -68,6 +70,9 @@ public class ReservaService {
             if (hotel == null) {
                 throw new RuntimeException("Hotel no encontrado con ID: " + reserva.getHotelId());
             }
+            if (Boolean.TRUE.equals(hotel.getCerrado())) {
+                throw new RuntimeException("Hotel cerrado: no se pueden crear reservas");
+            }
         } catch (Exception e) {
             throw new RuntimeException("Error validando hotel: " + e.getMessage());
         }
@@ -104,6 +109,31 @@ public class ReservaService {
 
     public void deleteById(String id) {
         reservaRepository.deleteById(id);
+    }
+
+    public void createClosedReservations(Integer hotelId, List<Integer> habitacionIds) {
+        if (habitacionIds == null || habitacionIds.isEmpty()) {
+            return;
+        }
+
+        Instant now = Instant.now();
+        List<Reserva> reservas = habitacionIds.stream()
+            .map(idHabitacion -> Reserva.builder()
+                .idHabitacion(String.valueOf(idHabitacion))
+                .hotelId(hotelId)
+                .createdAt(now)
+                .checkIn(now)
+                .checkOut(null)
+                .status("CERRADO")
+                .estadoReserva(EstadoReserva.CERRADO)
+                .build())
+            .collect(Collectors.toList());
+
+        reservaRepository.saveAll(reservas);
+    }
+
+    public void deleteClosedReservations(Integer hotelId) {
+        reservaRepository.deleteByHotelIdAndEstadoReserva(hotelId, EstadoReserva.CERRADO);
     }
 
     private boolean isHabitacionDisponible(Long habitacionId, Reserva nuevaReserva) {
@@ -156,6 +186,7 @@ public class ReservaService {
         // Not active: CANCELADA, FINALIZADA, ADEUDADA
         return estado == EstadoReserva.CONFIRMADA || 
                estado == EstadoReserva.RESERVADA || 
-               estado == EstadoReserva.BLOQUEADA;
+               estado == EstadoReserva.BLOQUEADA ||
+               estado == EstadoReserva.CERRADO;
     }
 }

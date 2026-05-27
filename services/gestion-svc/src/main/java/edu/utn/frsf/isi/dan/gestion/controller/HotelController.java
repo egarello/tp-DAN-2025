@@ -53,6 +53,20 @@ public class HotelController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{id}/cerrar")
+    public ResponseEntity<Hotel> cerrarHotel(@PathVariable Integer id) {
+        return hotelService.cerrarHotel(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/abrir")
+    public ResponseEntity<Hotel> abrirHotel(@PathVariable Integer id) {
+        return hotelService.abrirHotel(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping("/{id}/amenities/add")
     public ResponseEntity<Hotel> addAmenities(@PathVariable Integer id, @RequestBody List<Amenity> amenities) {
         return hotelService.addAmenities(id, amenities)

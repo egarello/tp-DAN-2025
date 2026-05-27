@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { eliminarAmenityHotel, eliminarHotel, getHotelPorId, Hotel } from '@/lib/gestion-api';
+import { abrirHotel, cerrarHotel, eliminarAmenityHotel, eliminarHotel, getHotelPorId, Hotel } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdBackLink from '@/components/BdBackLink';
@@ -19,6 +19,7 @@ export default function HotelDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingAmenity, setDeletingAmenity] = useState<string | null>(null);
+  const [togglingCierre, setTogglingCierre] = useState(false);
 
   const hotelId = Number(Array.isArray(params.id) ? params.id[0] : params.id);
 
@@ -68,6 +69,29 @@ export default function HotelDetailPage() {
     }
   };
 
+  const handleToggleCierre = async () => {
+    if (!hotel) return;
+    const confirmText = hotel.cerrado
+      ? '¿Abrir este hotel y habilitar reservas nuevamente?'
+      : '¿Cerrar este hotel y bloquear todas las habitaciones?';
+    if (!window.confirm(confirmText)) return;
+
+    try {
+      setError(null);
+      setTogglingCierre(true);
+      const updated = hotel.cerrado ? await abrirHotel(hotelId) : await cerrarHotel(hotelId);
+      if (updated) {
+        setHotel(updated);
+      } else {
+        setHotel(await getHotelPorId(hotelId));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al actualizar el estado del hotel');
+    } finally {
+      setTogglingCierre(false);
+    }
+  };
+
   return (
     <BdPageLayout>
       <BdBackLink href="/gestion/hoteles" className="mb-bd-lg" />
@@ -91,6 +115,14 @@ export default function HotelDetailPage() {
           <p className="text-bd-primary mb-bd-sm"><strong>Teléfono:</strong> {hotel.telefono || '-'}</p>
           <p className="text-bd-primary mb-bd-sm"><strong>Correo:</strong> {hotel.correoContacto || '-'}</p>
           <p className="text-bd-primary mb-bd-sm"><strong>Categoría:</strong> {hotel.categoria ?? '-'}</p>
+          <p className="text-bd-primary mb-bd-sm">
+            <strong>Estado:</strong> {hotel.cerrado ? 'Cerrado' : 'Abierto'}
+          </p>
+          {hotel.cerrado && hotel.fechaCierre && (
+            <p className="text-bd-secondary mb-bd-sm">
+              <strong>Fecha de cierre:</strong> {new Date(hotel.fechaCierre).toLocaleString('es-AR')}
+            </p>
+          )}
           <p className="text-bd-primary mb-bd-sm"><strong>Amenities:</strong></p>
           {hotel.amenities?.length ? (
             <ul className="list-none mb-bd-md">
@@ -124,6 +156,17 @@ export default function HotelDetailPage() {
             </BdButton>
             <BdButton variant="primary" href={`/gestion/hoteles/editar/${hotel.id}`}>
               Editar Hotel
+            </BdButton>
+            <BdButton
+              variant={hotel.cerrado ? 'primary' : 'danger'}
+              onClick={handleToggleCierre}
+              disabled={togglingCierre}
+            >
+              {togglingCierre
+                ? 'Procesando...'
+                : hotel.cerrado
+                ? 'Abrir Hotel'
+                : 'Cerrar Hotel'}
             </BdButton>
             <BdButton variant="danger" onClick={handleEliminarHotel}>
               Eliminar Hotel

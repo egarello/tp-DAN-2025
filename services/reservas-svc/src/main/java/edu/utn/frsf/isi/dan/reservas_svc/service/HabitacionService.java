@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,6 +94,8 @@ public class HabitacionService {
                 .categoria(dto.getCategoria())
                 .ubicacion(dto.getLatitud() != null && dto.getLongitud() != null ? 
                     new GeoJsonPoint(dto.getLatitud(), dto.getLongitud()) : null)
+                .cerrado(dto.getCerrado())
+                .fechaCierre(dto.getFechaCierre() != null ? Instant.parse(dto.getFechaCierre()) : null)
                 .build();
     }
 

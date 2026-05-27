@@ -2,13 +2,21 @@ package edu.utn.frsf.isi.dan.gestion.service;
 
 import edu.utn.frsf.isi.dan.gestion.dao.HotelRepository;
 import edu.utn.frsf.isi.dan.gestion.dao.AmenityHotelRepository;
+import edu.utn.frsf.isi.dan.gestion.dao.HabitacionRepository;
 import edu.utn.frsf.isi.dan.gestion.model.Hotel;
 import edu.utn.frsf.isi.dan.shared.HotelDTO;
+import edu.utn.frsf.isi.dan.shared.HotelCierreEvent;
+import edu.utn.frsf.isi.dan.shared.TipoEvento;
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
@@ -24,6 +32,21 @@ public class HotelService {
 
     @Autowired
     private AmenityHotelRepository amenityHotelRepository;
+
+    @Autowired
+    private HabitacionRepository habitacionRepository;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Value("${rabbitmq.exchange:dan.exchange}")
+    private String exchange;
+
+    @Value("${rabbitmq.hotel.routingkey:dan.hotel.cierre}")
+    private String hotelRoutingKey;
 
     public Hotel save(Hotel hotel) {
         return hotelRepository.save(hotel);
@@ -109,5 +132,61 @@ public class HotelService {
 
     public List<Amenity> getAvailableAmenities() {
         return amenityHotelRepository.findDistinctAmenities();
+    }
+
+    public Optional<Hotel> cerrarHotel(Integer hotelId) {
+        Optional<Hotel> optionalHotel = hotelRepository.findById(hotelId);
+        if (!optionalHotel.isPresent()) {
+            return Optional.empty();
+        }
+
+        Hotel hotel = optionalHotel.get();
+        if (Boolean.TRUE.equals(hotel.getCerrado())) {
+            return Optional.of(hotel);
+        }
+
+        hotel.setCerrado(true);
+        hotel.setFechaCierre(LocalDateTime.now());
+        Hotel saved = hotelRepository.save(hotel);
+
+        publicarEventoCierre(saved, TipoEvento.HOTEL_CERRADO);
+        return Optional.of(saved);
+    }
+
+    public Optional<Hotel> abrirHotel(Integer hotelId) {
+        Optional<Hotel> optionalHotel = hotelRepository.findById(hotelId);
+        if (!optionalHotel.isPresent()) {
+            return Optional.empty();
+        }
+
+        Hotel hotel = optionalHotel.get();
+        if (!Boolean.TRUE.equals(hotel.getCerrado())) {
+            return Optional.of(hotel);
+        }
+
+        hotel.setCerrado(false);
+        hotel.setFechaCierre(null);
+        Hotel saved = hotelRepository.save(hotel);
+
+        publicarEventoCierre(saved, TipoEvento.HOTEL_ABIERTO);
+        return Optional.of(saved);
+    }
+
+    private void publicarEventoCierre(Hotel hotel, TipoEvento tipoEvento) {
+        List<Integer> habitacionIds = habitacionRepository.findIdsByHotelId(hotel.getId());
+        HotelCierreEvent event = HotelCierreEvent.builder()
+            .hotelId(hotel.getId())
+            .habitacionIds(habitacionIds)
+            .fechaInicio(LocalDateTime.now())
+            .fechaFin(null)
+            .tipoEvento(tipoEvento)
+            .build();
+
+        try {
+            String payload = objectMapper.writeValueAsString(event);
+            rabbitTemplate.convertAndSend(exchange, hotelRoutingKey, payload);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -157,6 +157,8 @@ public class HabitacionService {
                 .latitud(hotel.getLatitud())
                 .longitud(hotel.getLongitud())
                 .categoria(hotel.getCategoria())
+                .cerrado(hotel.getCerrado())
+                .fechaCierre(hotel.getFechaCierre() != null ? hotel.getFechaCierre().toString() : null)
                 .build();
     }
 }

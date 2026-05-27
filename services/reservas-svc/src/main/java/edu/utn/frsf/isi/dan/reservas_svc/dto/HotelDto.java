@@ -10,10 +10,12 @@ public class HotelDto {
     private String telefono;
     private String correoContacto;
     private Integer categoria;
+    private Boolean cerrado;
+    private String fechaCierre;
     
     public HotelDto() {}
     
-    public HotelDto(Integer id, String nombre, String cuit, String domicilio, Double latitud, Double longitud, String telefono, String correoContacto, Integer categoria) {
+    public HotelDto(Integer id, String nombre, String cuit, String domicilio, Double latitud, Double longitud, String telefono, String correoContacto, Integer categoria, Boolean cerrado, String fechaCierre) {
         this.id = id;
         this.nombre = nombre;
         this.cuit = cuit;
@@ -23,6 +25,8 @@ public class HotelDto {
         this.telefono = telefono;
         this.correoContacto = correoContacto;
         this.categoria = categoria;
+        this.cerrado = cerrado;
+        this.fechaCierre = fechaCierre;
     }
     
     public Integer getId() { return id; }
@@ -51,4 +55,10 @@ public class HotelDto {
     
     public Integer getCategoria() { return categoria; }
     public void setCategoria(Integer categoria) { this.categoria = categoria; }
+
+    public Boolean getCerrado() { return cerrado; }
+    public void setCerrado(Boolean cerrado) { this.cerrado = cerrado; }
+
+    public String getFechaCierre() { return fechaCierre; }
+    public void setFechaCierre(String fechaCierre) { this.fechaCierre = fechaCierre; }
 }

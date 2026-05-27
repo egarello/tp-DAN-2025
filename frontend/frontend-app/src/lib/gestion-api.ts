@@ -67,6 +67,8 @@ export interface Hotel {
   telefono?: string;
   correoContacto?: string;
   categoria?: number;
+  cerrado?: boolean;
+  fechaCierre?: string;
   amenities?: Array<string | AmenityHotel>;
 }
 
@@ -174,6 +176,14 @@ export async function actualizarHotel(id: number, hotel: HotelRecord): Promise<H
 
 export async function eliminarHotel(id: number): Promise<void> {
   await deleteGestion(`/hoteles/${id}`);
+}
+
+export async function cerrarHotel(id: number): Promise<Hotel | null> {
+  return sendGestion<Hotel>(`/hoteles/${id}/cerrar`, 'POST', {});
+}
+
+export async function abrirHotel(id: number): Promise<Hotel | null> {
+  return sendGestion<Hotel>(`/hoteles/${id}/abrir`, 'POST', {});
 }
 
 export async function eliminarAmenityHotel(idHotel: number, amenity: string): Promise<Hotel | null> {

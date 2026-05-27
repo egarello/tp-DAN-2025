@@ -407,6 +407,33 @@
 }
 
 /* ============================================================
+   BD-SIDEBAR LINKS
+   ============================================================ */
+.bd-sidebar-link {
+  text-decoration: none;
+}
+
+.bd-sidebar-link:hover {
+  text-decoration: none;
+}
+
+.bd-sidebar-link-active {
+  background: var(--bd-bg-card-hover);
+  color: var(--bd-blue-bright);
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.25), 0 0 18px rgba(45, 212, 191, 0.25);
+}
+
+.bd-sidebar-link-inactive {
+  color: var(--bd-text-secondary);
+}
+
+.bd-sidebar-link-inactive:hover {
+  background: var(--bd-bg-card-hover);
+  color: var(--bd-blue-bright);
+  box-shadow: var(--bd-shadow-card);
+}
+
+/* ============================================================
    BD-BACKLINK COMPONENT
    ============================================================ */
 .bd-back-link {

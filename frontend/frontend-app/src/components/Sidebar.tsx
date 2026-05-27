@@ -50,7 +50,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               href={item.href}
               onClick={onClose}
               aria-current={pathname === item.href ? 'page' : undefined}
-              className={`group flex items-center justify-between rounded-bd-md px-bd-md py-bd-sm text-sm font-semibold transition-all duration-200 ${pathname === item.href ? 'bg-bd-card-hover text-bd-blue-bright shadow-bd-card' : 'text-bd-secondary hover:bg-bd-card-hover hover:text-bd-blue-bright hover:shadow-bd-card'}`}
+              className={`bd-sidebar-link group flex items-center justify-between rounded-bd-md px-bd-md py-bd-sm text-sm font-semibold transition-all duration-200 ${pathname === item.href ? 'bd-sidebar-link-active' : 'bd-sidebar-link-inactive'}`}
             >
               <span>{item.label}</span>
               <span className="text-xs text-bd-muted transition-colors group-hover:text-bd-blue-bright">

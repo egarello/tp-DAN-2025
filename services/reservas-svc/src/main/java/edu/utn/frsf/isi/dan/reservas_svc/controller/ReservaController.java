@@ -1,5 +1,6 @@
 package edu.utn.frsf.isi.dan.reservas_svc.controller;
 
+import edu.utn.frsf.isi.dan.reservas_svc.model.Pago;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Reserva;
 import edu.utn.frsf.isi.dan.reservas_svc.service.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +48,11 @@ public class ReservaController {
         }
         reservaService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/pagar")
+    public ResponseEntity<Reserva> pagar(@PathVariable String id, @RequestBody Pago nuevoPago) {
+        reservaService.pagar(id, nuevoPago);
+        return ResponseEntity.ok(reservaService.findById(id).get());
     }
 }

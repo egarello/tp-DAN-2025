@@ -7,15 +7,20 @@ import edu.utn.frsf.isi.dan.reservas_svc.dto.HotelDto;
 import edu.utn.frsf.isi.dan.reservas_svc.dto.UserDto;
 import edu.utn.frsf.isi.dan.reservas_svc.model.EstadoReserva;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Habitacion;
+import edu.utn.frsf.isi.dan.reservas_svc.model.Pago;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Reserva;
 import edu.utn.frsf.isi.dan.reservas_svc.repository.ReservaRepository;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class ReservaService {
@@ -31,6 +36,9 @@ public class ReservaService {
     @Autowired
     private HabitacionService habitacionService;
 
+    @Autowired
+    private PagoService pagoService;
+
     public List<Reserva> findAll() {
         return reservaRepository.findAll();
     }
@@ -40,11 +48,53 @@ public class ReservaService {
     }
 
     public Reserva save(Reserva reserva) {
-        // Validate reservation before saving
+        // Validar reserva antes de guardar
         validateReservation(reserva);
+
+        // Asignar precio noche segun el precio de la habitacion
+        Habitacion habitacionReserva = habitacionService.findByHabitacionId(Long.parseLong(reserva.getIdHabitacion()))
+                .orElseThrow(() -> new RuntimeException("Habitación no encontrada con ID: " + reserva.getIdHabitacion()));
+        reserva.setPrecioNoche(habitacionReserva.getPrecioNoche());
+
+        // Calcular precio total de la reserva basado en el precio de la habitación y la duración de la estadía
+        long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), reserva.getCheckOut());
+        reserva.setPrecioTotal(noches * reserva.getPrecioNoche());
+
         return reservaRepository.save(reserva);
     }
     
+    public Reserva pagar(String idReserva, Pago nuevoPago) {
+        // validar que exista la reserva
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + idReserva));
+        
+        // validar estado de la reserva (solo se puede pagar si esta en CONFIRMADA O RESERVADA)
+        if (!reserva.getEstadoReserva().puedeTransicionarA(EstadoReserva.ADEUDADA) || !reserva.getEstadoReserva().puedeTransicionarA(EstadoReserva.RESERVADA)) {
+            throw new RuntimeException("No se puede pagar la reserva en su estado actual");
+        }
+
+        // validar pago
+        try {
+            pagoService.validarPago(nuevoPago);
+        } catch (Exception e) {
+            throw new RuntimeException("Pago inválido: " + e.getMessage());
+        }
+
+        // Agregar el nuevo pago a la reserva
+        nuevoPago.setTransactionId(UUID.randomUUID().toString());
+        reserva.getPago().add(nuevoPago);
+
+        // Actualizar el estado de la reserva segun el monto total pagado vs precio total
+        double montoTotalPagado = reserva.getPago().stream()
+                .mapToDouble(p -> p.getAmount().getPrecio())
+                .sum();
+        if (montoTotalPagado >= reserva.getPrecioTotal()) {
+            reserva.setEstadoReserva(EstadoReserva.ADEUDADA);
+        }
+
+        return reservaRepository.save(reserva);
+    }
+
     private void validateReservation(Reserva reserva) {
         // Validate user exists using idUsuario from Huesped
         if (reserva.getHuesped() != null && reserva.getHuesped().getIdUsuario() != null) {
@@ -189,4 +239,6 @@ public class ReservaService {
                estado == EstadoReserva.BLOQUEADA ||
                estado == EstadoReserva.CERRADO;
     }
+
+
 }

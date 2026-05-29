@@ -72,28 +72,21 @@ public class ReservaService {
         long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), reserva.getCheckOut());
         reserva.setPrecioTotal(noches * reserva.getPrecioNoche());
 
-        // Establecer estado inicial de la reserva
-        // Depende del pago, si tiene pago adjunto entonces se tiene ver si pasa a estado CONFIRMADA o a ADEUDADA
-        // Por defecto se setea como RESERVADA si no posee ningun pago
-        if (reserva.getPago() != null && !reserva.getPago().isEmpty()) {
-            pagoService.validarPago(reserva.getPago().get(0));
-            this.validarEstadoReserva(reserva, reserva.getPago().get(0));
-        } else {
-            reserva.setEstadoReserva(EstadoReserva.RESERVADA);
-        }
-        
-        // Asignar reserva a la habitacion (en MongoDB) para facilitar la consulta de disponibilidad
-        Habitacion.ReservaSimple reservaSimple = Habitacion.ReservaSimple.builder()
-                ._id(reserva.get_id())
-                .checkIn(reserva.getCheckIn())
-                .checkOut(reserva.getCheckOut())
-                .precioTotal(reserva.getPrecioTotal())
-                .estadoReserva(reserva.getEstadoReserva())
-                .build();
-                
-        habitacionService.addReservaToHabitacion(Long.parseLong(reserva.getIdHabitacion()), reservaSimple);
+        // Guardar primero la reserva para asegurar _id generado y consistente
+        Reserva reservaGuardada = reservaRepository.save(reserva);
 
-        return reservaRepository.save(reserva);
+        // Sincronizar la reserva en la habitación para consulta de disponibilidad
+        Habitacion.ReservaSimple reservaSimple = Habitacion.ReservaSimple.builder()
+            ._id(reservaGuardada.get_id())
+            .checkIn(reservaGuardada.getCheckIn())
+            .checkOut(reservaGuardada.getCheckOut())
+            .precioTotal(reservaGuardada.getPrecioTotal())
+            .estadoReserva(reservaGuardada.getEstadoReserva())
+            .build();
+
+        habitacionService.upsertReservaEnHabitacion(Long.parseLong(reservaGuardada.getIdHabitacion()), reservaSimple);
+
+        return reservaGuardada;
     }
     
     public Reserva pagar(String idReserva, Pago nuevoPago) {
@@ -163,8 +156,8 @@ public class ReservaService {
                     habitacionService.save(habitacion);
                 }
             }
-        } catch (Exception ignored) {
-            // No interrumpir la cancelación por errores en la limpieza de la habitación
+        } catch (Exception e) {
+            throw new RuntimeException("Error al remover la reserva de la habitacion");
         }
 
         return reservaRepository.save(reserva);

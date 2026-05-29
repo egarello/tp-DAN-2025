@@ -156,3 +156,18 @@ export async function eliminarReserva(id: string): Promise<void> {
 export async function getHabitacionCacheadaPorId(id: string): Promise<HabitacionCacheada> {
   return fetchReservas<HabitacionCacheada>(`/reservas/habitaciones/${id}`);
 }
+
+export async function pagarReserva(id: string, nuevoPago: Pago): Promise<Reserva | null> {
+  if (!nuevoPago.transactionId || nuevoPago.transactionId.trim() === '') {
+    nuevoPago.transactionId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  }
+  return sendReservas<Reserva>(`/reservas/reservas/${id}/pagar`, 'POST', nuevoPago);
+}
+
+export async function cancelarReserva(id: string): Promise<Reserva | null> {
+  return sendReservas<Reserva>(`/reservas/reservas/${id}/cancelar`, 'POST', {});
+}
+
+export async function finalizarReserva(id: string, hostReview: Review): Promise<Reserva | null> {
+  return sendReservas<Reserva>(`/reservas/reservas/${id}/finalizar`, 'POST', hostReview);
+}

@@ -24,7 +24,7 @@ public enum EstadoReserva {
     CANCELADA {
         @Override
         public Set<EstadoReserva> transicionesValidas() {
-            return Set.of();
+            return Set.of(CERRADO, BLOQUEADA);
         }
     },
     /**

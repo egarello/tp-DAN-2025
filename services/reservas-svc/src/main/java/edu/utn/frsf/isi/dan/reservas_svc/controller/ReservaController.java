@@ -2,6 +2,7 @@ package edu.utn.frsf.isi.dan.reservas_svc.controller;
 
 import edu.utn.frsf.isi.dan.reservas_svc.model.Pago;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Reserva;
+import edu.utn.frsf.isi.dan.reservas_svc.model.Review;
 import edu.utn.frsf.isi.dan.reservas_svc.service.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,5 +55,17 @@ public class ReservaController {
     public ResponseEntity<Reserva> pagar(@PathVariable String id, @RequestBody Pago nuevoPago) {
         reservaService.pagar(id, nuevoPago);
         return ResponseEntity.ok(reservaService.findById(id).get());
+    }
+
+    @PostMapping("/{id}/cancelar")
+    public ResponseEntity<Reserva> cancelar(@PathVariable String id) {
+        reservaService.cancelar(id);
+        return ResponseEntity.ok(reservaService.findById(id).get());
+    }
+
+    @PostMapping("/{id}/finalizar")
+    public ResponseEntity<Reserva> finalizar(@PathVariable String id, @RequestBody Review hostReview) {
+        Reserva reserva = reservaService.finalizar(id, hostReview);
+        return ResponseEntity.ok(reserva);
     }
 }

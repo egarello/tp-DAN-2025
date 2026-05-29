@@ -3,16 +3,22 @@ package edu.utn.frsf.isi.dan.reservas_svc.model;
 import java.util.Set;
 
 public enum EstadoReserva {
+    /*
+     * El usuario realizo la resrva, y tiene al menos un pago registrado, pero el monto total pagado es menor al precio total de la reserva.
+     */
     CONFIRMADA {
         @Override
         public Set<EstadoReserva> transicionesValidas() {
-            return Set.of(RESERVADA, CANCELADA, ADEUDADA, CERRADO, BLOQUEADA);
+            return Set.of(CONFIRMADA, ADEUDADA, CERRADO, BLOQUEADA);
         }
     },
+    /**
+     * El usuario realizo la reserva, y no tiene ningun pago registrado.
+     */
     RESERVADA {
         @Override
         public Set<EstadoReserva> transicionesValidas() {
-            return Set.of(ADEUDADA, CANCELADA, CERRADO, BLOQUEADA);
+            return Set.of(ADEUDADA, CONFIRMADA, CANCELADA, CERRADO, BLOQUEADA);
         }
     },
     CANCELADA {
@@ -21,6 +27,9 @@ public enum EstadoReserva {
             return Set.of(CERRADO, BLOQUEADA);
         }
     },
+    /**
+     * El usuario dejo una review luego de su estadia
+     */
     FINALIZADA {
         @Override
         public Set<EstadoReserva> transicionesValidas() {
@@ -33,6 +42,9 @@ public enum EstadoReserva {
             return Set.of();
         }
     },
+    /**
+     * El usuario completo el pago de la reserva, pagoTotal = precioTotal
+     */
     ADEUDADA {
         @Override
         public Set<EstadoReserva> transicionesValidas() {

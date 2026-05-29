@@ -1,24 +1,27 @@
 package edu.utn.frsf.isi.dan.gestion.controller;
 
+import edu.utn.frsf.isi.dan.shared.HotelDTO;
 import edu.utn.frsf.isi.dan.gestion.model.Hotel;
 import edu.utn.frsf.isi.dan.gestion.service.HotelService;
-import edu.utn.frsf.isi.dan.shared.HotelDTO;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import edu.utn.frsf.isi.dan.gestion.model.Amenity;
 
 @RestController
 @RequestMapping("/hoteles")
+@Validated
 public class HotelController {
     @Autowired
     private HotelService hotelService;
 
     @PostMapping
-    public ResponseEntity<Hotel> create(@RequestBody Hotel hotel) {
+    public ResponseEntity<Hotel> create(@Valid @RequestBody Hotel hotel) {
         return ResponseEntity.ok(hotelService.save(hotel));
     }
 
@@ -40,7 +43,7 @@ public class HotelController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Hotel> update(@PathVariable Integer id, @RequestBody Hotel hotel) {
+    public ResponseEntity<Hotel> update(@PathVariable Integer id, @Valid @RequestBody Hotel hotel) {
         if (!hotelService.findById(id).isPresent()) return ResponseEntity.notFound().build();
         hotel.setId(id);
         return ResponseEntity.ok(hotelService.save(hotel));

@@ -72,6 +72,27 @@ public class ReservaService {
         long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), reserva.getCheckOut());
         reserva.setPrecioTotal(noches * reserva.getPrecioNoche());
 
+        // Establecer estado inicial de la reserva
+        // Depende del pago, si tiene pago adjunto entonces se tiene ver si pasa a estado CONFIRMADA o a ADEUDADA
+        // Por defecto se setea como RESERVADA si no posee ningun pago
+        if (reserva.getPago() != null && !reserva.getPago().isEmpty()) {
+            pagoService.validarPago(reserva.getPago().get(0));
+            this.validarEstadoReserva(reserva, reserva.getPago().get(0));
+        } else {
+            reserva.setEstadoReserva(EstadoReserva.RESERVADA);
+        }
+        
+        // Asignar reserva a la habitacion (en MongoDB) para facilitar la consulta de disponibilidad
+        Habitacion.ReservaSimple reservaSimple = Habitacion.ReservaSimple.builder()
+                ._id(reserva.get_id())
+                .checkIn(reserva.getCheckIn())
+                .checkOut(reserva.getCheckOut())
+                .precioTotal(reserva.getPrecioTotal())
+                .estadoReserva(reserva.getEstadoReserva())
+                .build();
+                
+        habitacionService.addReservaToHabitacion(Long.parseLong(reserva.getIdHabitacion()), reservaSimple);
+
         return reservaRepository.save(reserva);
     }
     
@@ -315,6 +336,7 @@ public class ReservaService {
         return estado == EstadoReserva.CONFIRMADA || 
                estado == EstadoReserva.RESERVADA || 
                estado == EstadoReserva.BLOQUEADA ||
+               estado == EstadoReserva.CERRADO ||
                false;
     }
 

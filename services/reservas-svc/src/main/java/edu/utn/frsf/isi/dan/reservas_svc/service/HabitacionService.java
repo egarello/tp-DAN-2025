@@ -46,7 +46,6 @@ public class HabitacionService {
         habitacionRepository.deleteById(id);
     }
 
-    
     public void handleEvent(HabitacionEvent event) {
         switch (event.getTipoEvento()) {
             case CREAR:
@@ -141,4 +140,9 @@ public class HabitacionService {
         }
     }
 
+    public void addReservaToHabitacion(Long habitacionId, Habitacion.ReservaSimple reservaSimple) {
+        Query query = new Query(Criteria.where("habitacionId").is(habitacionId));
+        Update update = new Update().push("reservas", reservaSimple);
+        mongoTemplate.updateFirst(query, update, Habitacion.class);
+    }
 }

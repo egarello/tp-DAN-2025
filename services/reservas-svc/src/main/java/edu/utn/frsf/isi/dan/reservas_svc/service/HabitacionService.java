@@ -219,10 +219,13 @@ public class HabitacionService {
         .query(Query.query(criteria))
         .with(pageable);
 
-        /* if (filtro.getMaxDistancia() != null) {
-            if ("km".equalsIgnoreCase(filtro.getUnidad())) nearQuery.inKilometers().maxDistance(filtro.getMaxDistancia());
-            else                                             nearQuery.inMeters().maxDistance(filtro.getMaxDistancia());
-        } */
+        if (filtro.getMaxDistancia() != null) {
+            if ("km".equalsIgnoreCase(filtro.getUnidad())) {
+                nearQuery.inKilometers().maxDistance(filtro.getMaxDistancia());
+            } else {
+                nearQuery.maxDistance(filtro.getMaxDistancia()); // GeoJSON usa metros por defecto
+            }
+        }
 
         List<Habitacion> resultados = mongoTemplate.geoNear(nearQuery, Habitacion.class)
                 .getContent()

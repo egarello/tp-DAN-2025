@@ -26,23 +26,6 @@ public class HabitacionController {
         return habitacionService.findAll();
     }
 
-    /* @GetMapping("/search")
-    public Page<Habitacion> getAllPaginated(
-            @RequestParam(required = true) Instant checkIn,
-            @RequestParam(required = true) Instant checkOut,
-            @RequestParam(required = true) Integer capacidad,
-            @RequestParam(required = false) Double precioMin,
-            @RequestParam(required = false) Double precioMax,
-            @RequestParam(required = false) Integer categoria,
-            @RequestParam(required = false) List<String> amenities,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        
-        // Construir consulta con filtros
-        Pageable pageable = PageRequest.of(page, size);
-        return habitacionService.findByFiltros(checkIn, checkOut, capacidad, precioMin, precioMax, categoria, amenities, pageable);
-    }
-    */
     @GetMapping("/{id}")
     public ResponseEntity<Habitacion> getById(@PathVariable String id) {
         return habitacionService.findById(id)

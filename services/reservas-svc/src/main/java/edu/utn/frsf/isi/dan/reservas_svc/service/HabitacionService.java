@@ -9,6 +9,8 @@ import edu.utn.frsf.isi.dan.shared.HotelDTO;
 import edu.utn.frsf.isi.dan.shared.TarifaDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -32,6 +34,10 @@ public class HabitacionService {
 
     public List<Habitacion> findAll() {
         return habitacionRepository.findAll();
+    }
+
+    public Page<Habitacion> findAllPaginated(Pageable pageable) {
+        return habitacionRepository.findAll(pageable);
     }
 
     public Optional<Habitacion> findById(String id) {

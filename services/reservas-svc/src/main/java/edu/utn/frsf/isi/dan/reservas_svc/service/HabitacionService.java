@@ -1,5 +1,25 @@
 package edu.utn.frsf.isi.dan.reservas_svc.service;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.GeoResult;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.NearQuery;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
+
+import edu.utn.frsf.isi.dan.reservas_svc.dto.HabitacionFiltroDto;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Habitacion;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Hotel;
 import edu.utn.frsf.isi.dan.reservas_svc.repository.HabitacionRepository;
@@ -7,23 +27,6 @@ import edu.utn.frsf.isi.dan.shared.HabitacionDTO;
 import edu.utn.frsf.isi.dan.shared.HabitacionEvent;
 import edu.utn.frsf.isi.dan.shared.HotelDTO;
 import edu.utn.frsf.isi.dan.shared.TarifaDTO;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class HabitacionService {
@@ -37,8 +40,21 @@ public class HabitacionService {
         return habitacionRepository.findAll();
     }
 
-    public Page<Habitacion> findAllPaginated(Pageable pageable) {
-        return habitacionRepository.findAll(pageable);
+    public Page<Habitacion> findByFiltros(
+        HabitacionFiltroDto filtro,
+        Pageable pageable
+    ) {
+        Criteria criteria = buildCriteria(filtro);
+
+        if (filtro.tieneGeo()) {
+            return buscarConGeo(filtro, criteria, pageable);
+        }
+
+        Query query = Query.query(criteria).with(pageable);
+        List<Habitacion> resultados = mongoTemplate.find(query, Habitacion.class);
+        long total = mongoTemplate.count(Query.query(criteria), Habitacion.class);
+
+        return new PageImpl<>(resultados, pageable, total);
     }
 
     public Optional<Habitacion> findById(String id) {
@@ -167,5 +183,55 @@ public class HabitacionService {
 
         habitacion.getReservas().add(reservaSimple);
         save(habitacion);
+    }
+
+    private Criteria buildCriteria(HabitacionFiltroDto filtro) {
+        List<Criteria> lista = new ArrayList<>();
+
+        // Disponibilidad: sin reservas solapadas
+        lista.add(Criteria.where("reservas").not().elemMatch(
+                Criteria.where("checkIn").lt(filtro.getCheckOut())
+                        .and("checkOut").gt(filtro.getCheckIn())
+        ));
+
+        lista.add(Criteria.where("capacidad").gte(filtro.getCapacidad()));
+
+        if (filtro.getPrecioMin() != null)
+            lista.add(Criteria.where("precioNoche").gte(filtro.getPrecioMin()));
+
+        if (filtro.getPrecioMax() != null)
+            lista.add(Criteria.where("precioNoche").lte(filtro.getPrecioMax()));
+
+        if (filtro.getCategoria() != null)
+            lista.add(Criteria.where("hotel.categoria").is(filtro.getCategoria()));
+
+        if (filtro.getAmenities() != null && !filtro.getAmenities().isEmpty())
+            lista.add(Criteria.where("amenities").all(filtro.getAmenities()));
+
+        return new Criteria().andOperator(lista.toArray(new Criteria[0]));
+    }
+
+    private Page<Habitacion> buscarConGeo(HabitacionFiltroDto filtro, Criteria criteria, Pageable pageable) {
+        GeoJsonPoint punto = new GeoJsonPoint(filtro.getLongitud(), filtro.getLatitud());
+
+        NearQuery nearQuery = NearQuery.near(punto)
+        .spherical(true)
+        .query(Query.query(criteria))
+        .with(pageable);
+
+        /* if (filtro.getMaxDistancia() != null) {
+            if ("km".equalsIgnoreCase(filtro.getUnidad())) nearQuery.inKilometers().maxDistance(filtro.getMaxDistancia());
+            else                                             nearQuery.inMeters().maxDistance(filtro.getMaxDistancia());
+        } */
+
+        List<Habitacion> resultados = mongoTemplate.geoNear(nearQuery, Habitacion.class)
+                .getContent()
+                .stream()
+                .map(GeoResult::getContent)
+                .toList();
+
+        long total = mongoTemplate.count(Query.query(criteria), Habitacion.class);
+
+        return new PageImpl<>(resultados, pageable, total);
     }
 }

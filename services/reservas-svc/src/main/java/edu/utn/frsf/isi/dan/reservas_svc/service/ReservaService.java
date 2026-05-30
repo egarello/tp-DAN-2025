@@ -9,12 +9,14 @@ import edu.utn.frsf.isi.dan.reservas_svc.model.EstadoReserva;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Habitacion;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Pago;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Reserva;
+import edu.utn.frsf.isi.dan.reservas_svc.model.Review;
 import edu.utn.frsf.isi.dan.reservas_svc.repository.ReservaRepository;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,6 +53,16 @@ public class ReservaService {
         // Validar reserva antes de guardar
         validateReservation(reserva);
 
+        if (reserva.getEstadoReserva() == null) {
+            reserva.setEstadoReserva(EstadoReserva.RESERVADA);
+        }
+        if (reserva.getCreatedAt() == null) {
+            reserva.setCreatedAt(Instant.now());
+        }
+        if (reserva.getPago() == null) {
+            reserva.setPago(new ArrayList<>());
+        }
+
         // Asignar precio noche segun el precio de la habitacion
         Habitacion habitacionReserva = habitacionService.findByHabitacionId(Long.parseLong(reserva.getIdHabitacion()))
                 .orElseThrow(() -> new RuntimeException("Habitación no encontrada con ID: " + reserva.getIdHabitacion()));
@@ -60,37 +72,32 @@ public class ReservaService {
         long noches = ChronoUnit.DAYS.between(reserva.getCheckIn(), reserva.getCheckOut());
         reserva.setPrecioTotal(noches * reserva.getPrecioNoche());
 
-        // Establecer estado inicial de la reserva
-        // Depende del pago, si tiene pago adjunto entonces se tiene ver si pasa a estado CONFIRMADA o a ADEUDADA
-        // Por defecto se setea como RESERVADA si no posee ningun pago
-        if (reserva.getPago() != null && !reserva.getPago().isEmpty()) {
-            pagoService.validarPago(reserva.getPago().get(0));
-            this.validarEstadoReserva(reserva, reserva.getPago().get(0));
-        } else {
-            reserva.setEstadoReserva(EstadoReserva.RESERVADA);
-        }
-        
-        // Asignar reserva a la habitacion (en MongoDB) para facilitar la consulta de disponibilidad
-        Habitacion.ReservaSimple reservaSimple = Habitacion.ReservaSimple.builder()
-                ._id(reserva.get_id())
-                .checkIn(reserva.getCheckIn())
-                .checkOut(reserva.getCheckOut())
-                .precioTotal(reserva.getPrecioTotal())
-                .estadoReserva(reserva.getEstadoReserva())
-                .build();
-                
-        habitacionService.addReservaToHabitacion(Long.parseLong(reserva.getIdHabitacion()), reservaSimple);
+        // Guardar primero la reserva para asegurar _id generado y consistente
+        Reserva reservaGuardada = reservaRepository.save(reserva);
 
-        return reservaRepository.save(reserva);
+        // Sincronizar la reserva en la habitación para consulta de disponibilidad
+        Habitacion.ReservaSimple reservaSimple = Habitacion.ReservaSimple.builder()
+            ._id(reservaGuardada.get_id())
+            .checkIn(reservaGuardada.getCheckIn())
+            .checkOut(reservaGuardada.getCheckOut())
+            .precioTotal(reservaGuardada.getPrecioTotal())
+            .estadoReserva(reservaGuardada.getEstadoReserva())
+            .build();
+
+        habitacionService.upsertReservaEnHabitacion(Long.parseLong(reservaGuardada.getIdHabitacion()), reservaSimple);
+
+        return reservaGuardada;
     }
     
     public Reserva pagar(String idReserva, Pago nuevoPago) {
         // validar que exista la reserva
         Reserva reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + idReserva));
-        
-        // validar estado de la reserva (solo se puede pagar si esta en CONFIRMADA O ADEUDADA)
-        if (!reserva.getEstadoReserva().puedeTransicionarA(EstadoReserva.ADEUDADA) || !reserva.getEstadoReserva().puedeTransicionarA(EstadoReserva.CONFIRMADA)) {
+        // validar estado de la reserva (se puede pagar si está en RESERVADA, CONFIRMADA o ADEUDADA)
+        if (reserva.getEstadoReserva() == null || 
+                !(reserva.getEstadoReserva() == EstadoReserva.RESERVADA ||
+                  reserva.getEstadoReserva() == EstadoReserva.CONFIRMADA ||
+                  reserva.getEstadoReserva() == EstadoReserva.ADEUDADA)) {
             throw new RuntimeException("No se puede pagar la reserva en su estado actual");
         }
 
@@ -101,12 +108,81 @@ public class ReservaService {
             throw new RuntimeException("Pago inválido: " + e.getMessage());
         }
 
-        // Agregar el nuevo pago a la reserva
-        nuevoPago.setTransactionId(UUID.randomUUID().toString());
+        // Inicializar lista de pagos si es necesario
+        if (reserva.getPago() == null) {
+            reserva.setPago(new ArrayList<>());
+        }
+
+        // Asignar transactionId si no fue provisto
+        if (nuevoPago.getTransactionId() == null || nuevoPago.getTransactionId().isBlank()) {
+            nuevoPago.setTransactionId(UUID.randomUUID().toString());
+        }
+
+        // Agregar el nuevo pago
         reserva.getPago().add(nuevoPago);
 
-        // Actualizar el estado de la reserva segun el monto total pagado vs precio total
-        this.validarEstadoReserva(reserva, nuevoPago);
+        // Calcular monto total pagado
+        double montoTotalPagado = reserva.getPago().stream()
+                .mapToDouble(p -> p.getAmount() != null ? p.getAmount().getPrecio() : 0.0)
+                .sum();
+
+        // Si hay al menos un pago, marcar CONFIRMADA (aunque sea parcial).
+        if (montoTotalPagado > 0) {
+            reserva.setEstadoReserva(EstadoReserva.CONFIRMADA);
+        }
+
+        // Persistir cambios
+        return reservaRepository.save(reserva);
+    }
+
+    public Reserva cancelar(String idReserva) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + idReserva));
+
+        // Solo se puede cancelar si no hay pagos
+        if (reserva.getPago() != null && !reserva.getPago().isEmpty()) {
+            throw new RuntimeException("No se puede cancelar una reserva que ya tiene pagos");
+        }
+
+        reserva.setEstadoReserva(EstadoReserva.CANCELADA);
+
+        // Remover referencia en la habitación si existe
+        try {
+            Optional<Habitacion> habitacionOpt = habitacionService.findByHabitacionId(Long.parseLong(reserva.getIdHabitacion()));
+            if (habitacionOpt.isPresent()) {
+                Habitacion habitacion = habitacionOpt.get();
+                if (habitacion.getReservas() != null) {
+                    habitacion.getReservas().removeIf(r -> r.get_id().equals(reserva.get_id()));
+                    habitacionService.save(habitacion);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al remover la reserva de la habitacion");
+        }
+
+        return reservaRepository.save(reserva);
+    }
+
+    public Reserva finalizar(String idReserva, Review hostReview) {
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + idReserva));
+
+        if (hostReview == null) {
+            throw new RuntimeException("Para finalizar la reserva el dueño debe dejar un review");
+        }
+
+        // Calcular monto total pagado
+        double montoTotalPagado = reserva.getPago() == null ? 0.0 : reserva.getPago().stream()
+                .mapToDouble(p -> p.getAmount() != null ? p.getAmount().getPrecio() : 0.0)
+                .sum();
+
+        reserva.setHostReview(hostReview);
+
+        if (reserva.getPrecioTotal() != null && montoTotalPagado >= reserva.getPrecioTotal()) {
+            reserva.setEstadoReserva(EstadoReserva.FINALIZADA);
+        } else {
+            reserva.setEstadoReserva(EstadoReserva.ADEUDADA);
+        }
 
         return reservaRepository.save(reserva);
     }
@@ -253,18 +329,9 @@ public class ReservaService {
         return estado == EstadoReserva.CONFIRMADA || 
                estado == EstadoReserva.RESERVADA || 
                estado == EstadoReserva.BLOQUEADA ||
-               estado == EstadoReserva.CERRADO;
+               estado == EstadoReserva.CERRADO ||
+               false;
     }
 
-    private void validarEstadoReserva(Reserva reserva, Pago pago) {
-        double montoTotalPagado = reserva.getPago().stream()
-                .mapToDouble(p -> p.getAmount().getPrecio())
-                .sum();
-        if (montoTotalPagado >= reserva.getPrecioTotal()) {
-            reserva.setEstadoReserva(EstadoReserva.ADEUDADA);
-        } else {
-            reserva.setEstadoReserva(EstadoReserva.CONFIRMADA);
-        }
-    }
 
 }

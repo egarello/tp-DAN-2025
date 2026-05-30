@@ -9,7 +9,7 @@ public enum EstadoReserva {
     CONFIRMADA {
         @Override
         public Set<EstadoReserva> transicionesValidas() {
-            return Set.of(CONFIRMADA, ADEUDADA, CERRADO, BLOQUEADA);
+            return Set.of(FINALIZADA, ADEUDADA, CERRADO, BLOQUEADA);
         }
     },
     /**
@@ -59,7 +59,7 @@ public enum EstadoReserva {
     };
 
     // Estados finales: desde estos no se puede transicionar a otros estados
-    public static final Set<EstadoReserva> ESTADOS_FINALES = Set.of(FINALIZADA, CERRADO, BLOQUEADA);
+    public static final Set<EstadoReserva> ESTADOS_FINALES = Set.of(CANCELADA, FINALIZADA, CERRADO, BLOQUEADA);
 
     public abstract Set<EstadoReserva> transicionesValidas();
 

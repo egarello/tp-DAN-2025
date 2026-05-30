@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -150,5 +151,21 @@ public class HabitacionService {
         Query query = new Query(Criteria.where("habitacionId").is(habitacionId));
         Update update = new Update().push("reservas", reservaSimple);
         mongoTemplate.updateFirst(query, update, Habitacion.class);
+    }
+
+    public void upsertReservaEnHabitacion(Long habitacionId, Habitacion.ReservaSimple reservaSimple) {
+        Habitacion habitacion = findByHabitacionId(habitacionId)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró la habitación con habitacionId: " + habitacionId));
+
+        if (habitacion.getReservas() == null) {
+            habitacion.setReservas(new ArrayList<>());
+        }
+
+        if (reservaSimple.get_id() != null) {
+            habitacion.getReservas().removeIf(r -> reservaSimple.get_id().equals(r.get_id()));
+        }
+
+        habitacion.getReservas().add(reservaSimple);
+        save(habitacion);
     }
 }

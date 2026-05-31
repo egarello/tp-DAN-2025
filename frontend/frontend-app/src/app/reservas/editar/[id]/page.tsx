@@ -160,7 +160,7 @@ export default function EditarReservaPage() {
         status: status || undefined,
         huesped: {
           idUsuario: usuarioEncontrado.id.toString(),
-          nombreApellido: `${usuarioEncontrado.nombre} ${usuarioEncontrado.apellido}`,
+          nombreApellido: `${usuarioEncontrado.nombre}`,
           email: usuarioEncontrado.email,
         },
         estadoReserva,

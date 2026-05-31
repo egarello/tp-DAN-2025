@@ -1,6 +1,7 @@
 package edu.utn.frsf.isi.dan.reservas_svc.controller;
 
 import edu.utn.frsf.isi.dan.reservas_svc.model.Pago;
+import edu.utn.frsf.isi.dan.reservas_svc.model.EstadoReserva;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Reserva;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Review;
 import edu.utn.frsf.isi.dan.reservas_svc.service.ReservaService;
@@ -30,6 +31,7 @@ public class ReservaController {
 
     @PostMapping
     public Reserva create(@RequestBody Reserva reserva) {
+        reserva.setEstadoReserva(EstadoReserva.RESERVADA);
         return reservaService.save(reserva);
     }
 

@@ -3,6 +3,7 @@ package edu.utn.frsf.isi.dan.reservas_svc.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.utn.frsf.isi.dan.reservas_svc.client.UserServiceClient;
 import edu.utn.frsf.isi.dan.reservas_svc.dto.UserDto;
+import edu.utn.frsf.isi.dan.reservas_svc.model.EstadoReserva;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Huesped;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Reserva;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,7 @@ class ReservaControllerIntegrationTest {
                 .precioNoche(100.0)
                 .precioTotal(200.0)
                 .status("PENDING")
+                .estadoReserva(EstadoReserva.CONFIRMADA)
                 .huesped(huesped)
                 .build();
         
@@ -66,6 +68,7 @@ class ReservaControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idHabitacion").value("1"))
                 .andExpect(jsonPath("$.hotelId").value(1))
+                .andExpect(jsonPath("$.estadoReserva").value("RESERVADA"))
                 .andExpect(jsonPath("$.huesped.idUsuario").value("1"));
     }
     

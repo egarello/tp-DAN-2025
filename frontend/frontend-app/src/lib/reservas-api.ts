@@ -151,7 +151,15 @@ export interface ReservaRecord {
   estadoReserva?: EstadoReserva;
 }
 
-export async function crearReserva(reserva: ReservaRecord): Promise<Reserva | null> {
+export interface ReservaCreateRecord {
+  idHabitacion: string;
+  hotelId: number;
+  checkIn: string;
+  checkOut: string;
+  huesped?: HuespedReserva;
+}
+
+export async function crearReserva(reserva: ReservaCreateRecord): Promise<Reserva | null> {
   return sendReservas<Reserva>('/reservas/reservas', 'POST', reserva);
 }
 

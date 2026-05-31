@@ -1,23 +1,15 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
-import { crearReserva, getHabitacionesCacheadas, HabitacionCacheada, EstadoReserva } from '@/lib/reservas-api';
+import { crearReserva, getHabitacionesCacheadas, HabitacionCacheada } from '@/lib/reservas-api';
 import { getHoteles, Hotel } from '@/lib/gestion-api';
 import { buscarUsuariosPorDni, Usuario } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
-
-type EstadoLabel = { value: EstadoReserva; label: string };
-
-const ESTADOS: EstadoLabel[] = [
-  { value: 'RESERVADA', label: 'Reservada' },
-  { value: 'CONFIRMADA', label: 'Confirmada' },
-  { value: 'CANCELADA', label: 'Cancelada' },
-  { value: 'FINALIZADA', label: 'Finalizada' },
-  { value: 'BLOQUEADA', label: 'Bloqueada' },
-  { value: 'ADEUDADA', label: 'Adeudada' },
-];
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
+import BdCard from '@/components/BdCard';
+import BdAlert from '@/components/BdAlert';
 
 const PAGE_SIZE = 10;
 
@@ -43,10 +35,6 @@ export default function NuevaReservaPage() {
   const [selectedHabitacionId, setSelectedHabitacionId] = useState<string>('');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
-  const [precioNoche, setPrecioNoche] = useState('');
-  const [precioTotal, setPrecioTotal] = useState('');
-  const [estadoReserva, setEstadoReserva] = useState<EstadoReserva>('RESERVADA');
-  const [status, setStatus] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,6 +94,15 @@ export default function NuevaReservaPage() {
     ? habitaciones.filter((h) => h.hotel?.id === selectedHotelId)
     : [];
 
+  const selectedHotel = hoteles.find((hotel) => hotel.id === selectedHotelId) ?? null;
+
+  const habitacionSeleccionada = habitacionesFiltradas.find((h) => h.id === selectedHabitacionId) ?? null;
+  const precioNocheEstimado = habitacionSeleccionada?.precioNoche ?? null;
+  const nochesEstimadas = calcularNoches(checkIn, checkOut);
+  const precioTotalEstimado = precioNocheEstimado != null && nochesEstimadas != null
+    ? precioNocheEstimado * nochesEstimadas
+    : null;
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -122,15 +119,11 @@ export default function NuevaReservaPage() {
         hotelId: selectedHotelId,
         checkIn: `${checkIn}T00:00:00Z`,
         checkOut: `${checkOut}T00:00:00Z`,
-        precioNoche: precioNoche ? Number(precioNoche) : undefined,
-        precioTotal: precioTotal ? Number(precioTotal) : undefined,
-        status: status || undefined,
         huesped: {
           idUsuario: usuarioEncontrado.id.toString(),
           nombreApellido: `${usuarioEncontrado.nombre}`,
           email: usuarioEncontrado.email,
         },
-        estadoReserva,
       });
 
       router.push(reserva?._id ? `/reservas/detalle/${reserva._id}` : '/reservas/lista');
@@ -141,171 +134,233 @@ export default function NuevaReservaPage() {
     }
   };
 
-  if (dataLoading) return <div style={{ padding: '20px' }}><p>Cargando datos...</p></div>;
+  if (dataLoading) {
+    return (
+      <BdPageLayout>
+        <div className="mx-auto max-w-4xl">
+          <BdBackLink href="/reservas/lista" className="mb-bd-lg" />
+          <BdCard title="Nueva Reserva" className="max-w-4xl">
+            <p className="text-bd-secondary bd-skeleton bd-skeleton-text">Cargando datos...</p>
+          </BdCard>
+        </div>
+      </BdPageLayout>
+    );
+  }
 
   return (
-    <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
-      <Link href="/reservas/lista" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Reservas
-      </Link>
+    <BdPageLayout>
+      <div className="mx-auto w-full max-w-4xl">
+        <BdBackLink href="/reservas/lista" className="mb-bd-lg" />
 
-      <h1>Nueva Reserva</h1>
-
-      {error && <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
-
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '16px' }}>
-        <label>
-          Hotel *
-          <select
-            required
-            value={selectedHotelId}
-            onChange={(e) => { setSelectedHotelId(e.target.value ? Number(e.target.value) : ''); setSelectedHabitacionId(''); }}
-            style={{ width: '100%', padding: '8px' }}
-          >
-            <option value="">Seleccionar hotel...</option>
-            {hoteles.map((hotel) => (
-              <option key={hotel.id} value={hotel.id}>{hotel.nombre}</option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Habitación *
-          <select
-            required
-            value={selectedHabitacionId}
-            onChange={(e) => setSelectedHabitacionId(e.target.value)}
-            disabled={!selectedHotelId}
-            style={{ width: '100%', padding: '8px' }}
-          >
-            <option value="">{selectedHotelId ? 'Seleccionar habitación...' : 'Primero seleccione un hotel'}</option>
-            {habitacionesFiltradas.map((h) => (
-              <option key={h.id} value={h.id}>N° {h.numero} - {h.tipoHabitacion || 'Sin tipo'} (Cap. {h.capacidad})</option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Huésped *
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <input
-              type="text"
-              required={!usuarioEncontrado}
-              value={dniInput}
-              onChange={(e) => handleDniChange(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleBuscarUsuario(); } }}
-              placeholder="Buscar por DNI..."
-              style={{ flex: 1, padding: '8px' }}
-            />
-            <button type="button" onClick={() => handleBuscarUsuario()} disabled={buscandoUsuario || !dniInput.trim()}
-              style={{ padding: '8px 16px', backgroundColor: buscandoUsuario ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: buscandoUsuario ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
-              {buscandoUsuario ? 'Buscando...' : 'Buscar'}
-            </button>
+        <div className="mb-bd-xl flex flex-wrap items-start justify-between gap-bd-md">
+          <div>
+            <h1 className="text-bd-primary text-bd-xl font-bold">Nueva Reserva</h1>
+            <p className="text-bd-secondary">
+              Completá los datos esenciales y revisá el resumen antes de guardar.
+            </p>
           </div>
+          <div className="rounded-bd-full border border-bd-subtle bg-bd-surface-2 px-bd-md py-bd-sm text-bd-secondary text-bd-sm">
+            Estado inicial: Reservada
+          </div>
+        </div>
 
-          {mostrandoResultados && resultadosBusqueda.length > 0 && !usuarioEncontrado && (
-            <div style={{ marginTop: '8px', border: '1px solid #ccc', borderRadius: '4px', maxHeight: '260px', overflowY: 'auto' }}>
-              {resultadosBusqueda.map((u) => (
-                <div
-                  key={u.id}
-                  onClick={() => seleccionarUsuario(u)}
-                  style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #eee', backgroundColor: '#fff' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#fff')}
+        {error && <BdAlert variant="error" className="mb-bd-lg">{error}</BdAlert>}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-bd-lg">
+          <BdCard title="Selección base">
+            <div className="grid gap-bd-md md:grid-cols-2">
+              <label className="flex flex-col gap-bd-xs">
+                <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Hotel *</span>
+                <select
+                  required
+                  value={selectedHotelId}
+                  onChange={(e) => { setSelectedHotelId(e.target.value ? Number(e.target.value) : ''); setSelectedHabitacionId(''); }}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
                 >
-                  <strong>{u.nombre} {u.apellido}</strong> — DNI: {u.dni} — {u.email}
+                  <option value="">Seleccionar hotel...</option>
+                  {hoteles.map((hotel) => (
+                    <option key={hotel.id} value={hotel.id} disabled={Boolean(hotel.cerrado)}>
+                      {hotel.nombre}{hotel.cerrado ? ' - Cerrado' : ''}
+                    </option>
+                  ))}
+                </select>
+                {selectedHotel?.cerrado && (
+                  <p className="text-bd-urgency text-bd-xs">
+                    Este hotel está cerrado y no permite crear reservas.
+                  </p>
+                )}
+              </label>
+
+              <label className="flex flex-col gap-bd-xs">
+                <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Habitación *</span>
+                <select
+                  required
+                  value={selectedHabitacionId}
+                  onChange={(e) => setSelectedHabitacionId(e.target.value)}
+                  disabled={!selectedHotelId}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus disabled:opacity-60"
+                >
+                  <option value="">{selectedHotelId ? 'Seleccionar habitación...' : 'Primero seleccione un hotel'}</option>
+                  {habitacionesFiltradas.map((h) => (
+                    <option key={h.id} value={h.id}>N° {h.numero} - {h.tipoHabitacion || 'Sin tipo'} (Cap. {h.capacidad})</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-bd-lg rounded-bd-md border border-bd-subtle bg-bd-surface-2 p-bd-md">
+              <div className="flex items-center justify-between gap-bd-sm">
+                <div>
+                  <h3 className="text-bd-primary font-semibold">Tarifa estimada</h3>
+                  <p className="text-bd-secondary text-bd-sm">Se toma del valor vigente de la habitación seleccionada.</p>
                 </div>
-              ))}
-              {totalPaginas > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', padding: '8px', borderTop: '1px solid #eee' }}>
-                  <button type="button" disabled={paginaActual === 0} onClick={() => handleBuscarUsuario(paginaActual - 1)}
-                    style={{ padding: '4px 12px', ...disabledBtnStyle(paginaActual === 0) }}>
-                    Anterior
-                  </button>
-                  <span style={{ padding: '4px 8px', alignSelf: 'center' }}>
-                    Pág. {paginaActual + 1} de {totalPaginas} ({totalResultados} resultados)
-                  </span>
-                  <button type="button" disabled={paginaActual >= totalPaginas - 1} onClick={() => handleBuscarUsuario(paginaActual + 1)}
-                    style={{ padding: '4px 12px', ...disabledBtnStyle(paginaActual >= totalPaginas - 1) }}>
-                    Siguiente
+                <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Solo lectura</span>
+              </div>
+              <div className="mt-bd-md grid gap-bd-md md:grid-cols-3">
+                <div>
+                  <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Precio por noche</span>
+                  <p className="text-bd-primary mt-1 text-bd-lg font-semibold">{formatMoney(precioNocheEstimado)}</p>
+                </div>
+                <div>
+                  <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Noches</span>
+                  <p className="text-bd-primary mt-1 text-bd-lg font-semibold">{nochesEstimadas ?? '-'}</p>
+                </div>
+                <div>
+                  <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Total estimado</span>
+                  <p className="text-bd-primary mt-1 text-bd-lg font-semibold">{formatMoney(precioTotalEstimado)}</p>
+                </div>
+              </div>
+            </div>
+          </BdCard>
+
+          <BdCard title="Huésped">
+            <div className="flex flex-col gap-bd-md">
+              <label className="flex flex-col gap-bd-xs">
+                <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Buscar por DNI *</span>
+                <div className="flex flex-col gap-bd-sm sm:flex-row sm:items-center">
+                  <input
+                    type="text"
+                    required={!usuarioEncontrado}
+                    value={dniInput}
+                    onChange={(e) => handleDniChange(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleBuscarUsuario(); } }}
+                    placeholder="Buscar por DNI..."
+                    className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                  />
+                  <BdButton type="button" variant="primary" size="md" onClick={() => handleBuscarUsuario()} disabled={buscandoUsuario || !dniInput.trim()}>
+                    {buscandoUsuario ? 'Buscando...' : 'Buscar'}
+                  </BdButton>
+                </div>
+              </label>
+
+              {mostrandoResultados && resultadosBusqueda.length > 0 && !usuarioEncontrado && (
+                <div className="rounded-bd-md border border-bd-subtle bg-bd-surface-2 overflow-hidden">
+                  {resultadosBusqueda.map((u) => (
+                    <button
+                      key={u.id}
+                      type="button"
+                      onClick={() => seleccionarUsuario(u)}
+                      className="flex w-full flex-col items-start gap-1 border-b border-bd-subtle px-bd-md py-bd-sm text-left transition-colors last:border-b-0 hover:bg-bd-surface"
+                    >
+                      <strong className="text-bd-primary">{u.nombre} {u.apellido}</strong>
+                      <span className="text-bd-secondary text-bd-sm">DNI: {u.dni} · {u.email}</span>
+                    </button>
+                  ))}
+                  {totalPaginas > 1 && (
+                    <div className="flex flex-wrap items-center justify-between gap-bd-sm border-t border-bd-subtle px-bd-md py-bd-sm text-bd-sm text-bd-secondary">
+                      <BdButton type="button" variant="ghost" size="sm" disabled={paginaActual === 0} onClick={() => handleBuscarUsuario(paginaActual - 1)}>
+                        Anterior
+                      </BdButton>
+                      <span>
+                        Pág. {paginaActual + 1} de {totalPaginas} ({totalResultados} resultados)
+                      </span>
+                      <BdButton type="button" variant="ghost" size="sm" disabled={paginaActual >= totalPaginas - 1} onClick={() => handleBuscarUsuario(paginaActual + 1)}>
+                        Siguiente
+                      </BdButton>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {mostrandoResultados && resultadosBusqueda.length === 0 && !buscandoUsuario && !usuarioEncontrado && (
+                <BdAlert variant="warning" message="No se encontraron usuarios con ese DNI" />
+              )}
+
+              {usuarioEncontrado && (
+                <div className="flex items-center justify-between gap-bd-sm rounded-bd-md border border-bd-subtle bg-bd-surface-2 px-bd-md py-bd-sm">
+                  <div>
+                    <p className="text-bd-primary font-semibold">
+                      {usuarioEncontrado.nombre} {usuarioEncontrado.apellido}
+                    </p>
+                    <p className="text-bd-secondary text-bd-sm">{usuarioEncontrado.email}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setUsuarioEncontrado(null); setDniInput(''); }}
+                    className="bd-btn bd-btn-ghost bd-btn-sm"
+                  >
+                    Cambiar
                   </button>
                 </div>
               )}
             </div>
-          )}
+          </BdCard>
 
-          {mostrandoResultados && resultadosBusqueda.length === 0 && !buscandoUsuario && !usuarioEncontrado && (
-            <div style={{ marginTop: '8px', padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '4px' }}>
-              No se encontraron usuarios con ese DNI
+          <BdCard title="Fechas de estadía">
+            <div className="grid gap-bd-md md:grid-cols-2">
+              <label className="flex flex-col gap-bd-xs">
+                <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Check In *</span>
+                <input
+                  type="date"
+                  required
+                  value={checkIn}
+                  onChange={(e) => setCheckIn(e.target.value)}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </label>
+              <label className="flex flex-col gap-bd-xs">
+                <span className="text-bd-muted text-bd-xs uppercase tracking-widest">Check Out *</span>
+                <input
+                  type="date"
+                  required
+                  value={checkOut}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </label>
             </div>
-          )}
+          </BdCard>
 
-          {usuarioEncontrado && (
-            <div style={{ marginTop: '8px', padding: '10px', backgroundColor: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '4px' }}>
-              <strong>{usuarioEncontrado.nombre} {usuarioEncontrado.apellido}</strong> — {usuarioEncontrado.email}
-              <button type="button" onClick={() => { setUsuarioEncontrado(null); setDniInput(''); }}
-                style={{ marginLeft: '12px', padding: '2px 8px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.8em' }}>
-                Cambiar
-              </button>
-            </div>
-          )}
-        </label>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <label>
-            Check In *
-            <input type="date" required value={checkIn} onChange={(e) => setCheckIn(e.target.value)} style={{ width: '100%', padding: '8px' }} />
-          </label>
-          <label>
-            Check Out *
-            <input type="date" required value={checkOut} onChange={(e) => setCheckOut(e.target.value)} style={{ width: '100%', padding: '8px' }} />
-          </label>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <label>
-            Precio por Noche
-            <input type="number" step="0.01" min="0" value={precioNoche} onChange={(e) => setPrecioNoche(e.target.value)} style={{ width: '100%', padding: '8px' }} />
-          </label>
-          <label>
-            Precio Total
-            <input type="number" step="0.01" min="0" value={precioTotal} onChange={(e) => setPrecioTotal(e.target.value)} style={{ width: '100%', padding: '8px' }} />
-          </label>
-        </div>
-
-        <label>
-          Estado de Reserva
-          <select value={estadoReserva} onChange={(e) => setEstadoReserva(e.target.value as EstadoReserva)} style={{ width: '100%', padding: '8px' }}>
-            {ESTADOS.map((est) => (
-              <option key={est.value} value={est.value}>{est.label}</option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Status (libre)
-          <input type="text" value={status} onChange={(e) => setStatus(e.target.value)} placeholder="Ej: PENDING, CONFIRMED" style={{ width: '100%', padding: '8px' }} />
-        </label>
-
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button type="button" onClick={() => router.push('/reservas/lista')} disabled={loading} style={{ padding: '10px 20px' }}>
-            Cancelar
-          </button>
-          <button type="submit" disabled={loading} style={{ padding: '10px 20px', backgroundColor: loading ? '#ccc' : '#28a745', color: 'white', border: 'none', borderRadius: '4px' }}>
-            {loading ? 'Guardando...' : 'Crear Reserva'}
-          </button>
-        </div>
-      </form>
-    </div></BdPageLayout>
+          <div className="flex flex-col gap-bd-sm sm:flex-row sm:justify-end">
+            <BdButton type="button" variant="ghost" size="md" onClick={() => router.push('/reservas/lista')} disabled={loading}>
+              Cancelar
+            </BdButton>
+            <BdButton type="submit" variant="cta" size="md" disabled={loading}>
+              {loading ? 'Guardando...' : 'Crear Reserva'}
+            </BdButton>
+          </div>
+        </form>
+      </div>
+    </BdPageLayout>
   );
 }
 
-function disabledBtnStyle(disabled: boolean): React.CSSProperties {
-  return {
-    backgroundColor: disabled ? '#e9ecef' : '#007bff',
-    color: disabled ? '#999' : 'white',
-    border: 'none',
-    borderRadius: '3px',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-  };
+function calcularNoches(checkIn: string, checkOut: string): number | null {
+  if (!checkIn || !checkOut) return null;
+
+  const inicio = new Date(`${checkIn}T00:00:00Z`);
+  const fin = new Date(`${checkOut}T00:00:00Z`);
+  const diff = Math.floor((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
+
+  return Number.isFinite(diff) && diff > 0 ? diff : null;
+}
+
+function formatMoney(value: number | null): string {
+  if (value == null) return '-';
+
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    maximumFractionDigits: 2,
+  }).format(value);
 }

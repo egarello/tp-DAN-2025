@@ -45,6 +45,13 @@ public class ReservaService {
         return reservaRepository.findAll();
     }
 
+    public List<Reserva> findByHotelIds(List<Integer> hotelIds) {
+        if (hotelIds == null || hotelIds.isEmpty()) {
+            return findAll();
+        }
+        return reservaRepository.findByHotelIdIn(hotelIds);
+    }
+
     public Optional<Reserva> findById(String id) {
         return reservaRepository.findById(id);
     }

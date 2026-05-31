@@ -17,8 +17,8 @@ public class ReservaController {
     private ReservaService reservaService;
 
     @GetMapping
-    public List<Reserva> getAll() {
-        return reservaService.findAll();
+    public List<Reserva> getAll(@RequestParam(required = false) List<Integer> hotelIds) {
+        return reservaService.findByHotelIds(hotelIds);
     }
 
     @GetMapping("/{id}")

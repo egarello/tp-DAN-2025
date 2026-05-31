@@ -121,6 +121,16 @@ export async function getReservas(): Promise<Reserva[]> {
   return fetchReservas<Reserva[]>('/reservas/reservas');
 }
 
+export async function getReservasByHotelIds(hotelIds: number[]): Promise<Reserva[]> {
+  if (hotelIds.length === 0) {
+    return [];
+  }
+
+  const params = new URLSearchParams();
+  hotelIds.forEach((hotelId) => params.append('hotelIds', String(hotelId)));
+  return fetchReservas<Reserva[]>(`/reservas/reservas?${params.toString()}`);
+}
+
 export async function getReservaPorId(id: string): Promise<Reserva> {
   return fetchReservas<Reserva>(`/reservas/reservas/${id}`);
 }

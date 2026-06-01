@@ -223,10 +223,6 @@ public class HabitacionService {
             maxDistanciaMetros = maxDistanciaMetros * 1000;
         }
 
-        /* NearQuery nearQuery = NearQuery.near(punto)
-        .spherical(true)
-        .query(Query.query(criteria))
-        .with(pageable); */
         NearQuery nearQuery = NearQuery.near(punto)
         .spherical(true)
         .maxDistance(maxDistanciaMetros)

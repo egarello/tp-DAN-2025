@@ -12,12 +12,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.GeoResult;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.GeoNearOperation;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.bson.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.NearQuery;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.GeoNearOperation;
 
 import edu.utn.frsf.isi.dan.reservas_svc.dto.HabitacionFiltroDto;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Habitacion;
@@ -115,7 +119,7 @@ public class HabitacionService {
                 .domicilio(dto.getDomicilio())
                 .categoria(dto.getCategoria())
                 .ubicacion(dto.getLatitud() != null && dto.getLongitud() != null ? 
-                    new GeoJsonPoint(dto.getLatitud(), dto.getLongitud()) : null)
+                    new GeoJsonPoint(dto.getLongitud(), dto.getLatitud()) : null)
                 .cerrado(dto.getCerrado())
                 .fechaCierre(dto.getFechaCierre() != null ? Instant.parse(dto.getFechaCierre()) : null)
                 .build();
@@ -214,26 +218,43 @@ public class HabitacionService {
     private Page<Habitacion> buscarConGeo(HabitacionFiltroDto filtro, Criteria criteria, Pageable pageable) {
         GeoJsonPoint punto = new GeoJsonPoint(filtro.getLongitud(), filtro.getLatitud());
 
-        NearQuery nearQuery = NearQuery.near(punto)
-        .spherical(true)
-        .query(Query.query(criteria))
-        .with(pageable);
-
-        if (filtro.getMaxDistancia() != null) {
-            if ("km".equalsIgnoreCase(filtro.getUnidad())) {
-                nearQuery.inKilometers().maxDistance(filtro.getMaxDistancia());
-            } else {
-                nearQuery.maxDistance(filtro.getMaxDistancia()); // GeoJSON usa metros por defecto
-            }
+        double maxDistanciaMetros = filtro.getMaxDistancia();
+        if ("km".equalsIgnoreCase(filtro.getUnidad())) {
+            maxDistanciaMetros = maxDistanciaMetros * 1000;
         }
 
-        List<Habitacion> resultados = mongoTemplate.geoNear(nearQuery, Habitacion.class)
-                .getContent()
-                .stream()
-                .map(GeoResult::getContent)
-                .toList();
+        /* NearQuery nearQuery = NearQuery.near(punto)
+        .spherical(true)
+        .query(Query.query(criteria))
+        .with(pageable); */
+        NearQuery nearQuery = NearQuery.near(punto)
+        .spherical(true)
+        .maxDistance(maxDistanciaMetros)
+        .query(Query.query(criteria));
 
-        long total = mongoTemplate.count(Query.query(criteria), Habitacion.class);
+        GeoNearOperation geoNear = Aggregation.geoNear(nearQuery, "distancia")
+            .useIndex("hotel.ubicacion");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                geoNear,
+                Aggregation.skip(pageable.getOffset()),
+                Aggregation.limit(pageable.getPageSize())
+        );
+
+        List<Habitacion> resultados = mongoTemplate
+            .aggregate(aggregation, "habitacion", Habitacion.class)
+            .getMappedResults();
+
+        Aggregation countAggregation = Aggregation.newAggregation(
+                geoNear,
+                Aggregation.count().as("total")
+        );
+    
+        Document countResult = mongoTemplate
+            .aggregate(countAggregation, "habitacion", Document.class)
+            .getUniqueMappedResult();
+
+        long total = countResult == null ? 0L : countResult.getInteger("total").longValue();
 
         return new PageImpl<>(resultados, pageable, total);
     }

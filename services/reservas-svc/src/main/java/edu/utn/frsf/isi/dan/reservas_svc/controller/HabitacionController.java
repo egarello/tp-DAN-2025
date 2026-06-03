@@ -32,11 +32,11 @@ public class HabitacionController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     } 
-   @GetMapping("/search")
-   public Page<Habitacion> getAllPaginated(
-    @ModelAttribute @Valid HabitacionFiltroDto filtro,
-    @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "10") int size
+    @GetMapping("/search")
+    public Page<Habitacion> getAllPaginated(
+        @ModelAttribute @Valid HabitacionFiltroDto filtro,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         return habitacionService.findByFiltros(filtro, pageable);

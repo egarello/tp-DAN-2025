@@ -226,10 +226,16 @@ public class HabitacionService {
         NearQuery nearQuery = NearQuery.near(punto)
         .spherical(true)
         .maxDistance(maxDistanciaMetros)
-        .query(Query.query(criteria));
+        .query(Query.query(criteria)); // AND con los otros filtros
 
         GeoNearOperation geoNear = Aggregation.geoNear(nearQuery, "distancia")
             .useIndex("hotel.ubicacion");
+
+        // ↓ Imprimí esto antes de ejecutar
+        System.out.println("=== NearQuery document ===");
+        System.out.println(nearQuery.toDocument());
+        System.out.println("maxDistancia metros: " + maxDistanciaMetros);
+        System.out.println("punto: " + punto);
 
         Aggregation aggregation = Aggregation.newAggregation(
                 geoNear,
@@ -241,6 +247,7 @@ public class HabitacionService {
             .aggregate(aggregation, "habitacion", Habitacion.class)
             .getMappedResults();
 
+        // Query para obtener el count
         Aggregation countAggregation = Aggregation.newAggregation(
                 geoNear,
                 Aggregation.count().as("total")

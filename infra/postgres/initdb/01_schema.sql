@@ -97,3 +97,4 @@ CREATE TABLE IF NOT EXISTS tp_dan.amenity_hotel (
     amenity varchar(250) NOT NULL
 );
 
+ALTER TABLE tp_dan.tarifa ALTER COLUMN fecha_fin DROP NOT NULL;

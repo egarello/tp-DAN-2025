@@ -102,6 +102,8 @@ export interface HotelCacheado {
     type: 'Point';
     coordinates: [number, number];
   };
+  cerrado?: boolean;
+  fechaCierre?: string | null;
 }
 
 export interface HabitacionCacheada {
@@ -115,6 +117,34 @@ export interface HabitacionCacheada {
   hotel?: HotelCacheado;
   idTipoHabitacion?: number;
   tipoHabitacion?: string;
+}
+
+export interface BuscarHabitacionesFiltros {
+  checkIn: string;
+  checkOut: string;
+  capacidad: number;
+  precioMin?: number;
+  precioMax?: number;
+  categoria?: number;
+  amenities?: string[];
+  latitud?: number;
+  longitud?: number;
+  maxDistancia?: number;
+  unidad?: 'm' | 'km';
+  page?: number;
+  size?: number;
+}
+
+export interface HabitacionesSearchPage {
+  content: HabitacionCacheada[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+  empty: boolean;
 }
 
 export async function getReservas(): Promise<Reserva[]> {
@@ -137,6 +167,27 @@ export async function getReservaPorId(id: string): Promise<Reserva> {
 
 export async function getHabitacionesCacheadas(): Promise<HabitacionCacheada[]> {
   return fetchReservas<HabitacionCacheada[]>('/reservas/habitaciones');
+}
+
+export async function buscarHabitaciones(filtros: BuscarHabitacionesFiltros): Promise<HabitacionesSearchPage> {
+  const params = new URLSearchParams();
+
+  Object.entries(filtros).forEach(([key, value]) => {
+    if (value == null || value === '') {
+      return;
+    }
+
+    if (key === 'amenities' && Array.isArray(value)) {
+      value.filter(Boolean).forEach((amenity) => params.append('amenities', amenity));
+      return;
+    }
+
+    if (!Array.isArray(value)) {
+      params.append(key, String(value));
+    }
+  });
+
+  return fetchReservas<HabitacionesSearchPage>(`/reservas/habitaciones/search?${params.toString()}`);
 }
 
 export interface ReservaRecord {

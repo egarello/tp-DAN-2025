@@ -4,23 +4,28 @@ import BdCard from '@/components/BdCard';
 import BdButton from '@/components/BdButton';
 import BdBackLink from '@/components/BdBackLink';
 
-const sections = [
-  {
-    href: '/reservas/lista',
-    title: 'Reservas',
-    description: 'Listado, detalle y creación de reservas.',
-  },
-  {
-    href: '/reservas/nueva',
-    title: 'Nueva Reserva',
-    description: 'Crear una nueva reserva.',
-  },
-  {
-    href: '/reservas/habitaciones',
-    title: 'Habitaciones',
-    description: 'Habitaciones cacheadas desde gestion-svc.',
-  },
-];
+  const sections = [
+    {
+      href: '/reservas/lista',
+      title: 'Reservas',
+      description: 'Listado, detalle y creación de reservas.',
+    },
+    {
+      href: '/reservas/nueva',
+      title: 'Nueva Reserva',
+      description: 'Crear una nueva reserva.',
+    },
+    {
+      href: '/reservas/habitaciones',
+      title: 'Habitaciones',
+      description: 'Habitaciones cacheadas desde gestion-svc.',
+    },
+    {
+      href: '/reservas/search',
+      title: 'Buscar habitaciones',
+      description: 'Consulta disponibilidad por fechas, capacidad, precio y más filtros.',
+    },
+  ];
 
 export default function ReservasLandingPage() {
   return (

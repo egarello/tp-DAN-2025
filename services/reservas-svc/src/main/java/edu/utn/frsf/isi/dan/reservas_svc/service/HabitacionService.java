@@ -9,19 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.geo.GeoResult;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
+import org.springframework.data.geo.Circle;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.GeoNearOperation;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
-import org.bson.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.NearQuery;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.GeoNearOperation;
 
 import edu.utn.frsf.isi.dan.reservas_svc.dto.HabitacionFiltroDto;
 import edu.utn.frsf.isi.dan.reservas_svc.model.Habitacion;
@@ -216,48 +214,24 @@ public class HabitacionService {
     }
 
     private Page<Habitacion> buscarConGeo(HabitacionFiltroDto filtro, Criteria criteria, Pageable pageable) {
-        GeoJsonPoint punto = new GeoJsonPoint(filtro.getLongitud(), filtro.getLatitud());
+        Point punto = new Point(filtro.getLongitud(), filtro.getLatitud());
 
         double maxDistanciaMetros = filtro.getMaxDistancia();
-        if ("km".equalsIgnoreCase(filtro.getUnidad())) {
+        String unidad = filtro.getUnidad() == null ? "" : filtro.getUnidad().trim().toLowerCase();
+        if ("km".equals(unidad)) {
             maxDistanciaMetros = maxDistanciaMetros * 1000;
         }
 
-        NearQuery nearQuery = NearQuery.near(punto)
-        .spherical(true)
-        .maxDistance(maxDistanciaMetros)
-        .query(Query.query(criteria)); // AND con los otros filtros
+        Distance distancia = new Distance(maxDistanciaMetros / 1000.0, Metrics.KILOMETERS);
 
-        GeoNearOperation geoNear = Aggregation.geoNear(nearQuery, "distancia")
-            .useIndex("hotel.ubicacion");
-
-        // ↓ Imprimí esto antes de ejecutar
-        System.out.println("=== NearQuery document ===");
-        System.out.println(nearQuery.toDocument());
-        System.out.println("maxDistancia metros: " + maxDistanciaMetros);
-        System.out.println("punto: " + punto);
-
-        Aggregation aggregation = Aggregation.newAggregation(
-                geoNear,
-                Aggregation.skip(pageable.getOffset()),
-                Aggregation.limit(pageable.getPageSize())
+        Criteria geoCriteria = new Criteria().andOperator(
+            criteria,
+            Criteria.where("hotel.ubicacion").withinSphere(new Circle(punto, distancia))
         );
 
-        List<Habitacion> resultados = mongoTemplate
-            .aggregate(aggregation, "habitacion", Habitacion.class)
-            .getMappedResults();
-
-        // Query para obtener el count
-        Aggregation countAggregation = Aggregation.newAggregation(
-                geoNear,
-                Aggregation.count().as("total")
-        );
-    
-        Document countResult = mongoTemplate
-            .aggregate(countAggregation, "habitacion", Document.class)
-            .getUniqueMappedResult();
-
-        long total = countResult == null ? 0L : countResult.getInteger("total").longValue();
+        Query query = Query.query(geoCriteria).with(pageable);
+        List<Habitacion> resultados = mongoTemplate.find(query, Habitacion.class);
+        long total = mongoTemplate.count(Query.query(geoCriteria), Habitacion.class);
 
         return new PageImpl<>(resultados, pageable, total);
     }

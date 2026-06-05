@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getReservasByHotelIds, Reserva, pagarReserva, finalizarReserva } from '@/lib/reservas-api';
+import { getReservasByHotelIds, Reserva, pagarReserva, finalizarReserva, cancelarReserva } from '@/lib/reservas-api';
 import { getHoteles, Hotel } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
 import BdTable from '@/components/BdTable';
@@ -10,6 +10,7 @@ import BdButton from '@/components/BdButton';
 import BdBackLink from '@/components/BdBackLink';
 import PaymentModal from '@/components/PaymentModal';
 import ReviewModal from '@/components/ReviewModal';
+import CancelModal from '@/components/CancelModal';
 import BdAlert from '@/components/BdAlert';
 import BdEmptyState from '@/components/BdEmptyState';
 
@@ -18,6 +19,7 @@ function formatFecha(iso: string) {
 }
 
 const PAGABLES = new Set(['RESERVADA', 'CONFIRMADA', 'ADEUDADA']);
+const CANCELABLES = new Set(['RESERVADA', 'CONFIRMADA']);
 
 export default function ReservasListaPage() {
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
@@ -32,6 +34,7 @@ export default function ReservasListaPage() {
 
   const [activePaymentReserva, setActivePaymentReserva] = useState<Reserva | null>(null);
   const [activeReviewReserva, setActiveReviewReserva] = useState<Reserva | null>(null);
+  const [activeCancelReserva, setActiveCancelReserva] = useState<Reserva | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -130,6 +133,22 @@ export default function ReservasListaPage() {
     } finally {
       setActionLoading(false);
       setActiveReviewReserva(null);
+    }
+  };
+
+  const handleCancelar = async () => {
+    if (!activeCancelReserva) return;
+    setActionError(null);
+    setActionLoading(true);
+    try {
+      await cancelarReserva(activeCancelReserva._id);
+      await refreshReservas();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Error al cancelar');
+      throw err;
+    } finally {
+      setActionLoading(false);
+      setActiveCancelReserva(null);
     }
   };
 
@@ -254,6 +273,9 @@ export default function ReservasListaPage() {
                     {PAGABLES.has(reserva.estadoReserva || '') && (
                       <BdButton variant="cta" size="sm" onClick={() => setActivePaymentReserva(reserva)} className="ml-2" disabled={actionLoading}>Pagar</BdButton>
                     )}
+                    {CANCELABLES.has(reserva.estadoReserva || '') && (reserva.pago?.length ?? 0) === 0 && (
+                      <BdButton variant="danger" size="sm" onClick={() => setActiveCancelReserva(reserva)} className="ml-2" disabled={actionLoading}>Cancelar</BdButton>
+                    )}
                     {isHostDemo && (
                       <BdButton variant="ghost" size="sm" onClick={() => setActiveReviewReserva(reserva)} className="ml-2" disabled={actionLoading}>Finalizar</BdButton>
                     )}
@@ -282,6 +304,13 @@ export default function ReservasListaPage() {
           if (!activeReviewReserva) return;
           await handleFinalizar(activeReviewReserva, review);
         }}
+      />
+
+      <CancelModal
+        open={!!activeCancelReserva}
+        reserva={activeCancelReserva}
+        onClose={() => setActiveCancelReserva(null)}
+        onConfirm={handleCancelar}
       />
     </BdPageLayout>
   );

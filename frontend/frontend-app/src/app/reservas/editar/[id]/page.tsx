@@ -81,8 +81,8 @@ export default function EditarReservaPage() {
           }
         }
 
-        setCheckIn(reserva.checkIn.slice(0, 10));
-        setCheckOut(reserva.checkOut.slice(0, 10));
+        setCheckIn(reserva.checkIn?.slice(0, 10) || "Sin fecha de Check In");
+        setCheckOut(reserva.checkOut?.slice(0, 10) || "Sin fecha de Check Out");
         setPrecioNoche(reserva.precioNoche != null ? reserva.precioNoche.toString() : '');
         setPrecioTotal(reserva.precioTotal != null ? reserva.precioTotal.toString() : '');
         setEstadoReserva(reserva.estadoReserva || 'RESERVADA');

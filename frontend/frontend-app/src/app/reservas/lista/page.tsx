@@ -14,8 +14,14 @@ import CancelModal from '@/components/CancelModal';
 import BdAlert from '@/components/BdAlert';
 import BdEmptyState from '@/components/BdEmptyState';
 
-function formatFecha(iso: string) {
-  return new Date(iso).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
+function formatFecha(iso: string | null | undefined) {
+  if (!iso) return 'Fecha no definida'; // Si es nulo o indefinido, devuelve un guion
+  
+  const date = new Date(iso);
+  // Validamos si la fecha es inválida (por las dudas)
+  if (isNaN(date.getTime())) return '-'; 
+  
+  return date.toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
 const PAGABLES = new Set(['RESERVADA', 'CONFIRMADA', 'ADEUDADA']);

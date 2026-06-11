@@ -77,8 +77,12 @@ export default function HabitacionCacheadaDetallePage() {
               {habitacion.reservas.map((reserva) => (
                 <div key={reserva._id} className="pb-bd-sm mb-bd-sm" style={{ borderBottom: '1px solid #eee' }}>
                   {/* style={{ borderBottom: '1px solid #eee', padding: '10px 0' }} */}
-                  <p className="text-bd-primary mb-bd-sm"><strong>Check In:</strong> {new Date(reserva.checkIn).toLocaleString('es-AR', { dateStyle: 'medium' })}</p>
-                  <p className="text-bd-primary mb-bd-sm"><strong>Check Out:</strong> {new Date(reserva.checkOut).toLocaleString('es-AR', { dateStyle: 'medium' })}</p>
+                  <p className="text-bd-primary mb-bd-sm">
+                    <strong>Check In:</strong> {reserva.checkIn ? new Date(reserva.checkIn).toLocaleString('es-AR', { dateStyle: 'medium' }) : '-'}
+                  </p>
+                  <p className="text-bd-primary mb-bd-sm">
+                    <strong>Check Out:</strong> {reserva.checkOut ? new Date(reserva.checkOut).toLocaleString('es-AR', { dateStyle: 'medium' }) : '-'}
+                  </p>
                   <p className="text-bd-primary mb-bd-sm"><strong>Total:</strong> {reserva.precioTotal != null ? `$${reserva.precioTotal.toFixed(2)}` : '-'}</p>
                   <p className="text-bd-primary mb-bd-sm"><strong>Estado:</strong> {reserva.estadoReserva || '-'}</p>
                   <BdBackLink href={`/reservas/detalle/${reserva._id}`} className="mt-bd-sm" />

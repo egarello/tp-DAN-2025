@@ -1,10 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { crearTipoHabitacion, TipoHabitacionRecord } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBackLink from '@/components/BdBackLink';
+import BdButton from '@/components/BdButton';
 
 export default function NuevoTipoHabitacionPage() {
   const router = useRouter();
@@ -29,9 +30,7 @@ export default function NuevoTipoHabitacionPage() {
 
   return (
     <BdPageLayout><div className="mx-auto" style={{ maxWidth: 700 }}>
-      <Link href="/gestion/tipos-habitacion" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Tipos de Habitación
-      </Link>
+      <BdBackLink href="/gestion/tipos-habitacion">Tipos de Habitación</BdBackLink>
       <h1>Nuevo Tipo de Habitación</h1>
       {error && <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
 
@@ -41,7 +40,7 @@ export default function NuevoTipoHabitacionPage() {
         <label>Capacidad *<input required type="number" min={1} value={formData.capacidad} onChange={(e) => setFormData({ ...formData, capacidad: Number(e.target.value) })} style={{ width: '100%', padding: '8px' }} /></label>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button type="button" onClick={() => router.push('/gestion/tipos-habitacion')} disabled={loading} style={{ padding: '10px 20px' }}>Cancelar</button>
+          <BdButton type="button" variant="ghost" onClick={() => router.push('/gestion/tipos-habitacion')} disabled={loading}>Cancelar</BdButton>
           <button type="submit" disabled={loading} style={{ padding: '10px 20px', backgroundColor: loading ? '#ccc' : '#28a745', color: 'white', border: 'none', borderRadius: '4px' }}>
             {loading ? 'Guardando...' : 'Crear Tipo'}
           </button>

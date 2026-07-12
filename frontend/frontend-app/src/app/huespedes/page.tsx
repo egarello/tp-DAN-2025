@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdButton from '@/components/BdButton';
@@ -30,16 +31,14 @@ export default function HuespedesPage() {
         <h2 className="text-bd-primary mb-bd-md">Acciones Rápidas</h2>
         <ul className="list-none p-0" /* style={{ lineHeight: '2' }} */>
           <li className="text-bd-secondary leading-relaxed mb-bd-sm">
-            <BdBackLink href="/huespedes/nuevo">
+            <Link href="/huespedes/nuevo" className="text-bd-cta font-semibold">
               Registrar nuevo huésped
-            </BdBackLink>
-            {/* <Link href="/huespedes/nuevo" className="text-bd-cta font-semibold" style={{ color: '#28a745', fontWeight: 'bold' }}>Registrar nuevo huésped</Link> */}
+            </Link>
           </li>
           <li className="text-bd-secondary leading-relaxed mb-bd-sm">
-            <BdBackLink href="/usuarios">
+            <Link href="/usuarios" className="text-bd-link">
               Buscar/listar usuarios existentes
-            </BdBackLink>
-            {/* <Link href="/usuarios" className="text-bd-link" style={{ color: '#007bff' }}>Buscar/listar usuarios existentes</Link> */}
+            </Link>
           </li>
         </ul>
       </BdCard>

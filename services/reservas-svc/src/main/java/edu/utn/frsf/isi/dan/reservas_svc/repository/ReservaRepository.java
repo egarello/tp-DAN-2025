@@ -10,4 +10,6 @@ public interface ReservaRepository extends MongoRepository<Reserva, String> {
 	void deleteByHotelIdAndEstadoReserva(Integer hotelId, EstadoReserva estadoReserva);
 
 	List<Reserva> findByHotelIdIn(List<Integer> hotelIds);
+
+	List<Reserva> findByHuesped_IdUsuario(String idUsuario);
 }

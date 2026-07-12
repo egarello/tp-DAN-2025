@@ -7,6 +7,7 @@ import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdBackLink from '@/components/BdBackLink';
 import BdButton from '@/components/BdButton';
+import BdAlert from '@/components/BdAlert';
 
 export default function HuespedDetailPage() {
   const params = useParams();
@@ -95,23 +96,21 @@ export default function HuespedDetailPage() {
 
   return (
     <BdPageLayout>
-      <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
+      <BdBackLink href="/huespedes" className="mb-bd-lg" />
       {/* style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }} */}
 
       <h1 className="text-bd-primary">Detalle del Huésped</h1>
 
       {error && (
-        <div className="bd-alert bd-alert-error">
-          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+        <BdAlert variant="error" onClose={() => setError(null)}>
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
 
       {success && (
-        <div className="bd-alert bd-alert-success">
-          {/* style={{ color: 'green', padding: '10px', margin: '10px 0', border: '1px solid green', backgroundColor: '#e6ffe6' }} */}
+        <BdAlert variant="success" onClose={() => setSuccess(null)}>
           {success}
-        </div>
+        </BdAlert>
       )}
 
       {loading ? (
@@ -175,15 +174,7 @@ export default function HuespedDetailPage() {
                 >
                   Cambiar Tarjeta Principal
                 </BdButton>
-                <BdButton variant="ghost" onClick={() => router.back()} className="mr-bd-sm">
-                  ← Volver
-                </BdButton>
               </>
-            )}
-            {(!huesped.tarjetaCredito || huesped.tarjetaCredito.length === 0) && (
-              <BdButton variant="ghost" onClick={() => router.back()}>
-                ← Volver
-              </BdButton>
             )}
             <BdButton
               variant="danger"

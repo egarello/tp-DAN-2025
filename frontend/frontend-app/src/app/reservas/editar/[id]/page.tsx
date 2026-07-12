@@ -1,12 +1,13 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { actualizarReserva, getHabitacionesCacheadas, getReservaPorId, HabitacionCacheada, EstadoReserva } from '@/lib/reservas-api';
 import { getHoteles, Hotel } from '@/lib/gestion-api';
 import { buscarUsuariosPorDni, getUsuarioById, Usuario } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBreadcrumb from '@/components/BdBreadcrumb';
+import BdButton from '@/components/BdButton';
 
 type EstadoLabel = { value: EstadoReserva; label: string };
 
@@ -186,9 +187,11 @@ export default function EditarReservaPage() {
 
   return (
     <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
-      <Link href={`/reservas/detalle/${reservaId}`} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Reserva
-      </Link>
+      <BdBreadcrumb items={[
+        { label: 'Reservas', href: '/reservas/lista' },
+        { label: `Reserva ${reservaId}`, href: `/reservas/detalle/${reservaId}` },
+        { label: 'Editar' },
+      ]} />
 
       <h1>Editar Reserva</h1>
 
@@ -329,9 +332,9 @@ export default function EditarReservaPage() {
         </label>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button type="button" onClick={() => router.push(`/reservas/detalle/${reservaId}`)} disabled={saving} style={{ padding: '10px 20px' }}>
+          <BdButton type="button" variant="ghost" onClick={() => router.push(`/reservas/detalle/${reservaId}`)} disabled={saving}>
             Cancelar
-          </button>
+          </BdButton>
           <button type="submit" disabled={saving} style={{ padding: '10px 20px', backgroundColor: saving ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
             {saving ? 'Guardando...' : 'Guardar Cambios'}
           </button>

@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getReservasByHotelIds, Reserva, pagarReserva, finalizarReserva, cancelarReserva } from '@/lib/reservas-api';
+import { getReservasByHotelIds, getMisReservas, Reserva, pagarReserva, finalizarReserva, cancelarReserva } from '@/lib/reservas-api';
 import { getHoteles, Hotel } from '@/lib/gestion-api';
+import { useAuth } from '@/context/AuthContext';
 import BdPageLayout from '@/components/BdPageLayout';
 import BdTable from '@/components/BdTable';
 import BdButton from '@/components/BdButton';
@@ -28,6 +29,10 @@ const PAGABLES = new Set(['RESERVADA', 'CONFIRMADA', 'ADEUDADA']);
 const CANCELABLES = new Set(['RESERVADA', 'CONFIRMADA']);
 
 export default function ReservasListaPage() {
+  const { user } = useAuth();
+  const isPropietario = user?.rol === 'PROPIETARIO';
+  const isHuesped = user?.rol === 'HUESPED';
+
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [loadingHoteles, setLoadingHoteles] = useState(true);
@@ -44,9 +49,30 @@ export default function ReservasListaPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Un Huesped ve directamente sus propias reservas (el backend las resuelve por el
+  // JWT, sin que el Huesped elija de quién). Un Propietario sigue con el flujo
+  // existente de filtrar por hotel.
+  const fetchMisReservas = async () => {
+    try {
+      setLoadingReservas(true);
+      setError(null);
+      setReservas(await getMisReservas());
+      setHasSearched(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setLoadingReservas(false);
+    }
+  };
+
   useEffect(() => {
-    fetchHoteles();
-  }, []);
+    if (isHuesped) {
+      fetchMisReservas();
+    } else {
+      fetchHoteles();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHuesped]);
 
   const hotelesById = new Map(hoteles.map((hotel) => [hotel.id, hotel]));
 
@@ -103,6 +129,11 @@ export default function ReservasListaPage() {
   };
 
   const refreshReservas = async () => {
+    if (isHuesped) {
+      await fetchMisReservas();
+      return;
+    }
+
     if (appliedHotelIds.length === 0) {
       setReservas([]);
       return;
@@ -158,9 +189,6 @@ export default function ReservasListaPage() {
     }
   };
 
-  // Demo flag: show Finalizar for host. Replace with real auth check later.
-  const isHostDemo = true;
-
   return (
     <BdPageLayout>
       <BdBackLink href="/reservas">Reservas</BdBackLink>
@@ -168,72 +196,86 @@ export default function ReservasListaPage() {
       <div className="flex flex-wrap items-start justify-between gap-bd-md">
         <div>
           <h1 className="text-bd-primary">Reservas</h1>
-          <p className="text-bd-secondary">Seleccioná uno o más hoteles y presioná Buscar para cargar sus reservas.</p>
+          <p className="text-bd-secondary">
+            {isHuesped
+              ? 'Estas son tus reservas.'
+              : 'Seleccioná uno o más hoteles y presioná Buscar para cargar sus reservas.'}
+          </p>
         </div>
-        <BdButton href="/reservas/nueva" variant="primary" size="md">+ Nueva Reserva</BdButton>
+        {isHuesped && <BdButton href="/reservas/nueva" variant="primary" size="md">+ Nueva Reserva</BdButton>}
       </div>
 
-      <section className="rounded-bd-lg border border-bd-subtle bg-bd-surface-2 p-bd-lg">
-        <div className="mb-bd-md flex items-center justify-between gap-bd-sm">
-          <div>
-            <h2 className="text-bd-primary text-bd-md font-semibold">Filtrar por hotel</h2>
-            <p className="text-bd-secondary text-bd-sm">La lista no consulta reservas hasta que presiones el botón.</p>
+      {!isHuesped && (
+        <section className="rounded-bd-lg border border-bd-subtle bg-bd-surface-2 p-bd-lg">
+          <div className="mb-bd-md flex items-center justify-between gap-bd-sm">
+            <div>
+              <h2 className="text-bd-primary text-bd-md font-semibold">Filtrar por hotel</h2>
+              <p className="text-bd-secondary text-bd-sm">La lista no consulta reservas hasta que presiones el botón.</p>
+            </div>
+            <span className="text-bd-secondary text-bd-sm">Seleccionados: {selectedHotelIds.length}</span>
           </div>
-          <span className="text-bd-secondary text-bd-sm">Seleccionados: {selectedHotelIds.length}</span>
-        </div>
 
-        {hotelesError && <div className="bd-alert bd-alert-error mb-bd-md"><strong>Error:</strong> {hotelesError}</div>}
+          {hotelesError && (
+            <BdAlert variant="error" onClose={() => setHotelesError(null)} className="mb-bd-md">
+              <strong>Error:</strong> {hotelesError}
+            </BdAlert>
+          )}
 
-        {loadingHoteles ? (
-          <p className="bd-skeleton bd-skeleton-text">Cargando hoteles...</p>
-        ) : hoteles.length === 0 ? (
-          <BdEmptyState
-            title="No hay hoteles disponibles"
-            message="No se puede buscar reservas hasta que el backend devuelva hoteles."
-          />
-        ) : (
-          <div className="grid gap-bd-sm md:grid-cols-2 xl:grid-cols-3">
-            {hoteles.map((hotel) => (
-              <label
-                key={hotel.id}
-                className={`flex cursor-pointer items-start gap-bd-sm rounded-bd-md border p-bd-md transition-colors ${selectedHotelIds.includes(hotel.id) ? 'border-bd-blue-bright bg-[rgba(45,212,191,0.08)]' : 'border-bd-subtle bg-bd-surface'}`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedHotelIds.includes(hotel.id)}
-                  onChange={() => toggleHotel(hotel.id)}
-                  className="mt-1"
-                />
-                <span>
-                  <span className="block text-bd-primary font-medium">{hotel.nombre}</span>
-                  <span className="block text-bd-secondary text-bd-sm">{hotel.domicilio || `Hotel ${hotel.id}`}</span>
-                </span>
-              </label>
-            ))}
+          {loadingHoteles ? (
+            <p className="bd-skeleton bd-skeleton-text">Cargando hoteles...</p>
+          ) : hoteles.length === 0 ? (
+            <BdEmptyState
+              title="No hay hoteles disponibles"
+              message="No se puede buscar reservas hasta que el backend devuelva hoteles."
+            />
+          ) : (
+            <div className="grid gap-bd-sm md:grid-cols-2 xl:grid-cols-3">
+              {hoteles.map((hotel) => (
+                <label
+                  key={hotel.id}
+                  className={`flex cursor-pointer items-start gap-bd-sm rounded-bd-md border p-bd-md transition-colors ${selectedHotelIds.includes(hotel.id) ? 'border-bd-blue-bright bg-[rgba(45,212,191,0.08)]' : 'border-bd-subtle bg-bd-surface'}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedHotelIds.includes(hotel.id)}
+                    onChange={() => toggleHotel(hotel.id)}
+                    className="mt-1"
+                  />
+                  <span>
+                    <span className="block text-bd-primary font-medium">{hotel.nombre}</span>
+                    <span className="block text-bd-secondary text-bd-sm">{hotel.domicilio || `Hotel ${hotel.id}`}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-bd-md flex flex-wrap gap-bd-sm">
+            <BdButton
+              variant="primary"
+              size="md"
+              onClick={handleBuscar}
+              disabled={loadingHoteles || loadingReservas || selectedHotelIds.length === 0}
+            >
+              Buscar reservas
+            </BdButton>
+            <BdButton
+              variant="ghost"
+              size="md"
+              onClick={handleLimpiar}
+              disabled={selectedHotelIds.length === 0 && appliedHotelIds.length === 0 && reservas.length === 0}
+            >
+              Limpiar
+            </BdButton>
           </div>
-        )}
+        </section>
+      )}
 
-        <div className="mt-bd-md flex flex-wrap gap-bd-sm">
-          <BdButton
-            variant="primary"
-            size="md"
-            onClick={handleBuscar}
-            disabled={loadingHoteles || loadingReservas || selectedHotelIds.length === 0}
-          >
-            Buscar reservas
-          </BdButton>
-          <BdButton
-            variant="ghost"
-            size="md"
-            onClick={handleLimpiar}
-            disabled={selectedHotelIds.length === 0 && appliedHotelIds.length === 0 && reservas.length === 0}
-          >
-            Limpiar
-          </BdButton>
-        </div>
-      </section>
-
-      {error && <div className="bd-alert bd-alert-error"><strong>Error:</strong> {error}</div>}
+      {error && (
+        <BdAlert variant="error" onClose={() => setError(null)}>
+          <strong>Error:</strong> {error}
+        </BdAlert>
+      )}
       {actionError && <BdAlert variant="error" message={actionError} onClose={() => setActionError(null)} />}
 
       {loadingReservas ? (
@@ -245,9 +287,9 @@ export default function ReservasListaPage() {
         />
       ) : reservas.length === 0 ? (
         <BdEmptyState
-          title="No hay reservas para los hoteles seleccionados"
-          message="Probá con otro hotel o ampliá la selección."
-          action={<BdButton variant="ghost" size="sm" onClick={handleLimpiar}>Limpiar filtro</BdButton>}
+          title={isHuesped ? 'Todavía no tenés reservas' : 'No hay reservas para los hoteles seleccionados'}
+          message={isHuesped ? 'Creá una reserva nueva para verla acá.' : 'Probá con otro hotel o ampliá la selección.'}
+          action={!isHuesped ? <BdButton variant="ghost" size="sm" onClick={handleLimpiar}>Limpiar filtro</BdButton> : undefined}
         />
       ) : (
         <BdTable><table className="bd-table w-full" border={1} cellPadding="10">
@@ -277,13 +319,13 @@ export default function ReservasListaPage() {
                   <td className="bd-row-actions">
                     <Link className="text-bd-link" href={`/reservas/detalle/${reserva._id}`}>Ver</Link>
                     {PAGABLES.has(reserva.estadoReserva || '') && (
-                      <BdButton variant="cta" size="sm" onClick={() => setActivePaymentReserva(reserva)} className="ml-2" disabled={actionLoading}>Pagar</BdButton>
+                      <BdButton variant="cta" size="sm" onClick={() => { setActionError(null); setActivePaymentReserva(reserva); }} className="ml-2" disabled={actionLoading}>Pagar</BdButton>
                     )}
                     {CANCELABLES.has(reserva.estadoReserva || '') && (reserva.pago?.length ?? 0) === 0 && (
-                      <BdButton variant="danger" size="sm" onClick={() => setActiveCancelReserva(reserva)} className="ml-2" disabled={actionLoading}>Cancelar</BdButton>
+                      <BdButton variant="danger" size="sm" onClick={() => { setActionError(null); setActiveCancelReserva(reserva); }} className="ml-2" disabled={actionLoading}>Cancelar</BdButton>
                     )}
-                    {isHostDemo && (
-                      <BdButton variant="ghost" size="sm" onClick={() => setActiveReviewReserva(reserva)} className="ml-2" disabled={actionLoading}>Finalizar</BdButton>
+                    {isPropietario && (
+                      <BdButton variant="ghost" size="sm" onClick={() => { setActionError(null); setActiveReviewReserva(reserva); }} className="ml-2" disabled={actionLoading}>Finalizar</BdButton>
                     )}
                   </td>
                 </tr>

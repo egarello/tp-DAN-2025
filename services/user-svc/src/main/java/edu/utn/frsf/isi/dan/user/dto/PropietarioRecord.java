@@ -16,8 +16,11 @@ public record PropietarioRecord(
     @Email(message = "El email no es válido")
     String email,
     @NotBlank(message = "El teléfono no puede estar vacío")
-    String telefono,    
+    String telefono,
     Long idHotel,
+    @NotBlank(message = "La contraseña no puede estar vacía")
+    @Length(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+    String password,
     CuentaBancariaRecord cuentaBancaria
 ) {
     public Propietario toPropietario() {

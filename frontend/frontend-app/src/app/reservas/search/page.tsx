@@ -2,7 +2,6 @@
 
 import { FormEvent, useState } from 'react';
 import BdAlert from '@/components/BdAlert';
-import BdBackLink from '@/components/BdBackLink';
 import BdButton from '@/components/BdButton';
 import BdCard from '@/components/BdCard';
 import BdEmptyState from '@/components/BdEmptyState';
@@ -82,8 +81,6 @@ export default function BuscarHabitacionesPage() {
   return (
     <BdPageLayout>
       <div className="mx-auto w-full max-w-6xl">
-        <BdBackLink href="/reservas" className="mb-bd-lg" />
-
         <div className="mb-bd-xl flex flex-wrap items-start justify-between gap-bd-md">
           <div>
             <p className="text-bd-muted text-bd-xs uppercase tracking-[0.2em]">Reservas</p>

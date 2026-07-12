@@ -12,6 +12,28 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 @RestControllerAdvice
 public class ControllerAdvisor {
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionInfo> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        ExceptionInfo exceptionInfo = new ExceptionInfo(
+                ex.getMessage(),
+                request.getDescription(false),
+                String.valueOf(System.currentTimeMillis()),
+                HttpStatus.FORBIDDEN.value()
+        );
+        return new ResponseEntity<>(exceptionInfo, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    public ResponseEntity<ExceptionInfo> handleCredencialesInvalidasException(CredencialesInvalidasException ex, WebRequest request) {
+        ExceptionInfo exceptionInfo = new ExceptionInfo(
+                ex.getMessage(),
+                request.getDescription(false),
+                String.valueOf(System.currentTimeMillis()),
+                HttpStatus.UNAUTHORIZED.value()
+        );
+        return new ResponseEntity<>(exceptionInfo, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ExceptionInfo> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         ExceptionInfo exceptionInfo = new ExceptionInfo(

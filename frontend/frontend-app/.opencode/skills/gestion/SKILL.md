@@ -11,6 +11,29 @@ Referencias código
 
 --
 
+Autenticación y roles
+
+El sistema tiene login con JWT (roles `HUESPED`/`PROPIETARIO`). El token se valida **únicamente en el API Gateway** (`common/dan-spring-gateway/src/main/java/com/example/demo/security/JwtAuthFilter.java`, lista `RULES`) — `gestion-svc` en sí no tiene Spring Security y no sabe nada de JWT/roles; confía en que solo el gateway puede llegar a él. Toda petición a una ruta protegida necesita `Authorization: Bearer <token>` (obtenido con `POST /users/auth/login`, ver `user-skill.md`).
+
+Reglas por endpoint (`gestion-svc` no tiene ningún concepto de "hotel propio" — un Propietario administra cualquier hotel, sin restricción de ownership):
+
+| Endpoint | Rol |
+|---|---|
+| `GET /gestion/hoteles` | **PROPIETARIO** (listado de gestión) |
+| `GET /gestion/hoteles/{id}`, `/buscar`, `/amenities` | **Público** |
+| `POST/PUT/DELETE /gestion/hoteles*`, `.../cerrar`, `.../abrir`, `.../amenities/*` | **PROPIETARIO** |
+| `GET /gestion/habitaciones` | **PROPIETARIO** |
+| `GET /gestion/habitaciones/{id}`, `/search` | **Público** |
+| `POST/PUT/DELETE /gestion/habitaciones*` | **PROPIETARIO** |
+| `GET /gestion/tipos-habitacion*` | **Público** |
+| `POST/PUT/DELETE /gestion/tipos-habitacion*` | **PROPIETARIO** |
+| `GET /gestion/tarifas*` | **Público** |
+| `POST/PUT/DELETE /gestion/tarifas*`, `/promocional` | **PROPIETARIO** |
+
+Los endpoints públicos existen para que un Huesped pueda buscar/comparar hoteles y habitaciones sin loguearse (ej. al armar el selector de hotel en "nueva reserva").
+
+--
+
 Schemas disponibles en `../schemas/gestion/*.schema.json`
 
 --

@@ -17,6 +17,7 @@ import edu.utn.frsf.isi.dan.user.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class UserService {
     @Autowired
     private BancoRepository bancoRepository;
 
-    @Autowired 
+    @Autowired
     private CuentaBancariaRepository cuentaBancariaRepository;
 
     @Autowired
@@ -37,29 +38,39 @@ public class UserService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public Huesped crearUsuarioHuesped(HuespedRecord huespedRecord) {
-        // Buscar el banco por ID
-        Optional<Banco> bancoOptional = bancoRepository.findById(huespedRecord.idBanco());
-        if (bancoOptional.isEmpty()) {
-            throw new IllegalArgumentException("Banco no encontrado con ID: " + huespedRecord.idBanco());
-        }
-
-        Banco banco = bancoOptional.get();
-
-        // Crear y guardar el usuario
+        // Crear y guardar el usuario (la tarjeta es opcional, se maneja aparte)
         Huesped usuario = huespedRecord.toHuesped();
+        usuario.setPassword(passwordEncoder.encode(huespedRecord.password()));
+        usuario.setTarjetaCredito(new ArrayList<>());
         usuarioRepository.save(usuario);
 
-        // Crear y guardar la tarjeta de crédito
-        TarjetaCredito tarjetaCredito = huespedRecord.toTarjetaCredito();
-        tarjetaCredito.setHuesped(usuario);
-        tarjetaCredito.setBanco(banco);
-        TarjetaCredito tarjetaCreditoSaved =tarjetaCreditoRepository.save(tarjetaCredito);
-        if (usuario.getTarjetaCredito() == null) {
-            usuario.setTarjetaCredito(new ArrayList<>());
+        if (huespedRecord.tieneDatosDeTarjeta()) {
+            // Todo o nada: si eligió cargar una tarjeta, tiene que venir completa.
+            if (isBlank(huespedRecord.nombreTitular()) || isBlank(huespedRecord.fechaVencimientoCC())
+                    || isBlank(huespedRecord.cvcCC()) || huespedRecord.idBanco() == null) {
+                throw new IllegalArgumentException(
+                        "Para cargar una tarjeta hay que completar número, titular, vencimiento, CVC y banco.");
+            }
+
+            Banco banco = bancoRepository.findById(huespedRecord.idBanco())
+                    .orElseThrow(() -> new IllegalArgumentException("Banco no encontrado con ID: " + huespedRecord.idBanco()));
+
+            TarjetaCredito tarjetaCredito = huespedRecord.toTarjetaCredito();
+            tarjetaCredito.setHuesped(usuario);
+            tarjetaCredito.setBanco(banco);
+            TarjetaCredito tarjetaCreditoSaved = tarjetaCreditoRepository.save(tarjetaCredito);
+            usuario.getTarjetaCredito().add(tarjetaCreditoSaved);
         }
-        usuario.getTarjetaCredito().add(tarjetaCreditoSaved);
+
         return usuario;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     public void agregarTarjetaHuesped(String dni, TarjetaCreditoRecord tarjetaCreditoRecord) {
@@ -193,6 +204,7 @@ public class UserService {
         Banco banco = bancoOptional.get();
 
         Propietario propietario = propietarioRecord.toPropietario();
+        propietario.setPassword(passwordEncoder.encode(propietarioRecord.password()));
         CuentaBancaria cuentaBancaria = propietarioRecord.cuentaBancaria().toCuentaBancaria();
         cuentaBancaria.setBanco(banco);
         propietario.setCuentaBancaria(cuentaBancariaRepository.save(cuentaBancaria));

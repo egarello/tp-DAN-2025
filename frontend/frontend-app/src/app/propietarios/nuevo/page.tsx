@@ -20,6 +20,7 @@ export default function NuevoPropietarioPage() {
     email: '',
     telefono: '',
     idHotel: undefined,
+    password: '',
     cuentaBancaria: {
       numeroCuenta: '',
       cbu: '',
@@ -27,6 +28,7 @@ export default function NuevoPropietarioPage() {
       idBanco: 0,
     },
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
     const fetchBancos = async () => {
@@ -65,6 +67,12 @@ export default function NuevoPropietarioPage() {
     setError(null);
     setSuccess(false);
 
+    if (formData.password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      setLoading(false);
+      return;
+    }
+
     try {
       await crearPropietario(formData);
       setSuccess(true);
@@ -81,7 +89,7 @@ export default function NuevoPropietarioPage() {
   return (
     <BdPageLayout>
       <div className="mx-auto max-w-3xl">
-        <BdBackLink href="/" className="mb-bd-lg" />
+        <BdBackLink href="/gestion" className="mb-bd-lg" />
 
         <h1 className="text-bd-primary text-bd-xl font-bold mb-bd-lg">Nuevo Propietario</h1>
 
@@ -165,6 +173,34 @@ export default function NuevoPropietarioPage() {
                   className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
                 />
               </div>
+
+              <div>
+                <label htmlFor="password" className="text-bd-muted text-bd-xs block mb-bd-xs">Contraseña * (mín. 8 caracteres)</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  minLength={8}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="text-bd-muted text-bd-xs block mb-bd-xs">Confirmar contraseña *</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+                />
+              </div>
             </div>
           </div>
 
@@ -235,7 +271,7 @@ export default function NuevoPropietarioPage() {
           </div>
 
           <div className="flex flex-row gap-bd-xl justify-end">
-            <BdButton variant="ghost" onClick={() => router.push('/')}>
+            <BdButton variant="ghost" onClick={() => router.push('/gestion')}>
               Cancelar
             </BdButton>
             <BdButton variant="cta" type="submit" disabled={loading}>

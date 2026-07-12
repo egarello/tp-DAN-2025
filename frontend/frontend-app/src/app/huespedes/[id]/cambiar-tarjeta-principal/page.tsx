@@ -7,10 +7,12 @@ import BdPageLayout from '@/components/BdPageLayout';
 import BdBackLink from '@/components/BdBackLink';
 import BdButton from '@/components/BdButton';
 import BdAlert from '@/components/BdAlert';
+import BdBreadcrumb from '@/components/BdBreadcrumb';
 
 export default function CambiarTarjetaPrincipalPage() {
   const params = useParams();
   const router = useRouter();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const [huesped, setHuesped] = useState<Huesped | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,6 @@ export default function CambiarTarjetaPrincipalPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     const fetchHuesped = async () => {
       try {
         setLoading(true);
@@ -37,7 +38,7 @@ export default function CambiarTarjetaPrincipalPage() {
     if (id) {
       fetchHuesped();
     }
-  }, [params.id]);
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +86,7 @@ export default function CambiarTarjetaPrincipalPage() {
         <BdAlert variant="error" className="mb-bd-lg">
           <strong>Error:</strong> {error}
         </BdAlert>
-        <BdBackLink onClick={() => router.back()} />
+        <BdBackLink href={`/huespedes/${params.id}`} />
       </BdPageLayout>
     );
   }
@@ -95,7 +96,7 @@ export default function CambiarTarjetaPrincipalPage() {
       <BdPageLayout>
         <div className="bd-empty-state">
           <p className="bd-empty-state-title">Huésped no encontrado</p>
-          <BdButton variant="primary" className="bd-empty-state-action" onClick={() => router.back()}>
+          <BdButton variant="primary" className="bd-empty-state-action" onClick={() => router.push(`/huespedes/${params.id}`)}>
             ← Volver
           </BdButton>
         </div>
@@ -106,7 +107,11 @@ export default function CambiarTarjetaPrincipalPage() {
   return (
     <BdPageLayout>
       <div className="mx-auto max-w-3xl">
-        <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
+        <BdBreadcrumb items={[
+          { label: 'Huéspedes', href: '/huespedes' },
+          { label: huesped?.nombre ?? `Huésped ${id}`, href: `/huespedes/${id}` },
+          { label: 'Cambiar tarjeta principal' },
+        ]} />
 
         <h1 className="text-bd-primary text-bd-xl font-bold mb-bd-lg">Cambiar Tarjeta Principal</h1>
 
@@ -156,7 +161,7 @@ export default function CambiarTarjetaPrincipalPage() {
             </div>
 
             <div className="flex flex-row gap-bd-xl justify-end">
-              <BdButton variant="ghost" onClick={() => router.back()} disabled={saving}>
+              <BdButton variant="ghost" onClick={() => router.push(`/huespedes/${params.id}`)} disabled={saving}>
                 Cancelar
               </BdButton>
               <BdButton variant="cta" type="submit" disabled={!selectedTarjetaId || saving}>

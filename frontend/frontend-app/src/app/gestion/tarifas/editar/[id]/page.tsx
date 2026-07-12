@@ -1,10 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { actualizarTarifa, getTarifaPorId, getTiposHabitacion, TarifaRecord, TipoHabitacion } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBreadcrumb from '@/components/BdBreadcrumb';
+import BdButton from '@/components/BdButton';
 
 export default function EditarTarifaPage() {
   const params = useParams();
@@ -65,9 +66,12 @@ export default function EditarTarifaPage() {
 
   return (
     <BdPageLayout><div className="mx-auto" style={{ maxWidth: 700 }}>
-      <Link href={`/gestion/tarifas/${tarifaId}`} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Tarifa
-      </Link>
+      <BdBreadcrumb items={[
+        { label: 'Gestión', href: '/gestion' },
+        { label: 'Tarifas', href: '/gestion/tarifas' },
+        { label: `Tarifa ${tarifaId}`, href: `/gestion/tarifas/${tarifaId}` },
+        { label: 'Editar' },
+      ]} />
       <h1>Editar Tarifa</h1>
       {error && <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
 
@@ -84,7 +88,7 @@ export default function EditarTarifaPage() {
           <label>Precio por noche *<input required type="number" min={0} step="0.01" value={precioNoche} onChange={(e) => setPrecioNoche(e.target.value)} style={{ width: '100%', padding: '8px' }} /></label>
 
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-            <button type="button" onClick={() => router.push(`/gestion/tarifas/${tarifaId}`)} disabled={saving} style={{ padding: '10px 20px' }}>Cancelar</button>
+            <BdButton type="button" variant="ghost" onClick={() => router.push(`/gestion/tarifas/${tarifaId}`)} disabled={saving}>Cancelar</BdButton>
             <button type="submit" disabled={saving} style={{ padding: '10px 20px', backgroundColor: saving ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
               {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>

@@ -4,10 +4,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { actualizarHotel, getHotelPorId, HotelRecord } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
-import BdBackLink from '@/components/BdBackLink';
 import BdButton from '@/components/BdButton';
 import BdCard from '@/components/BdCard';
 import BdAlert from '@/components/BdAlert';
+import BdBreadcrumb from '@/components/BdBreadcrumb';
 
 export default function EditarHotelPage() {
   const params = useParams();
@@ -79,7 +79,12 @@ export default function EditarHotelPage() {
   return (
     <BdPageLayout>
       <div className="mx-auto w-full max-w-4xl">
-        <BdBackLink href={`/gestion/hoteles/${hotelId}`} className="mb-bd-lg" />
+        <BdBreadcrumb items={[
+          { label: 'Gestión', href: '/gestion' },
+          { label: 'Hoteles', href: '/gestion/hoteles' },
+          { label: formData.nombre || `Hotel ${hotelId}`, href: `/gestion/hoteles/${hotelId}` },
+          { label: 'Editar' },
+        ]} />
 
         <div className="mb-bd-xl flex flex-wrap items-start justify-between gap-bd-md">
           <div>

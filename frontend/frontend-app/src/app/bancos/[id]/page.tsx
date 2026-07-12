@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { getBancoPorId, Banco } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdBackLink from '@/components/BdBackLink';
+import BdAlert from '@/components/BdAlert';
 
 export default function BancoDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const [banco, setBanco] = useState<Banco | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,16 +37,15 @@ export default function BancoDetailPage() {
 
   return (
     <BdPageLayout>
-      <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
+      <BdBackLink href="/bancos" className="mb-bd-lg" />
       {/* style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }} */}
 
       <h1 className="text-bd-primary">Detalle del Banco</h1>
 
       {error && (
-        <div className="bd-alert bd-alert-error">
-          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+        <BdAlert variant="error" onClose={() => setError(null)}>
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
 
       {loading ? (

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { getUsuarioPorDniExacto, Usuario } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
 import BdBackLink from '@/components/BdBackLink';
@@ -10,7 +9,6 @@ import BdAlert from '@/components/BdAlert';
 import BdCard from '@/components/BdCard';
 
 export default function BuscarPorDniPage() {
-  const router = useRouter();
   const [dni, setDni] = useState('');
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(false);
@@ -43,7 +41,7 @@ export default function BuscarPorDniPage() {
   return (
     <BdPageLayout>
       <div className="mx-auto w-full max-w-3xl">
-        <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
+        <BdBackLink href="/usuarios" className="mb-bd-lg" />
 
         <h1 className="text-bd-primary text-bd-xl font-bold">Buscar usuario por DNI</h1>
 

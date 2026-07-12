@@ -1,10 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { agregarAmenitiesHotel, Amenity, getHotelPorId, Hotel } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBreadcrumb from '@/components/BdBreadcrumb';
+import BdButton from '@/components/BdButton';
 
 const AMENITIES: Amenity[] = [
   'PILETA',
@@ -34,8 +35,9 @@ export default function AgregarAmenitiesHotelPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+
   useEffect(() => {
-    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     const fetchHotel = async () => {
       try {
         setLoading(true);
@@ -49,7 +51,7 @@ export default function AgregarAmenitiesHotelPage() {
     };
 
     if (id) fetchHotel();
-  }, [params.id]);
+  }, [id]);
 
   const toggleAmenity = (amenity: Amenity) => {
     setSelectedAmenities((prev) => prev.includes(amenity) ? prev.filter((item) => item !== amenity) : [...prev, amenity]);
@@ -57,7 +59,6 @@ export default function AgregarAmenitiesHotelPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     if (!id) return;
 
     setSaving(true);
@@ -75,9 +76,12 @@ export default function AgregarAmenitiesHotelPage() {
 
   return (
     <BdPageLayout><div className="mx-auto" style={{ maxWidth: 800 }}>
-      <Link href={hotel ? `/gestion/hoteles/${hotel.id}` : '/gestion/hoteles'} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Hotel
-      </Link>
+      <BdBreadcrumb items={[
+        { label: 'Gestión', href: '/gestion' },
+        { label: 'Hoteles', href: '/gestion/hoteles' },
+        { label: hotel?.nombre ?? `Hotel ${id}`, href: `/gestion/hoteles/${id}` },
+        { label: 'Amenities' },
+      ]} />
       <h1>Agregar Amenities</h1>
       {hotel && <p><strong>Hotel:</strong> {hotel.nombre}</p>}
       {error && <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
@@ -97,7 +101,7 @@ export default function AgregarAmenitiesHotelPage() {
           </fieldset>
 
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-            <button type="button" onClick={() => router.back()} disabled={saving} style={{ padding: '10px 20px' }}>Cancelar</button>
+            <BdButton type="button" variant="ghost" onClick={() => router.push(`/gestion/hoteles/${id}`)} disabled={saving}>Cancelar</BdButton>
             <button type="submit" disabled={saving || selectedAmenities.length === 0} style={{ padding: '10px 20px', backgroundColor: saving ? '#ccc' : '#28a745', color: 'white', border: 'none', borderRadius: '4px' }}>
               {saving ? 'Guardando...' : 'Agregar Amenities'}
             </button>

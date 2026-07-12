@@ -13,5 +13,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     Page<Usuario> findByDniContaining(String dni, Pageable pageable);
     Usuario findByDni(String dni);
 
+    Usuario findByEmail(String email);
+
     void deleteByDni(String dni);
 }

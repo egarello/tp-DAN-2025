@@ -3,6 +3,7 @@ package edu.utn.frsf.isi.dan.user.controller;
 import edu.utn.frsf.isi.dan.user.dto.HuespedRecord;
 import edu.utn.frsf.isi.dan.user.dto.PropietarioRecord;
 import edu.utn.frsf.isi.dan.user.dto.TarjetaCreditoRecord;
+import edu.utn.frsf.isi.dan.user.exception.AccessDeniedException;
 import edu.utn.frsf.isi.dan.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,7 +40,7 @@ public class UserController {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")}
     )
     @PostMapping("/huesped")
-    public ResponseEntity<Huesped> crearUsuarioHuesped(@RequestBody HuespedRecord huespedRecord) {
+    public ResponseEntity<Huesped> crearUsuarioHuesped(@RequestBody @Valid HuespedRecord huespedRecord) {
         log.info("POST /huesped dni={} email={}", huespedRecord.dni(), huespedRecord.email());
         Huesped huesped = userService.crearUsuarioHuesped(huespedRecord);
         return new ResponseEntity<>(huesped, HttpStatus.CREATED);
@@ -56,26 +57,47 @@ public class UserController {
     // ETAPA 01, TARJETA DE CRÉDITO
     @Operation(summary = "Agregar tarjeta de crédito a un huesped", description = "Asocia una tarjeta de crédito a un usuario de tipo huesped")
     @PostMapping("/huesped/{dni}/tarjeta")
-    public ResponseEntity<Void> agregarTarjetaHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord) {
+    public ResponseEntity<Void> agregarTarjetaHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord,
+            @RequestHeader("X-User-Id") Integer callerId, @RequestHeader("X-User-Role") String callerRole) {
         log.info("POST /huesped/{}/tarjeta numero={} titular={}", dni, tarjetaCreditoRecord.numeroCC(), tarjetaCreditoRecord.nombreTitular());
+        verificarPropioODuenio(dni, callerId, callerRole);
         userService.agregarTarjetaHuesped(dni, tarjetaCreditoRecord);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Operation(summary = "Eliminar tarjeta de crédito", description = "Elimina una tarjeta de crédito de un usuario huesped")
     @DeleteMapping("/huesped/{dni}/eliminar-tarjeta")
-    public ResponseEntity<Void> eliminarTarjetaHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord) {
+    public ResponseEntity<Void> eliminarTarjetaHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord,
+            @RequestHeader("X-User-Id") Integer callerId, @RequestHeader("X-User-Role") String callerRole) {
+        verificarPropioODuenio(dni, callerId, callerRole);
         userService.eliminarTarjetaHuesped(dni, tarjetaCreditoRecord);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "Cambiar la tarjeta de crédito principal de un huesped", description = "Actualiza la tarjeta de crédito principal de un usuario de tipo huesped")
     @PutMapping("/huesped/{dni}/cambiar-tarjeta-principal")
-    public ResponseEntity<Void> cambiarTarjetaPrincipalHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord) {
+    public ResponseEntity<Void> cambiarTarjetaPrincipalHuesped(@PathVariable String dni, @RequestBody @Valid TarjetaCreditoRecord tarjetaCreditoRecord,
+            @RequestHeader("X-User-Id") Integer callerId, @RequestHeader("X-User-Role") String callerRole) {
+        verificarPropioODuenio(dni, callerId, callerRole);
         userService.cambiarTarjetaPrincipalHuesped(dni, tarjetaCreditoRecord);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     // FIN ETAPA 01, TARJETA DE CRÉDITO
+
+    /**
+     * El gateway ya garantiza que quien llama tiene rol HUESPED o PROPIETARIO (según
+     * la ruta), pero no puede saber si el {dni}/{id} del path es el propio del llamador.
+     * Eso se valida acá, comparando contra X-User-Id (identidad ya verificada por el JWT).
+     */
+    private void verificarPropioODuenio(String dni, Integer callerId, String callerRole) {
+        if ("PROPIETARIO".equals(callerRole)) {
+            return;
+        }
+        Usuario usuario = userService.buscarPorDniExacto(dni);
+        if (usuario == null || !usuario.getId().equals(callerId)) {
+            throw new AccessDeniedException("No puede operar sobre datos de otro usuario");
+        }
+    }
 
     @DeleteMapping("/huesped/eliminar/{dni}")
     public ResponseEntity<Void> eliminarUsuarioHuesped(@RequestParam String dni) {
@@ -104,7 +126,15 @@ public class UserController {
     }
 
     @GetMapping("/huesped/{id}")
-    public ResponseEntity<Huesped> buscarHuespedPorId(@PathVariable Integer id) {
+    public ResponseEntity<Huesped> buscarHuespedPorId(@PathVariable Integer id,
+            @RequestHeader(value = "X-User-Id", required = false) Integer callerId,
+            @RequestHeader(value = "X-User-Role", required = false) String callerRole) {
+        // callerId nulo = llamada interna servidor-a-servidor (ej. Feign desde reservas-svc
+        // para validar un huésped al crear una reserva), que no pasa por el gateway y por
+        // lo tanto no trae headers X-User-*. Solo se exige ownership cuando sí vienen.
+        if (callerId != null && !"PROPIETARIO".equals(callerRole) && !id.equals(callerId)) {
+            throw new AccessDeniedException("No puede consultar datos de otro usuario");
+        }
         Huesped huesped = userService.buscarHuespedPorId(id);
         if (huesped == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(huesped);

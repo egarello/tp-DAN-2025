@@ -6,6 +6,7 @@ import { getHabitacionesCacheadas, HabitacionCacheada } from '@/lib/reservas-api
 import BdPageLayout from '@/components/BdPageLayout';
 import BdTable from '@/components/BdTable';
 import BdBackLink from '@/components/BdBackLink';
+import BdAlert from '@/components/BdAlert';
 
 export default function HabitacionesCacheadasPage() {
   const [habitaciones, setHabitaciones] = useState<HabitacionCacheada[]>([]);
@@ -34,7 +35,7 @@ export default function HabitacionesCacheadasPage() {
 
       <h1 className="text-bd-primary">Habitaciones (Cacheadas)</h1>
 
-      {error && <div className="bd-alert bd-alert-error" /* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */><strong>Error:</strong> {error}</div>}
+      {error && <BdAlert variant="error" onClose={() => setError(null)}><strong>Error:</strong> {error}</BdAlert>}
 
       {loading ? <p className="bd-skeleton bd-skeleton-text">Cargando...</p> : habitaciones.length === 0 ? <p className="text-bd-secondary">No hay habitaciones cacheadas disponibles</p> : (
         <BdTable><table className="bd-table w-full" border={1} cellPadding="10" /* style={{ width: '100%', marginTop: '20px' }} */>

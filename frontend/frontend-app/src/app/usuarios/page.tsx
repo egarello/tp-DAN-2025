@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getUsuarios, searchUsuariosByNombre, buscarUsuariosPorDni, Usuario, PageResponse } from '@/lib/api';
+import { getUsuarios, searchUsuariosByNombre, buscarUsuariosPorDni, eliminarHuespedPorDni, Usuario, PageResponse } from '@/lib/api';
 import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdButton from '@/components/BdButton';
@@ -20,39 +20,61 @@ export default function UsuariosPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [searchMode, setSearchMode] = useState<'all' | 'nombre' | 'dni'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [deletingDni, setDeletingDni] = useState<string | null>(null);
+
+  const fetchUsuarios = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      let data: PageResponse<Usuario>;
+
+      if (searchMode === 'nombre' && searchTerm) {
+        data = await searchUsuariosByNombre(searchTerm, page, 10);
+      } else if (searchMode === 'dni' && searchTerm) {
+        data = await buscarUsuariosPorDni(searchTerm, page, 10);
+      } else {
+        data = await getUsuarios(undefined, page, 10);
+      }
+
+      setUsuarios(data.content);
+      setTotalPages(data.totalPages);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUsuarios = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        let data: PageResponse<Usuario>;
-
-        if (searchMode === 'nombre' && searchTerm) {
-          data = await searchUsuariosByNombre(searchTerm, page, 10);
-        } else if (searchMode === 'dni' && searchTerm) {
-          data = await buscarUsuariosPorDni(searchTerm, page, 10);
-        } else {
-          data = await getUsuarios(undefined, page, 10);
-        }
-
-        setUsuarios(data.content);
-        setTotalPages(data.totalPages);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUsuarios();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, searchMode, searchTerm]);
 
   const handleSearch = (e: React.FormEvent, mode: 'nombre' | 'dni') => {
     e.preventDefault();
     setSearchMode(mode);
     setPage(0);
+  };
+
+  const handleVer = (usuario: Usuario) => {
+    router.push(usuario.tipo === 'PROPIETARIO' ? `/usuarios/${usuario.id}` : `/huespedes/${usuario.id}`);
+  };
+
+  const handleEliminar = async (usuario: Usuario) => {
+    const confirmed = window.confirm(`¿Eliminar definitivamente al huésped ${usuario.nombre} con DNI ${usuario.dni}?`);
+    if (!confirmed) return;
+
+    try {
+      setError(null);
+      setDeletingDni(usuario.dni);
+      await eliminarHuespedPorDni(usuario.dni);
+      await fetchUsuarios();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar el huésped');
+    } finally {
+      setDeletingDni(null);
+    }
   };
 
   return (
@@ -146,6 +168,7 @@ export default function UsuariosPage() {
                     <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">DNI</th>
                     <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Email</th>
                     <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Teléfono</th>
+                    <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Tipo</th>
                     <th className="text-bd-muted font-semibold text-bd-xs uppercase tracking-wider whitespace-nowrap p-bd-md text-left">Acciones</th>
                   </tr>
                 </thead>
@@ -157,13 +180,26 @@ export default function UsuariosPage() {
                       <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{usuario.dni}</td>
                       <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{usuario.email}</td>
                       <td className="p-bd-md text-bd-primary border-b border-bd-subtle">{usuario.telefono}</td>
+                      <td className="p-bd-md border-b border-bd-subtle">
+                        <span className="inline-flex rounded-full border border-bd-subtle px-bd-sm py-bd-xs text-xs uppercase tracking-wide text-bd-blue-bright">
+                          {usuario.tipo === 'PROPIETARIO' ? 'Propietario' : 'Huésped'}
+                        </span>
+                      </td>
                       <td className="p-bd-md border-b border-bd-subtle bd-row-actions">
-                        <BdButton variant="ghost" size="sm" onClick={() => router.push(`/usuarios/${usuario.id}`)}>
+                        <BdButton variant="ghost" size="sm" onClick={() => handleVer(usuario)}>
                           Ver
                         </BdButton>
-                        <BdButton variant="primary" size="sm" onClick={() => router.push(`/huespedes/${usuario.id}`)}>
-                          Como Huésped
-                        </BdButton>
+                        {usuario.tipo !== 'PROPIETARIO' && (
+                          <BdButton
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleEliminar(usuario)}
+                            disabled={deletingDni === usuario.dni}
+                            className="ml-2"
+                          >
+                            {deletingDni === usuario.dni ? 'Eliminando...' : 'Eliminar'}
+                          </BdButton>
+                        )}
                       </td>
                     </tr>
                   ))}

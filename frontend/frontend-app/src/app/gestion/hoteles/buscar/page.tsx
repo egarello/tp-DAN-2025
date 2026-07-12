@@ -165,13 +165,13 @@ export default function BuscarHotelesPage() {
         </BdCard>
 
         {amenitiesError && (
-          <BdAlert variant="error" className="mb-bd-lg">
+          <BdAlert variant="error" className="mb-bd-lg" onClose={() => setAmenitiesError(null)}>
             <strong>Error:</strong> {amenitiesError}
           </BdAlert>
         )}
 
         {error && (
-          <BdAlert variant="error" className="mb-bd-lg">
+          <BdAlert variant="error" className="mb-bd-lg" onClose={() => setError(null)}>
             <strong>Error:</strong> {error}
           </BdAlert>
         )}

@@ -15,6 +15,7 @@ import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdBackLink from '@/components/BdBackLink';
 import BdButton from '@/components/BdButton';
+import BdAlert from '@/components/BdAlert';
 
 export default function HabitacionDetailPage() {
   const params = useParams();
@@ -78,10 +79,9 @@ export default function HabitacionDetailPage() {
 
       <h1 className="text-bd-primary">Detalle de Habitación</h1>
       {error && (
-        <div className="bd-alert bd-alert-error">
-          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+        <BdAlert variant="error" onClose={() => setError(null)}>
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
       {loading ? (
         <div className="bd-skeleton bd-skeleton-text" />
@@ -123,10 +123,9 @@ export default function HabitacionDetailPage() {
             {/* style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }} */}
             <h2 className="text-bd-primary mb-bd-md">Tarifa Vigente</h2>
             {tarifaError ? (
-              <div className="bd-alert bd-alert-error">
-                {/* style={{ color: 'red' }} */}
+              <BdAlert variant="error" onClose={() => setTarifaError(null)}>
                 {tarifaError}
-              </div>
+              </BdAlert>
             ) : tarifa ? (
               <>
                 <p className="text-bd-primary mb-bd-sm"><strong>Fecha Inicio:</strong> {tarifa.fechaInicio}</p>

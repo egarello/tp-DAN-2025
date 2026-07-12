@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 type ProfileSidebarProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
+const ROL_LABEL: Record<string, string> = {
+  HUESPED: "Huésped",
+  PROPIETARIO: "Propietario",
+};
+
 export default function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
+  const { user, logout } = useAuth();
+
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (event: KeyboardEvent) => {
@@ -41,7 +49,29 @@ export default function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps)
           </button>
         </div>
         <div className="flex flex-1 flex-col gap-bd-md px-bd-lg pb-bd-lg text-bd-secondary">
-          <p className="text-sm">A implementar.</p>
+          {user ? (
+            <>
+              <div>
+                <p className="text-bd-primary font-semibold">{user.nombre}</p>
+                <p className="text-sm">{user.email}</p>
+                <span className="mt-bd-xs inline-flex rounded-full border border-bd-subtle px-bd-sm py-bd-xs text-xs uppercase tracking-wide text-bd-blue-bright">
+                  {ROL_LABEL[user.rol] ?? user.rol}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  logout();
+                }}
+                className="mt-bd-md rounded-bd-md border border-bd-subtle px-bd-md py-bd-sm text-sm font-semibold text-bd-primary transition-colors hover:border-bd-medium"
+              >
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <p className="text-sm">No hay una sesión iniciada.</p>
+          )}
         </div>
       </aside>
     </>

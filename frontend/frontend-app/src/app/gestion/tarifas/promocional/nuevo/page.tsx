@@ -1,10 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { crearTarifaPromocional, getTiposHabitacion, TarifaRecord, TipoHabitacion } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBreadcrumb from '@/components/BdBreadcrumb';
+import BdButton from '@/components/BdButton';
 
 export default function NuevaTarifaPromocionalPage() {
   const router = useRouter();
@@ -54,9 +55,11 @@ export default function NuevaTarifaPromocionalPage() {
 
   return (
     <BdPageLayout><div className="mx-auto" style={{ maxWidth: 700 }}>
-      <Link href="/gestion/tarifas" style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Tarifas
-      </Link>
+      <BdBreadcrumb items={[
+        { label: 'Gestión', href: '/gestion' },
+        { label: 'Tarifas', href: '/gestion/tarifas' },
+        { label: 'Nueva tarifa promocional' },
+      ]} />
       <h1>Nueva Tarifa Promocional</h1>
       {error && <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
 
@@ -72,7 +75,7 @@ export default function NuevaTarifaPromocionalPage() {
         <label>Precio promocional por noche *<input required type="number" min={0} step="0.01" value={formData.precioNoche} onChange={(e) => setFormData({ ...formData, precioNoche: e.target.value })} style={{ width: '100%', padding: '8px' }} /></label>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button type="button" onClick={() => router.push('/gestion/tarifas')} disabled={loading} style={{ padding: '10px 20px' }}>Cancelar</button>
+          <BdButton type="button" variant="ghost" onClick={() => router.push('/gestion/tarifas')} disabled={loading}>Cancelar</BdButton>
           <button type="submit" disabled={loading || loadingOptions} style={{ padding: '10px 20px', backgroundColor: loading ? '#ccc' : '#28a745', color: 'white', border: 'none', borderRadius: '4px' }}>
             {loading ? 'Guardando...' : 'Crear Promoción'}
           </button>

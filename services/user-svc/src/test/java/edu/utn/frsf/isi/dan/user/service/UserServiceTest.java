@@ -17,10 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
@@ -40,24 +43,33 @@ public class UserServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(passwordEncoder.encode(any())).thenReturn("hashed-password");
     }
 
     @Test
-    public void testCrearUsuarioHuesped() {
+    public void testCrearUsuarioHuesped_conTarjetaCompleta() {
         // Arrange
         HuespedRecord huespedRecord = mock(HuespedRecord.class);
         Banco banco = mock(Banco.class);
         TarjetaCredito tarjetaCredito = mock(TarjetaCredito.class);
         Huesped huesped = mock(Huesped.class);
 
+        when(huespedRecord.tieneDatosDeTarjeta()).thenReturn(true);
+        when(huespedRecord.nombreTitular()).thenReturn("Jane Smith");
+        when(huespedRecord.fechaVencimientoCC()).thenReturn("12/25");
+        when(huespedRecord.cvcCC()).thenReturn("123");
         when(huespedRecord.idBanco()).thenReturn(1);
         when(bancoRepository.findById(1)).thenReturn(Optional.of(banco));
         when(huespedRecord.toHuesped()).thenReturn(huesped);
         when(huespedRecord.toTarjetaCredito()).thenReturn(tarjetaCredito);
         when(tarjetaCreditoRepository.save(any(TarjetaCredito.class))).thenReturn(tarjetaCredito);
+        when(huesped.getTarjetaCredito()).thenReturn(new ArrayList<>());
 
         // Act
         Huesped result = userService.crearUsuarioHuesped(huespedRecord);
@@ -67,6 +79,27 @@ public class UserServiceTest {
         verify(usuarioRepository).save(huesped);
         verify(tarjetaCreditoRepository).save(tarjetaCredito);
         verify(bancoRepository).findById(1);
+    }
+
+    @Test
+    public void testCrearUsuarioHuesped_sinTarjeta() {
+        // Arrange: el usuario no cargó ningún dato de tarjeta (caso ahora soportado)
+        HuespedRecord huespedRecord = mock(HuespedRecord.class);
+        Huesped huesped = mock(Huesped.class);
+
+        when(huespedRecord.tieneDatosDeTarjeta()).thenReturn(false);
+        when(huespedRecord.toHuesped()).thenReturn(huesped);
+        when(huesped.getTarjetaCredito()).thenReturn(new ArrayList<>());
+
+        // Act
+        Huesped result = userService.crearUsuarioHuesped(huespedRecord);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getTarjetaCredito().isEmpty());
+        verify(usuarioRepository).save(huesped);
+        verifyNoInteractions(tarjetaCreditoRepository);
+        verifyNoInteractions(bancoRepository);
     }
 
     @Test

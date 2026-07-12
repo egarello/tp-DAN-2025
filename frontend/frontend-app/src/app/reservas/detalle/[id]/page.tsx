@@ -7,6 +7,7 @@ import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdBackLink from '@/components/BdBackLink';
 import BdButton from '@/components/BdButton';
+import BdAlert from '@/components/BdAlert';
 
 function formatFecha(iso: string | null | undefined) {
   if (!iso) return 'Fecha no definida'; // Si es nulo o indefinido, devuelve un guion
@@ -64,10 +65,9 @@ export default function ReservaDetallePage() {
       <h1 className="text-bd-primary">Detalle de Reserva</h1>
 
       {error && (
-        <div className="bd-alert bd-alert-error">
-          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+        <BdAlert variant="error" onClose={() => setError(null)}>
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
 
       {loading ? <div className="bd-skeleton bd-skeleton-text" /> : reserva ? (

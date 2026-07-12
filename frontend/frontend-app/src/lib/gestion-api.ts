@@ -1,55 +1,17 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-const GESTION_BASE_PATH = `${API_BASE_URL}/gestion`;
+import { apiGet, apiSend, authHeaders, API_BASE_URL, ApiError, extractErrorMessage } from '@/lib/http';
+
+const GESTION_BASE_PATH = '/gestion';
 
 async function fetchGestion<T>(path: string): Promise<T> {
-  const response = await fetch(`${GESTION_BASE_PATH}${path}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-  }
-
-  return await response.json() as T;
+  return apiGet<T>(`${GESTION_BASE_PATH}${path}`);
 }
 
 async function sendGestion<T>(path: string, method: 'POST' | 'PUT', body: unknown): Promise<T | null> {
-  const response = await fetch(`${GESTION_BASE_PATH}${path}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-  }
-
-  const responseText = await response.text();
-  return responseText ? JSON.parse(responseText) as T : null;
+  return apiSend<T>(`${GESTION_BASE_PATH}${path}`, method, body);
 }
 
-async function deleteGestion(path: string): Promise<string | null> {
-  const response = await fetch(`${GESTION_BASE_PATH}${path}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-  }
-
-  const responseText = await response.text();
-  return responseText || null;
+async function deleteGestion(path: string): Promise<void> {
+  await apiSend(`${GESTION_BASE_PATH}${path}`, 'DELETE');
 }
 
 export interface AmenityHotel {
@@ -188,18 +150,7 @@ export async function abrirHotel(id: number): Promise<Hotel | null> {
 
 export async function eliminarAmenityHotel(idHotel: number, amenity: string): Promise<Hotel | null> {
   const params = new URLSearchParams({ amenity });
-  const response = await fetch(`${GESTION_BASE_PATH}/hoteles/${idHotel}/amenities/remove?${params.toString()}`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-  }
-
-  const responseText = await response.text();
-  return responseText ? JSON.parse(responseText) as Hotel : null;
+  return apiSend<Hotel>(`${GESTION_BASE_PATH}/hoteles/${idHotel}/amenities/remove?${params.toString()}`, 'DELETE');
 }
 
 export async function agregarAmenitiesHotel(idHotel: number, amenities: Amenity[]): Promise<Hotel | null> {
@@ -276,11 +227,9 @@ export async function getTarifaPorId(id: number): Promise<Tarifa> {
 }
 
 export async function getTarifaPorHabitacion(idHabitacion: number): Promise<Tarifa | null> {
-  const response = await fetch(`${GESTION_BASE_PATH}/tarifas/habitacion/${idHabitacion}`, {
+  const response = await fetch(`${API_BASE_URL}${GESTION_BASE_PATH}/tarifas/habitacion/${idHabitacion}`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: authHeaders(),
   });
 
   if (response.status === 404) {
@@ -289,7 +238,7 @@ export async function getTarifaPorHabitacion(idHabitacion: number): Promise<Tari
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
+    throw new ApiError(response.status, extractErrorMessage(response.status, errorText));
   }
 
   return await response.json() as Tarifa;

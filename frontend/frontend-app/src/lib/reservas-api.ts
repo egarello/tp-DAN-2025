@@ -1,45 +1,15 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+import { apiGet, apiSend } from '@/lib/http';
 
 async function fetchReservas<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-  }
-
-  return response.json() as Promise<T>;
+  return apiGet<T>(path);
 }
 
 async function sendReservas<T>(path: string, method: 'POST' | 'PUT', body: unknown): Promise<T | null> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-  }
-
-  const responseText = await response.text();
-  return responseText ? JSON.parse(responseText) as T : null;
+  return apiSend<T>(path, method, body);
 }
 
 async function deleteReservas(path: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-  }
+  await apiSend(path, 'DELETE');
 }
 
 export interface HuespedReserva {
@@ -163,6 +133,12 @@ export async function getReservasByHotelIds(hotelIds: number[]): Promise<Reserva
 
 export async function getReservaPorId(id: string): Promise<Reserva> {
   return fetchReservas<Reserva>(`/reservas/reservas/${id}`);
+}
+
+// Reservas del Huesped autenticado (el backend resuelve de quién son por el JWT,
+// no se le puede pedir "las reservas de otro" ni cambiando parámetros).
+export async function getMisReservas(): Promise<Reserva[]> {
+  return fetchReservas<Reserva[]>('/reservas/reservas/mis-reservas');
 }
 
 export async function getHabitacionesCacheadas(): Promise<HabitacionCacheada[]> {

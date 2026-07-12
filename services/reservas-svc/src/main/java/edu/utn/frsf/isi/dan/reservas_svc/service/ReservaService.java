@@ -56,6 +56,10 @@ public class ReservaService {
         return reservaRepository.findById(id);
     }
 
+    public List<Reserva> findByUsuarioId(String idUsuario) {
+        return reservaRepository.findByHuesped_IdUsuario(idUsuario);
+    }
+
     public Reserva save(Reserva reserva) {
         // Validar reserva antes de guardar
         validateReservation(reserva);

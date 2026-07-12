@@ -1,10 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { actualizarTipoHabitacion, getTipoHabitacionPorId, TipoHabitacionRecord } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBreadcrumb from '@/components/BdBreadcrumb';
+import BdButton from '@/components/BdButton';
 
 export default function EditarTipoHabitacionPage() {
   const params = useParams();
@@ -50,9 +51,12 @@ export default function EditarTipoHabitacionPage() {
 
   return (
     <BdPageLayout><div className="mx-auto" style={{ maxWidth: 700 }}>
-      <Link href={`/gestion/tipos-habitacion/${tipoId}`} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Tipo de Habitación
-      </Link>
+      <BdBreadcrumb items={[
+        { label: 'Gestión', href: '/gestion' },
+        { label: 'Tipos de Habitación', href: '/gestion/tipos-habitacion' },
+        { label: formData.nombre || `Tipo ${tipoId}`, href: `/gestion/tipos-habitacion/${tipoId}` },
+        { label: 'Editar' },
+      ]} />
       <h1>Editar Tipo de Habitación</h1>
       {error && <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
 
@@ -63,7 +67,7 @@ export default function EditarTipoHabitacionPage() {
           <label>Capacidad *<input required type="number" min={1} value={formData.capacidad} onChange={(e) => setFormData({ ...formData, capacidad: Number(e.target.value) })} style={{ width: '100%', padding: '8px' }} /></label>
 
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-            <button type="button" onClick={() => router.push(`/gestion/tipos-habitacion/${tipoId}`)} disabled={saving} style={{ padding: '10px 20px' }}>Cancelar</button>
+            <BdButton type="button" variant="ghost" onClick={() => router.push(`/gestion/tipos-habitacion/${tipoId}`)} disabled={saving}>Cancelar</BdButton>
             <button type="submit" disabled={saving} style={{ padding: '10px 20px', backgroundColor: saving ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
               {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>

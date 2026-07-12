@@ -7,6 +7,7 @@ import BdPageLayout from '@/components/BdPageLayout';
 import BdTable from '@/components/BdTable';
 import BdButton from '@/components/BdButton';
 import BdBackLink from '@/components/BdBackLink';
+import BdAlert from '@/components/BdAlert';
 
 export default function HotelesPage() {
   const [hoteles, setHoteles] = useState<Hotel[]>([]);
@@ -61,7 +62,7 @@ export default function HotelesPage() {
         </BdButton>
       </div>
 
-      {error && <div className="bd-alert bd-alert-error" /* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */><strong>Error:</strong> {error}</div>}
+      {error && <BdAlert variant="error" onClose={() => setError(null)}><strong>Error:</strong> {error}</BdAlert>}
 
       {loading ? <p className="bd-skeleton bd-skeleton-text">Cargando...</p> : hoteles.length === 0 ? <p className="text-bd-secondary">No hay hoteles disponibles</p> : (
         <>

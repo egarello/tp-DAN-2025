@@ -7,6 +7,7 @@ import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdBackLink from '@/components/BdBackLink';
 import BdButton from '@/components/BdButton';
+import BdAlert from '@/components/BdAlert';
 
 export default function TarifaDetailPage() {
   const params = useParams();
@@ -50,10 +51,9 @@ export default function TarifaDetailPage() {
 
       <h1 className="text-bd-primary">Detalle de Tarifa</h1>
       {error && (
-        <div className="bd-alert bd-alert-error">
-          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+        <BdAlert variant="error" onClose={() => setError(null)}>
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
       {loading ? (
         <div className="bd-skeleton bd-skeleton-text" />

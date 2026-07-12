@@ -1,11 +1,13 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getHabitacionCacheadaPorId, HabitacionCacheada } from '@/lib/reservas-api';
 import BdPageLayout from '@/components/BdPageLayout';
 import BdCard from '@/components/BdCard';
 import BdBackLink from '@/components/BdBackLink';
+import BdAlert from '@/components/BdAlert';
 
 export default function HabitacionCacheadaDetallePage() {
   const params = useParams();
@@ -40,10 +42,9 @@ export default function HabitacionCacheadaDetallePage() {
       <h1 className="text-bd-primary">Detalle de Habitación Cacheada</h1>
 
       {error && (
-        <div className="bd-alert bd-alert-error">
-          {/* style={{ color: 'red', padding: '10px', margin: '10px 0', border: '1px solid red' }} */}
+        <BdAlert variant="error" onClose={() => setError(null)}>
           <strong>Error:</strong> {error}
-        </div>
+        </BdAlert>
       )}
 
       {loading ? <div className="bd-skeleton bd-skeleton-text" /> : habitacion ? (
@@ -85,8 +86,9 @@ export default function HabitacionCacheadaDetallePage() {
                   </p>
                   <p className="text-bd-primary mb-bd-sm"><strong>Total:</strong> {reserva.precioTotal != null ? `$${reserva.precioTotal.toFixed(2)}` : '-'}</p>
                   <p className="text-bd-primary mb-bd-sm"><strong>Estado:</strong> {reserva.estadoReserva || '-'}</p>
-                  <BdBackLink href={`/reservas/detalle/${reserva._id}`} className="mt-bd-sm" />
-                  {/* <Link href={`/reservas/detalle/${reserva._id}`}>Ver reserva</Link> */}
+                  <Link href={`/reservas/detalle/${reserva._id}`} className="text-bd-link mt-bd-sm inline-block">
+                    Ver reserva →
+                  </Link>
                 </div>
               ))}
             </BdCard>

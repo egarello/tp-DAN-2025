@@ -1,10 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { actualizarHabitacion, getHabitacionPorId, getHoteles, getTiposHabitacion, HabitacionRecord, Hotel, TipoHabitacion } from '@/lib/gestion-api';
 import BdPageLayout from '@/components/BdPageLayout';
+import BdBreadcrumb from '@/components/BdBreadcrumb';
+import BdButton from '@/components/BdButton';
 
 export default function EditarHabitacionPage() {
   const params = useParams();
@@ -71,9 +72,12 @@ export default function EditarHabitacionPage() {
 
   return (
     <BdPageLayout><div className="mx-auto" style={{ maxWidth: 700 }}>
-      <Link href={`/gestion/habitaciones/${habitacionId}`} style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }}>
-        ← Habitación
-      </Link>
+      <BdBreadcrumb items={[
+        { label: 'Gestión', href: '/gestion' },
+        { label: 'Habitaciones', href: '/gestion/habitaciones' },
+        { label: `Habitación ${numero || habitacionId}`, href: `/gestion/habitaciones/${habitacionId}` },
+        { label: 'Editar' },
+      ]} />
       <h1>Editar Habitación</h1>
       {error && <div style={{ color: 'red', padding: '10px', marginBottom: '20px', border: '1px solid red' }}><strong>Error:</strong> {error}</div>}
 
@@ -95,7 +99,7 @@ export default function EditarHabitacionPage() {
           </label>
 
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-            <button type="button" onClick={() => router.push(`/gestion/habitaciones/${habitacionId}`)} disabled={saving} style={{ padding: '10px 20px' }}>Cancelar</button>
+            <BdButton type="button" variant="ghost" onClick={() => router.push(`/gestion/habitaciones/${habitacionId}`)} disabled={saving}>Cancelar</BdButton>
             <button type="submit" disabled={saving} style={{ padding: '10px 20px', backgroundColor: saving ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
               {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>

@@ -40,7 +40,7 @@ export default function BancosPage() {
 
   return (
     <BdPageLayout>
-      <BdBackLink onClick={() => router.back()} className="mb-bd-lg" />
+      <BdBackLink href="/" className="mb-bd-lg" />
       {/* style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }} */}
 
       <h1 className="text-bd-primary">Bancos</h1>

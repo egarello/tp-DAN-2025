@@ -20,6 +20,7 @@ export default function NuevoHuespedPage() {
     email: '',
     telefono: '',
     fechaNacimiento: '',
+    password: '',
     numeroCC: '',
     nombreTitular: '',
     fechaVencimientoCC: '',
@@ -27,6 +28,7 @@ export default function NuevoHuespedPage() {
     esPrincipalCC: true,
     idBanco: undefined,
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
     const fetchBancos = async () => {
@@ -42,10 +44,15 @@ export default function NuevoHuespedPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    let parsedValue: string | number | boolean | undefined = value;
+    if (type === 'checkbox') {
+      parsedValue = (e.target as HTMLInputElement).checked;
+    } else if (name === 'idBanco') {
+      parsedValue = value ? parseInt(value) : undefined;
+    }
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-      [name]: name === 'idBanco' ? (value ? parseInt(value) : undefined) : value,
+      [name]: parsedValue,
     }));
   };
 
@@ -54,6 +61,26 @@ export default function NuevoHuespedPage() {
     setLoading(true);
     setError(null);
     setSuccess(false);
+
+    if (formData.password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      setLoading(false);
+      return;
+    }
+
+    // La tarjeta es opcional, pero si se carga algún dato hay que completarla toda
+    // (mismo criterio que valida el backend).
+    const tieneAlgunDatoDeTarjeta = Boolean(
+      formData.numeroCC || formData.nombreTitular || formData.fechaVencimientoCC || formData.cvcCC || formData.idBanco
+    );
+    if (tieneAlgunDatoDeTarjeta) {
+      const faltaAlgunDato = !formData.numeroCC || !formData.nombreTitular || !formData.fechaVencimientoCC || !formData.cvcCC || !formData.idBanco;
+      if (faltaAlgunDato) {
+        setError('Si cargás una tarjeta, completá número, titular, vencimiento, CVC y banco. O dejá todos esos campos vacíos.');
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       await crearHuesped(formData);
@@ -72,7 +99,7 @@ export default function NuevoHuespedPage() {
     <BdPageLayout>
       <div className="mx-auto max-w-3xl">
         {/* style={{ maxWidth: 800 }} */}
-      <BdBackLink href="/" className="mb-bd-lg" />
+      <BdBackLink href="/huespedes" className="mb-bd-lg" />
       {/* style={{ textDecoration: 'none', color: '#007bff', marginBottom: '20px', display: 'inline-block' }} */}
 
       <h1 className="text-bd-primary text-bd-xl font-bold">Nuevo Huésped</h1>
@@ -170,6 +197,34 @@ export default function NuevoHuespedPage() {
                 onChange={handleChange}
                 className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
                 /* style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} */
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="text-bd-muted text-bd-xs block mb-bd-xs">Contraseña * (mín. 8 caracteres)</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                minLength={8}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="text-bd-muted text-bd-xs block mb-bd-xs">Confirmar contraseña *</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+                className="bg-bd-input text-bd-primary border-bd-border-input rounded-bd-md p-bd-sm w-full focus:border-bd-focus focus:ring-bd-focus"
               />
             </div>
           </div>

@@ -2,13 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
-const navItems = [
-  { href: "/", label: "Inicio" },
+const PUBLIC_ITEMS = [{ href: "/", label: "Inicio" }];
+
+const HUESPED_ITEMS = [
+  { href: "/reservas/search", label: "Buscar habitaciones" },
+  { href: "/reservas/lista", label: "Mis reservas" },
+];
+
+const PROPIETARIO_ITEMS = [
   { href: "/usuarios", label: "Usuarios" },
   { href: "/bancos", label: "Bancos" },
   { href: "/huespedes", label: "Huéspedes" },
-  { href: "/propietarios/nuevo", label: "Propietarios" },
+  { href: "/gestion/usuarios/nuevo", label: "Crear usuario Propietario" },
   { href: "/gestion", label: "Gestión" },
   { href: "/reservas", label: "Reservas" },
 ];
@@ -20,6 +27,18 @@ type SidebarProps = {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+
+  const navItems = [
+    ...PUBLIC_ITEMS,
+    ...(user?.rol === "HUESPED" ? HUESPED_ITEMS : []),
+    ...(user?.rol === "PROPIETARIO" ? PROPIETARIO_ITEMS : []),
+  ];
+
+  // "/" solo se resalta en la home exacta; el resto también resalta en subrutas
+  // (ej. /gestion/hoteles/5 resalta "Gestión"), para ubicar al usuario en el menú.
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <>
@@ -49,8 +68,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               key={item.href}
               href={item.href}
               onClick={onClose}
-              aria-current={pathname === item.href ? 'page' : undefined}
-              className={`bd-sidebar-link group flex items-center justify-between rounded-bd-md px-bd-md py-bd-sm text-sm font-semibold transition-all duration-200 ${pathname === item.href ? 'bd-sidebar-link-active' : 'bd-sidebar-link-inactive'}`}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+              className={`bd-sidebar-link group flex items-center justify-between rounded-bd-md px-bd-md py-bd-sm text-sm font-semibold transition-all duration-200 ${isActive(item.href) ? 'bd-sidebar-link-active' : 'bd-sidebar-link-inactive'}`}
             >
               <span>{item.label}</span>
               <span className="text-xs text-bd-muted transition-colors group-hover:text-bd-blue-bright">
@@ -58,6 +77,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </span>
             </Link>
           ))}
+          {user && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                logout();
+              }}
+              className="bd-sidebar-link bd-sidebar-link-inactive mt-auto flex items-center justify-between rounded-bd-md px-bd-md py-bd-sm text-left text-sm font-semibold transition-all duration-200"
+            >
+              <span>Cerrar sesión</span>
+              <span className="text-xs text-bd-muted">×</span>
+            </button>
+          )}
         </nav>
       </aside>
     </>

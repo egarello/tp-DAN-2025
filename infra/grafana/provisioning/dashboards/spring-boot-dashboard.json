@@ -11,8 +11,8 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count[5m])) by (application)",
-          "legendFormat": "{{application}}"
+          "expr": "sum(rate(http_server_requests_seconds_count[5m])) by (job)",
+          "legendFormat": "{{job}}"
         }
       ],
       "gridPos": {
@@ -28,8 +28,8 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, application))",
-          "legendFormat": "{{application}}"
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, job))",
+          "legendFormat": "{{job}}"
         }
       ],
       "gridPos": {
@@ -46,7 +46,7 @@
       "targets": [
         {
           "expr": "jvm_memory_used_bytes{area=\"heap\"} / jvm_memory_max_bytes{area=\"heap\"}",
-          "legendFormat": "{{application}} - {{id}}"
+          "legendFormat": "{{job}} - {{id}}"
         }
       ],
       "gridPos": {
@@ -80,11 +80,11 @@
       "targets": [
         {
           "expr": "hikaricp_connections_active",
-          "legendFormat": "{{application}} - Active"
+          "legendFormat": "{{job}} - Active"
         },
         {
           "expr": "hikaricp_connections_idle",
-          "legendFormat": "{{application}} - Idle"
+          "legendFormat": "{{job}} - Idle"
         }
       ],
       "gridPos": {
@@ -92,6 +92,71 @@
         "w": 12,
         "x": 12,
         "y": 16
+      }
+    },
+    {
+      "id": 6,
+      "title": "JVM Memory Pools (bytes)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{area=\"heap\"}",
+          "legendFormat": "{{job}} - {{id}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      }
+    },
+    {
+      "id": 7,
+      "title": "Heap Usage % (Old Gen)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{area=\"heap\", id=~\".*Old Gen.*\"} / jvm_memory_max_bytes{area=\"heap\", id=~\".*Old Gen.*\"}",
+          "legendFormat": "{{job}} - {{id}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.7 },
+              { "color": "red", "value": 0.85 }
+            ]
+          },
+          "custom": {
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
       }
     }
   ],

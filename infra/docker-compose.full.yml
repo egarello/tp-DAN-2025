@@ -25,6 +25,18 @@ services:
     networks:
       - observability
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "6080:80"
+    depends_on:
+      - mysql
+
   postgres:
     image: postgres:16
     container_name: postgres-db
